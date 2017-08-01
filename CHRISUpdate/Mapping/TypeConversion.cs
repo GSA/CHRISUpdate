@@ -29,12 +29,12 @@ namespace CHRISUpdate.Mapping
             return date;
         }
     }
-    
+
     sealed class AssignmentConverter : BooleanConverter
     {
         public override bool CanConvertFrom(Type type)
         {
-            return typeof(string) == type;            
+            return typeof(string) == type;
         }
 
         public override object ConvertFromString(TypeConverterOptions options, string text)
@@ -46,7 +46,7 @@ namespace CHRISUpdate.Mapping
             //if (text.ToLower().Contains("detail"))
             //    return true;
 
-            //return false;           
+            //return false;
         }
     }
 

@@ -5,7 +5,7 @@ namespace CHRISUpdate.Models
     public class Person
     {
         public int PersonID { get; set; }
-        public string Gender { get; set; } 
+        public string Gender { get; set; }
         public string SupervisoryLevel { get; set; }
         public string ChrisID { get; set; }
         public string JobTitle { get; set; }
