@@ -12,16 +12,16 @@ namespace CHRISUpdate
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         //File paths from config file
-        private static string chrisFilePath = ConfigurationManager.AppSettings["CHRISFILENAME"].ToString(); //AppDomain.CurrentDomain.BaseDirectory + 
-        private static string separationFilePath = ConfigurationManager.AppSettings["SEPARATIONFILENAME"].ToString(); //AppDomain.CurrentDomain.BaseDirectory + 
-        private static string organizationFilePath = ConfigurationManager.AppSettings["ORGFILENAME"].ToString(); //AppDomain.CurrentDomain.BaseDirectory + 
+        private static string chrisFilePath = ConfigurationManager.AppSettings["CHRISFILENAME"].ToString(); //AppDomain.CurrentDomain.BaseDirectory +
+        private static string separationFilePath = ConfigurationManager.AppSettings["SEPARATIONFILENAME"].ToString(); //AppDomain.CurrentDomain.BaseDirectory +
+        private static string organizationFilePath = ConfigurationManager.AppSettings["ORGFILENAME"].ToString(); //AppDomain.CurrentDomain.BaseDirectory +
 
         //Stopwatch objects
         private static Stopwatch stopWatch = new Stopwatch();
         private static Stopwatch timeForProcesses = new Stopwatch();
 
         /// <summary>
-        /// Main 
+        /// Main
         /// </summary>
         /// <param name="args"></param>
         static void Main(string[] args)
@@ -41,7 +41,7 @@ namespace CHRISUpdate
             //Log action
             log.Info("Processing CHRIS File");
 
-            //Call function that starts processing file
+            //Start timer
             timeForProcesses.Start();
 
             //Only process if the file is there
