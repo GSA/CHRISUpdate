@@ -43,9 +43,9 @@ namespace CHRISUpdate.Mapping
         public const int JOB_SERIES = 35;
         public const int JOB_TITLE = 32;
         public const int LEVEL_GRADE = 36;
-        public const int OFFICE_SYMBOL = 50;        
+        public const int OFFICE_SYMBOL = 50;
         public const int PAY_PLAN = 34;
-        public const int POSITION_TITLE = 79;        
+        public const int POSITION_TITLE = 79;
         public const int POSITION_NUMBER = 1;
         public const int POSITION_CONTROL_NUMBER = 30;
         public const int POSITION_CONTROL_NUMBER_INDICATOR = 31;
@@ -93,7 +93,7 @@ namespace CHRISUpdate.Mapping
         public const int UNIQUE_ID = 0;
         public const int CHRIS_ID = 1;
         public const int LAST_NAME_AND_SUFFIX = 2;
-        public const int FIRST_NAME = 3;        
+        public const int FIRST_NAME = 3;
         public const int MIDDLE_NAME = 4;
         public const int PREFERRED_NAME = 5;
         public const int SSN = 6;
@@ -105,7 +105,7 @@ namespace CHRISUpdate.Mapping
     {
         private OrganizationConstants() { }
 
-        public const int ABOLISHED_BY_ORDER = 0;        
+        public const int ABOLISHED_BY_ORDER = 0;
         public const int AGENCY_CODE_SUBLEMENT = 1;
         public const int CHANGED_BY_ORDER = 2;
         public const int CREATED_BY_ORDER = 3;

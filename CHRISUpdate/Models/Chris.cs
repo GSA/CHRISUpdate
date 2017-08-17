@@ -1,10 +1,10 @@
 ﻿using System;
 
 namespace CHRISUpdate.Models
-{    
+{
     public class Chris
-    {   
-        public string EmployeeNumber { get; set; }       
+    {
+        public string EmployeeNumber { get; set; }
         public string ChrisID { get; set; }
 
         //Readonly (Will always be Government)
@@ -12,7 +12,7 @@ namespace CHRISUpdate.Models
         {
             get { return "Government"; }
         }
-      
+
         public string HomeAddress1 { get; set; }
         public string HomeAddress2 { get; set; }
         public string HomeAddress3 { get; set; }

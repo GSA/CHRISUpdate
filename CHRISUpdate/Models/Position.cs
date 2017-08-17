@@ -3,7 +3,7 @@
 namespace CHRISUpdate.Models
 {
     public class Position
-    {        
+    {
         public string EmployeeID { get; set; }
         public string PositionTitle { get; set; }
         public string PositionOrganization { get; set; }
@@ -14,7 +14,7 @@ namespace CHRISUpdate.Models
         public string TeleworkEligible { get; set; }
         public string Sensitivity { get; set; }
 
-        //Need to fix this without having two?                   
+        //Need to fix this without having two?
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string JobTitle { get; set; }
@@ -39,7 +39,7 @@ namespace CHRISUpdate.Models
         public string DetailPositionNumber { get; set; }
 
         //Same as JobTitle
-        public string DetailPositionTitle { get; set; }        
+        public string DetailPositionTitle { get; set; }
         public string DetailOfficeSymbol { get; set; }
         public string DetailOrganizationCode { get; set; }
         public string DetailPayPlan { get; set; }
