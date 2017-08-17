@@ -8,6 +8,11 @@ namespace CHRISUpdate.Utilities
 {
     class Utilities
     {
+        /// <summary>
+        /// Hashes SSN
+        /// </summary>
+        /// <param name="ssn"></param>
+        /// <returns></returns>
         public byte[] HashSSN(string ssn)
         {
             byte[] hashedFullSSN = null;

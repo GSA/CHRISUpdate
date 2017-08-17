@@ -7,12 +7,12 @@ using CHRISUpdate.Models;
 using CHRISUpdate.Mapping;
 
 namespace CHRISUpdate.Mapping
-{  
+{ 
     public sealed class CHRISMapping : CsvClassMap<Chris>
-    {       
+    {      
         public CHRISMapping()
         {
-            //Afiliation is set in the poco class
+            //Affiliation is set in the poco class
             Map(m => m.EmployeeNumber).Index(CHRISConstants.CHRIS_EMPLOYEE_NUMBER);
             Map(m => m.ChrisID).Index(CHRISConstants.CHRIS_ID);
             Map(m => m.HomeAddress1).Index(CHRISConstants.HOME_ADDRESS_1);
@@ -43,7 +43,7 @@ namespace CHRISUpdate.Mapping
             Map(m => m.EmployeeStatus).Index(CHRISConstants.EMPLOYEE_STATUS);
             Map(m => m.FamilySuffix).Index(CHRISConstants.EMPLOYEE_FAMILY_SUFFIX);
             Map(m => m.FirstName).Index(CHRISConstants.EMPLOYEE_FIRST_NAME);
-            Map(m => m.Gender).Index(CHRISConstants.GENDER);          
+            Map(m => m.Gender).Index(CHRISConstants.GENDER);
             Map(m => m.MiddleName).Index(CHRISConstants.EMPLOYEE_MIDDLE_NAME);
             Map(m => m.TypeOfemployment).Index(CHRISConstants.TYPE_OF_EMPLOYMENT);
             Map(m => m.Handicap).Index(CHRISConstants.HANDICAP);
@@ -51,12 +51,12 @@ namespace CHRISUpdate.Mapping
             Map(m => m.SCDLeave).Index(CHRISConstants.SCD_LEAVE); //.TypeConverter<DateConverter>();
             Map(m => m.SupervisoryStatus).Index(CHRISConstants.SUPERVISORY_STATUS);
             //Map(m => m.SSN).Index(CHRISConstants.SSN);
-        }        
+        }
     }
 
     //Need two inserts 
     public sealed class PositionMap : CsvClassMap<Position>
-    {        
+    {
         public PositionMap()
         {
             Map(m => m.EmployeeID).Index(CHRISConstants.CHRIS_ID);
@@ -114,7 +114,7 @@ namespace CHRISUpdate.Mapping
         public SecurityMap()
         {
             Map(m => m.AdjudicationAuth).Index(CHRISConstants.ADJUDICATION_AUTH);
-            Map(m => m.DateCompleted).Index(CHRISConstants.DATE_COMPLETED); //.TypeConverter<DateConverter>().Default(null);            
+            Map(m => m.DateCompleted).Index(CHRISConstants.DATE_COMPLETED); //.TypeConverter<DateConverter>().Default(null);
             Map(m => m.EmployeeID).Index(CHRISConstants.CHRIS_ID);
             Map(m => m.PriorCompleted).Index(CHRISConstants.PRIOR_COMPLETED);
             Map(m => m.TypeCompleted).Index(CHRISConstants.TYPE_COMPLETED);
@@ -123,7 +123,7 @@ namespace CHRISUpdate.Mapping
     }
 
     public sealed class SupervisorMap : CsvClassMap<Supervisor>
-    {        
+    {
         public SupervisorMap()
         {
             //CHRIS ID of current person
@@ -147,12 +147,12 @@ namespace CHRISUpdate.Mapping
             Map(m => m.Gender).Index(CHRISConstants.GENDER);
             Map(m => m.SupervisoryLevel).Index(CHRISConstants.SUPERVISORY_STATUS);
             Map(m => m.ChrisID).Index(CHRISConstants.CHRIS_ID);
-            Map(m => m.JobTitle).Index(CHRISConstants.JOB_TITLE);            
+            Map(m => m.JobTitle).Index(CHRISConstants.JOB_TITLE);
             Map(m => m.OfficeSymbol).Index(CHRISConstants.OFFICE_SYMBOL);
             //Regex is done in the SP
             Map(m => m.MajorOrg).Index(CHRISConstants.OFFICE_SYMBOL);
             Map(m => m.Region).Index(CHRISConstants.REGION).TypeConverter<RegionConverter>(); //Look at using .Format();
-            
+
             //Do not map this will have to be set before saving
             //Map(m => m.Supervisor).ToString();
         }

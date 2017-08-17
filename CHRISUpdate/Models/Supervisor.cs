@@ -3,7 +3,7 @@
 namespace CHRISUpdate.Models
 {
     public class Supervisor
-    { 
+    {
         public string EmployeeID { get; set; }
         public string UniqueEmployeeID { get; set; }
         public string SupervisorEmployeeID { get; set; }
@@ -12,6 +12,6 @@ namespace CHRISUpdate.Models
         public string MiddleName { get; set; }
         public string PositionControlNumber { get; set; }
         public string PositionControlNumberIndicator { get; set; }
-        public string EMail { get; set; }       
+        public string EMail { get; set; }
     }
 }

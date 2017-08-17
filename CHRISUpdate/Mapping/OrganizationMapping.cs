@@ -22,8 +22,8 @@ namespace CHRISUpdate.Mapping
             Map(m => m.FromDate).Index(OrganizationConstants.FROM_DATE);
             Map(m => m.Location).Index(OrganizationConstants.LOCATION);
             Map(m => m.LocationAddress).Index(OrganizationConstants.LOCATION_ADDRESS);
-            Map(m => m.Name).Index(OrganizationConstants.NAME);            
-            Map(m => m.OfficeSymbol).Index(OrganizationConstants.OFFICE_SYMBOL);            
+            Map(m => m.Name).Index(OrganizationConstants.NAME);
+            Map(m => m.OfficeSymbol).Index(OrganizationConstants.OFFICE_SYMBOL);
             Map(m => m.OrgClassificationsName).Index(OrganizationConstants.ORG_CLASSIFICATIONS_NAME);
             Map(m => m.OrgInfoLine1).Index(OrganizationConstants.ORGINFO_LINE_1);
             Map(m => m.OrgInfoLine2).Index(OrganizationConstants.ORGINFO_LINE_2);
@@ -36,6 +36,6 @@ namespace CHRISUpdate.Mapping
             Map(m => m.OCTOrgTitle).Index(OrganizationConstants.OCT_ORG_TITLE);
             Map(m => m.OPMOrganizationalComponent).Index(OrganizationConstants.OPM_ORGANIZATIONAL_COMPONENT);
             Map(m => m.OrgClassificationsEnabled).Index(OrganizationConstants.ORG_CLASSIFICATIONS_ENABLED);
-        }    
+        }
     }
 }
