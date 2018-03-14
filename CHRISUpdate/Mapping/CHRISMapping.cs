@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CHRISUpdate.Models;
 using CsvHelper.Configuration;
-using CHRISUpdate.Models;
-using CHRISUpdate.Mapping;
 
 namespace CHRISUpdate.Mapping
-{ 
+{
     public sealed class CHRISMapping : CsvClassMap<Chris>
     {      
         public CHRISMapping()
