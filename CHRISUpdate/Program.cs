@@ -1,8 +1,8 @@
-﻿using System;
+﻿using CHRISUpdate.Process;
+using System;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
-using CHRISUpdate.Process;
 
 namespace CHRISUpdate
 {
@@ -52,9 +52,9 @@ namespace CHRISUpdate
             if (File.Exists(separationFilePath))
                 processData.ProcessSeparationFile(separationFilePath);
 
-            //Process if file exists
-            if (File.Exists(organizationFilePath))
-                processData.ProcessOrganizationFile(organizationFilePath);
+            //Process if file exists (Not sure we are ever going to do this)
+            //if (File.Exists(organizationFilePath))
+            //    processData.ProcessOrganizationFile(organizationFilePath);
 
             //Stop timer
             timeForProcesses.Stop();

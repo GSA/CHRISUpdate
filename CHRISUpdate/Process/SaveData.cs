@@ -96,7 +96,7 @@ namespace CHRISUpdate.Process
             catch (Exception)
             {
                 //Log error and return false
-                log.Warn("[SaveSeparationInformation] Unable to save " + saveData.EmployeeID);
+                log.Warn("[SaveSeparationInformation] Unable to save " + saveData.ChrisID);
                 return false;
             }
         }
@@ -117,35 +117,35 @@ namespace CHRISUpdate.Process
         /// Save organization data
         /// </summary>
         /// <param name="organizationData"></param>
-        private void AddOrUpdate(Organization organizationData)
-        {
-            try
-            {
-                //Set cmd
-                cmd.CommandText = "Organization";
+        //private void AddOrUpdate(Organization organizationData)
+        //{
+        //    try
+        //    {
+        //        //Set cmd
+        //        cmd.CommandText = "Organization";
 
-                //Clear parameters and add new parameters
-                cmd.Parameters.Clear();
-                MySqlParameter[] employeParameters = new MySqlParameter[] {
-                                        new MySqlParameter { ParameterName = "@SeparationCode", Value = organizationData.AbolishedbyOrder, MySqlDbType = MySqlDbType.VarChar, Size = 2},
-                                        new MySqlParameter { ParameterName = "@SeparationDate", Value = organizationData.ChangedByOrder, MySqlDbType = MySqlDbType.Date},
-                                        new MySqlParameter { ParameterName = "@EmpID", Value = organizationData.ChangedByOrder, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is CHRIS ID
-                                    };
+        //        //Clear parameters and add new parameters
+        //        cmd.Parameters.Clear();
+        //        MySqlParameter[] employeParameters = new MySqlParameter[] {
+        //                                new MySqlParameter { ParameterName = "@SeparationCode", Value = organizationData.AbolishedbyOrder, MySqlDbType = MySqlDbType.VarChar, Size = 2},
+        //                                new MySqlParameter { ParameterName = "@SeparationDate", Value = organizationData.ChangedByOrder, MySqlDbType = MySqlDbType.Date},
+        //                                new MySqlParameter { ParameterName = "@EmpID", Value = organizationData.ChangedByOrder, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is CHRIS ID
+        //                            };
 
-                //Add sql parameters to cmd
-                cmd.Parameters.AddRange(employeParameters);
+        //        //Add sql parameters to cmd
+        //        cmd.Parameters.AddRange(employeParameters);
 
-                //Execute cmd
-                cmd.ExecuteNonQuery();
-            }
-            //Catch all exceptions
-            catch (Exception ex)
-            {
-                //Log error and re-throw
-                log.Error("Process Organization Users Error:" + ex.Message + " " + ex.InnerException);
-                throw;
-            }
-        }
+        //        //Execute cmd
+        //        cmd.ExecuteNonQuery();
+        //    }
+        //    //Catch all exceptions
+        //    catch (Exception ex)
+        //    {
+        //        //Log error and re-throw
+        //        log.Error("Process Organization Users Error:" + ex.Message + " " + ex.InnerException);
+        //        throw;
+        //    }
+        //}
 
         /// <summary>
         /// Save separation data in db
@@ -163,7 +163,7 @@ namespace CHRISUpdate.Process
                 MySqlParameter[] employeParameters = new MySqlParameter[] {
                                         new MySqlParameter { ParameterName = "@SeparationCode", Value = separationData.SeparationCode, MySqlDbType = MySqlDbType.VarChar, Size = 2},
                                         new MySqlParameter { ParameterName = "@SeparationDate", Value = separationData.SeparationDate, MySqlDbType = MySqlDbType.Date},
-                                        new MySqlParameter { ParameterName = "@EmpID", Value = separationData.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is CHRIS ID
+                                        new MySqlParameter { ParameterName = "@EmpID", Value = separationData.ChrisID, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is EMP_ID
                                     };
 
                 //Add parameters to cmd
