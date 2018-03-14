@@ -1,14 +1,15 @@
-﻿using CHRISUpdate.Mapping;
-using CHRISUpdate.Models;
-using CsvHelper;
-using CsvHelper.Configuration;
-using MySql.Data.MySqlClient;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
+using CHRISUpdate.Mapping;
+using CHRISUpdate.Models;
+using CsvHelper;
+using CsvHelper.Configuration;
+using MySql.Data.MySqlClient;
+using System.Diagnostics;
 
 namespace CHRISUpdate.Process
 {
@@ -154,7 +155,7 @@ namespace CHRISUpdate.Process
                 foreach (Separation separationData in separationList)
                 {
                     //If employee exists based on employee id
-                    if (DoesEmployeeExist(separationData.ChrisID)) //EmployeeID = Chris ID
+                    if (DoesEmployeeExist(separationData.EmployeeID)) //EmployeeID = Chris ID
                     {
                         //Save data
                         save.SaveSeparationInformation(separationData, connHR);
@@ -170,7 +171,7 @@ namespace CHRISUpdate.Process
                         //We need to talk to operations about this issue.
                         //log.Warn("Unable to process user");
                         unprocessedUsers += 1;
-                        log.Warn("Not Found! " + separationData.ChrisID);
+                        log.Warn("Not Found! " + separationData.EmployeeUniqueID + " " + separationData.FirstName + " " + separationData.LastNameAndSuffix);
                     }
 
                     //Moved here on 9/15 was in the wrong location and was reporting 1 always
