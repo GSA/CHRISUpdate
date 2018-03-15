@@ -1,10 +1,8 @@
-﻿using System;
+﻿using CHRISUpdate.Models;
+using MySql.Data.MySqlClient;
+using System;
 using System.Configuration;
 using System.Data;
-using CHRISUpdate.Models;
-using MySql.Data.MySqlClient;
-using System.Linq;
-using System.Reflection;
 
 namespace CHRISUpdate.Process
 {
@@ -96,7 +94,7 @@ namespace CHRISUpdate.Process
             catch (Exception)
             {
                 //Log error and return false
-                log.Warn("[SaveSeparationInformation] Unable to save " + saveData.EmployeeID);
+                log.Warn("[SaveSeparationInformation] Unable to save " + saveData.ChrisID);
                 return false;
             }
         }
@@ -163,7 +161,7 @@ namespace CHRISUpdate.Process
                 MySqlParameter[] employeParameters = new MySqlParameter[] {
                                         new MySqlParameter { ParameterName = "@SeparationCode", Value = separationData.SeparationCode, MySqlDbType = MySqlDbType.VarChar, Size = 2},
                                         new MySqlParameter { ParameterName = "@SeparationDate", Value = separationData.SeparationDate, MySqlDbType = MySqlDbType.Date},
-                                        new MySqlParameter { ParameterName = "@EmpID", Value = separationData.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is CHRIS ID
+                                        new MySqlParameter { ParameterName = "@EmpID", Value = separationData.ChrisID, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is CHRIS ID
                                     };
 
                 //Add parameters to cmd

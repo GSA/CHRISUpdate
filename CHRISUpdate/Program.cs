@@ -53,8 +53,8 @@ namespace CHRISUpdate
                 processData.ProcessSeparationFile(separationFilePath);
 
             //Process if file exists
-            if (File.Exists(organizationFilePath))
-                processData.ProcessOrganizationFile(organizationFilePath);
+            //if (File.Exists(organizationFilePath))
+            //    processData.ProcessOrganizationFile(organizationFilePath);
 
             //Stop timer
             timeForProcesses.Stop();
