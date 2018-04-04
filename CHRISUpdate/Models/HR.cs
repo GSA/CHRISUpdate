@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace HRUpdate.Models
+﻿namespace HRUpdate.Models
 {
     public class HR
     {

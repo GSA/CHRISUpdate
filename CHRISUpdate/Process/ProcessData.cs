@@ -1,18 +1,14 @@
-﻿using HRUpdate.Mapping;
-using HRUpdate.Models;
-using CsvHelper;
+﻿using CsvHelper;
 using CsvHelper.Configuration;
+using HRUpdate.Mapping;
+using HRUpdate.Models;
 using MySql.Data.MySqlClient;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Xml.Serialization;
 
 namespace HRUpdate.Process
 {

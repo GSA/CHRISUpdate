@@ -1,8 +1,8 @@
-﻿using System;
+﻿using HRUpdate.Process;
+using System;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
-using HRUpdate.Process;
 
 namespace HRUpdate
 {

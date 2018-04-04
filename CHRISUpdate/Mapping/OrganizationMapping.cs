@@ -1,5 +1,5 @@
-﻿using HRUpdate.Models;
-using CsvHelper.Configuration;
+﻿using CsvHelper.Configuration;
+using HRUpdate.Models;
 
 namespace HRUpdate.Mapping
 {

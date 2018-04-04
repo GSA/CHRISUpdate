@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-
-//Create chris name object and use linq to query
+﻿//Create chris name object and use linq to query
 
 namespace HRUpdate.Mapping
 {
