@@ -8,8 +8,8 @@
     <ProjectGuid>{C78EAFAD-C32B-4A16-BB5C-80133690791B}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CHRISUpdate</RootNamespace>
-    <AssemblyName>CHRISUpdate</AssemblyName>
+    <RootNamespace>HRLinks</RootNamespace>
+    <AssemblyName>HRLinks</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -71,6 +71,9 @@
       <HintPath>..\packages\MySql.Data.6.9.9\lib\net40\MySql.Data.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\Desktop\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
@@ -82,13 +85,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Mapping\CHRISMapping.cs" />
+    <Compile Include="Mapping\HRMapping.cs" />
     <Compile Include="Mapping\Constants.cs" />
     <Compile Include="Mapping\OrganizationMapping.cs" />
     <Compile Include="Mapping\SeparationMapping.cs" />
     <Compile Include="Mapping\TypeConversion.cs" />
-    <Compile Include="Models\Chris.cs" />
-    <Compile Include="Models\ChrisData.cs" />
+    <Compile Include="Models\HR.cs" />
+    <Compile Include="Models\HRData.cs" />
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\Organization.cs" />
     <Compile Include="Models\Person.cs" />

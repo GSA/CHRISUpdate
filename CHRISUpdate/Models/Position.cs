@@ -1,15 +1,15 @@
 ﻿using System;
 
-namespace CHRISUpdate.Models
+namespace HRUpdate.Models
 {
     public class Position
     {
         public string EmployeeID { get; set; }
         public string PositionTitle { get; set; }
         public string PositionOrganization { get; set; }
-        public string PositionNumber { get; set; }
+        //public string PositionNumber { get; set; }
         public string PositionControlNumber { get; set; }
-        public string PositionControlNumberIndicator { get; set; }
+        //public string PositionControlNumberIndicator { get; set; }
         public string AgencyCodeSubelment { get; set; }
         public string TeleworkEligible { get; set; }
         public string Sensitivity { get; set; }
@@ -35,7 +35,7 @@ namespace CHRISUpdate.Models
         public DateTime? DetailBeginDate { get; set; }
         public DateTime? DetailEndDate { get; set; }
         public string DetailPositionControlNumber { get; set; }
-        public string DetailPositionControlNumberIndicator { get; set; }
+        //public string DetailPositionControlNumberIndicator { get; set; }
         public string DetailPositionNumber { get; set; }
 
         //Same as JobTitle

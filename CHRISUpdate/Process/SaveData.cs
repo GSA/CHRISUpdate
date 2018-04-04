@@ -1,10 +1,10 @@
-﻿using CHRISUpdate.Models;
+﻿using HRUpdate.Models;
 using MySql.Data.MySqlClient;
 using System;
 using System.Configuration;
 using System.Data;
 
-namespace CHRISUpdate.Process
+namespace HRUpdate.Process
 {
     class SaveData
     {
@@ -15,11 +15,10 @@ namespace CHRISUpdate.Process
         private static string connectionString = ConfigurationManager.ConnectionStrings["HR"].ToString();
 
         //Set up connection
-        //MySqlConnection conn = new MySqlConnection(connectionString);
-        MySqlCommand cmd = new MySqlCommand();
+        readonly MySqlCommand cmd = new MySqlCommand();
 
         //Want to turn this into the type converter in mapping
-        Utilities.Utilities u = new Utilities.Utilities();
+        readonly Utilities.Utilities u = new Utilities.Utilities();
 
         public SaveData(){}
 
@@ -29,37 +28,36 @@ namespace CHRISUpdate.Process
         /// <param name="saveData"></param>
         /// <param name="conn"></param>
         /// <returns>bool</returns>
-        public bool SaveCHRISInformation(Chris saveData, MySqlConnection conn)
+        public bool SaveCHRISInformation(HR saveData, MySqlConnection conn)
         {
             try
             {
-                //Open connection if not open
-                if (conn.State == ConnectionState.Closed)
-                    conn.Open();
+                using (conn)
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
 
-                //Set up cmd
-                cmd.Connection = conn;
-                cmd.CommandType = CommandType.StoredProcedure;
+                    using (cmd)
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandType = CommandType.StoredProcedure;
 
-                //AddOrUpdate<Employee>(saveData.Employee, "Employee");
+                        AddOrUpdate(saveData.Employee);
+                        AddOrUpdate(saveData.Position);
+                        AddOrUpdate(saveData.Supervisor);
+                        AddOrUpdate(saveData.Security);
+                        AddOrUpdate(saveData.Person);
 
-                //Save data in db
-                AddOrUpdate(saveData.Employee);
-                AddOrUpdate(saveData.Position);
-                AddOrUpdate(saveData.Supervisor);
-                AddOrUpdate(saveData.Security);
-                AddOrUpdate(saveData.Person);
+                        return true;
+                    }
 
-                //AddOrUpdate<Employee>(saveData.Employee);
-
-                //Return true if save was successful
-                return true;
+                }               
             }
             //Catch all errors
             catch (Exception ex)
             {
                 //Log error and return false for failure while saving
-                log.Warn("[SaveCHRISInformation] - Unable to save " + saveData.ChrisID + ex.InnerException);
+                log.Warn("[SaveCHRISInformation] - Unable to save " + saveData.ChrisID + " - " + ex.Message + " - " + ex.InnerException);
                 return false;
             }
         }
@@ -74,29 +72,33 @@ namespace CHRISUpdate.Process
         {
             try
             {
-                //Open connection if not open
-                if (conn.State == ConnectionState.Closed)
-                    conn.Open();
+                using (conn)
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
 
-                //Set cmd
-                cmd.Connection = conn;
-                cmd.CommandType = CommandType.StoredProcedure;
+                    using (cmd)
+                    {
+                        //Set cmd
+                        cmd.Connection = conn;
+                        cmd.CommandType = CommandType.StoredProcedure;
 
-                //AddOrupdate<Separation>(saveData, "Separation");
+                        //AddOrupdate<Separation>(saveData, "Separation");
 
-                //Save data
-                AddOrUpdate(saveData);
+                        //Save data
+                        AddOrUpdate(saveData);
 
-                //If success return true
-                return true;
+                        //If success return true
+                        return true;
+                    }
+
+                }
             }
-            //Catch all errors
-            catch (Exception)
+            catch (Exception ex)
             {
-                //Log error and return false
-                log.Warn("[SaveSeparationInformation] Unable to save " + saveData.ChrisID);
+                log.Warn("[SaveSeparationInformation] Unable to save " + saveData.ChrisID + " - " + ex.Message + " - " + ex.InnerException);
                 return false;
-            }
+            }                    
         }
 
         /// <summary>
@@ -159,7 +161,7 @@ namespace CHRISUpdate.Process
                 //Clear sql parameters and create new sql parameters
                 cmd.Parameters.Clear();
                 MySqlParameter[] employeParameters = new MySqlParameter[] {
-                                        new MySqlParameter { ParameterName = "@SeparationCode", Value = separationData.SeparationCode, MySqlDbType = MySqlDbType.VarChar, Size = 2},
+                                        new MySqlParameter { ParameterName = "@SeparationCode", Value = separationData.SeparationCode, MySqlDbType = MySqlDbType.VarChar, Size = 3},
                                         new MySqlParameter { ParameterName = "@SeparationDate", Value = separationData.SeparationDate, MySqlDbType = MySqlDbType.Date},
                                         new MySqlParameter { ParameterName = "@EmpID", Value = separationData.ChrisID, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is CHRIS ID
                                     };
@@ -201,7 +203,7 @@ namespace CHRISUpdate.Process
                                         new MySqlParameter { ParameterName = "@ChrisID", Value = personData.ChrisID, MySqlDbType = MySqlDbType.VarChar, Size = 12 },
                                         new MySqlParameter { ParameterName = "@JobTitle", Value = personData.JobTitle, MySqlDbType = MySqlDbType.VarChar, Size = 60 },
                                         new MySqlParameter { ParameterName = "@OfficeSymbol", Value = personData.OfficeSymbol, MySqlDbType = MySqlDbType.VarChar, Size = 12 },
-                                        //new MySqlParameter { ParameterName = "@MajorOrg", Value = personData.MajorOrg, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
+                                        new MySqlParameter { ParameterName = "@MajorOrg", Value = personData.MajorOrg, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
                                         new MySqlParameter { ParameterName = "@Region", Value = personData.Region, MySqlDbType = MySqlDbType.VarChar, Size = 3 },
                                         new MySqlParameter { ParameterName = "@Supervisor", Value = personData.Supervisor, MySqlDbType = MySqlDbType.VarChar, Size = 100 },                                        
                                     };
@@ -252,12 +254,14 @@ namespace CHRISUpdate.Process
                                         new MySqlParameter { ParameterName = "@SSN", Value = DBNull.Value, MySqlDbType = MySqlDbType.VarBinary, Size = 32 }, //No need to store this
                                         new MySqlParameter { ParameterName = "@AgencyCode", Value = employeeData.AgencyCode, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
                                         new MySqlParameter { ParameterName = "@EmpStatus", Value = employeeData.EmployeeStatus, MySqlDbType = MySqlDbType.VarChar, Size = 8 },
-                                        new MySqlParameter { ParameterName = "@DutyStatus", Value = employeeData.DutyStatus, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
-                                        new MySqlParameter { ParameterName = "@AssignmentStatus", Value = employeeData.AssignmentStatus, MySqlDbType = MySqlDbType.VarChar, Size = 80 },
+                                        //new MySqlParameter { ParameterName = "@DutyStatus", Value = employeeData.DutyStatus, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
+                                        //new MySqlParameter { ParameterName = "@AssignmentStatus", Value = employeeData.AssignmentStatus, MySqlDbType = MySqlDbType.VarChar, Size = 80 },
                                         new MySqlParameter { ParameterName = "@SCDLeave", Value = employeeData.SCDLeave, MySqlDbType = MySqlDbType.Date },
-                                        new MySqlParameter { ParameterName = "@Suffix", Value = employeeData.FamilySuffix, MySqlDbType = MySqlDbType.VarChar, Size = 150 },
+                                        //new MySqlParameter { ParameterName = "@Suffix", Value = employeeData.FamilySuffix, MySqlDbType = MySqlDbType.VarChar, Size = 150 },
                                         new MySqlParameter { ParameterName = "@FirstName", Value = employeeData.FirstName, MySqlDbType = MySqlDbType.VarChar, Size = 150 },
                                         new MySqlParameter { ParameterName = "@MiddleName", Value = employeeData.MiddleName, MySqlDbType = MySqlDbType.VarChar, Size = 60 },
+                                        new MySqlParameter { ParameterName = "@LastName", Value = employeeData.LastName, MySqlDbType = MySqlDbType.VarChar, Size = 60 },
+                                        new MySqlParameter { ParameterName = "@Suffix", Value = employeeData.Suffix, MySqlDbType = MySqlDbType.VarChar, Size = 60 },
                                         new MySqlParameter { ParameterName = "@Gender", Value = employeeData.Gender, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
                                         new MySqlParameter { ParameterName = "@SupervisoryStatus", Value = employeeData.SupervisoryStatus, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
                                     };
@@ -294,9 +298,9 @@ namespace CHRISUpdate.Process
                 //New sql params
                 MySqlParameter[] employeParameters = new MySqlParameter[] {
                                         new MySqlParameter { ParameterName = "@EmployeeID", Value = employeeData.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@PosNo", Value = employeeData.PositionNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
+                                        //new MySqlParameter { ParameterName = "@PosNo", Value = employeeData.PositionNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
                                         new MySqlParameter { ParameterName = "@PositionControlNumber", Value = employeeData.PositionControlNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@PositionControlNumberIndicator", Value = employeeData.PositionControlNumberIndicator, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
+                                        //new MySqlParameter { ParameterName = "@PositionControlNumberIndicator", Value = employeeData.PositionControlNumberIndicator, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
                                         new MySqlParameter { ParameterName = "@AgencyCodeSubelment", Value = employeeData.AgencyCodeSubelment, MySqlDbType = MySqlDbType.VarChar, Size = 4 },
                                         new MySqlParameter { ParameterName = "@TeleworkEligible", Value = employeeData.TeleworkEligible, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
                                         new MySqlParameter { ParameterName = "@Sensitivity", Value = employeeData.Sensitivity, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
@@ -331,9 +335,9 @@ namespace CHRISUpdate.Process
 
                     MySqlParameter[] employeParametersDetails = new MySqlParameter[] {
                                         new MySqlParameter { ParameterName = "@EmployeeID", Value = employeeData.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@PosNo", Value = employeeData.DetailPositionNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
+                                        //new MySqlParameter { ParameterName = "@PosNo", Value = employeeData.DetailPositionNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
                                         new MySqlParameter { ParameterName = "@PositionControlNumber", Value = employeeData.DetailPositionControlNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@PositionControlNumberIndicator", Value = employeeData.DetailPositionControlNumberIndicator, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
+                                        //new MySqlParameter { ParameterName = "@PositionControlNumberIndicator", Value = employeeData.DetailPositionControlNumberIndicator, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
                                         new MySqlParameter { ParameterName = "@AgencyCodeSubelment", Value = employeeData.AgencyCodeSubelment, MySqlDbType = MySqlDbType.VarChar, Size = 4 },
                                         new MySqlParameter { ParameterName = "@TeleworkEligible", Value = employeeData.TeleworkEligible, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
                                         new MySqlParameter { ParameterName = "@Sensitivity", Value = employeeData.Sensitivity, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
@@ -387,12 +391,12 @@ namespace CHRISUpdate.Process
                                         new MySqlParameter { ParameterName = "@EmployeeID", Value = employeeData.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
                                         new MySqlParameter { ParameterName = "@UniqueEmployeeID", Value = employeeData.UniqueEmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 30, IsNullable = true },
                                         new MySqlParameter { ParameterName = "@SupervisorEmployeeID", Value = employeeData.SupervisorEmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15, IsNullable = true },
-                                        new MySqlParameter { ParameterName = "@LastNameSuffix", Value = employeeData.LastNameSuffix, MySqlDbType = MySqlDbType.VarChar, Size = 150, IsNullable = true },
-                                        new MySqlParameter { ParameterName = "@FirstName", Value = employeeData.FirstName, MySqlDbType = MySqlDbType.VarChar, Size = 150, IsNullable = true },
-                                        new MySqlParameter { ParameterName = "@MiddleName", Value = employeeData.MiddleName, MySqlDbType = MySqlDbType.VarChar, Size = 60, IsNullable = true },                                        
-                                        new MySqlParameter { ParameterName = "@PositionControlNumber", Value = employeeData.PositionControlNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15, IsNullable = true },                                        
-                                        new MySqlParameter { ParameterName = "@PositionControlNumberIndicator", Value = employeeData.PositionControlNumberIndicator, MySqlDbType = MySqlDbType.VarChar, Size = 1, IsNullable = true },                                        
-                                        new MySqlParameter { ParameterName = "@EMail", Value = employeeData.EMail, MySqlDbType = MySqlDbType.VarChar, Size = 100, IsNullable = true },                                        
+                                        //new MySqlParameter { ParameterName = "@LastNameSuffix", Value = employeeData.LastNameSuffix, MySqlDbType = MySqlDbType.VarChar, Size = 150, IsNullable = true },
+                                        //new MySqlParameter { ParameterName = "@FirstName", Value = employeeData.FirstName, MySqlDbType = MySqlDbType.VarChar, Size = 150, IsNullable = true },
+                                        //new MySqlParameter { ParameterName = "@MiddleName", Value = employeeData.MiddleName, MySqlDbType = MySqlDbType.VarChar, Size = 60, IsNullable = true },                                        
+                                        //new MySqlParameter { ParameterName = "@PositionControlNumber", Value = employeeData.PositionControlNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15, IsNullable = true },                                        
+                                        //new MySqlParameter { ParameterName = "@PositionControlNumberIndicator", Value = employeeData.PositionControlNumberIndicator, MySqlDbType = MySqlDbType.VarChar, Size = 1, IsNullable = true },                                        
+                                        //new MySqlParameter { ParameterName = "@EMail", Value = employeeData.EMail, MySqlDbType = MySqlDbType.VarChar, Size = 100, IsNullable = true },                                        
 
                                     };
 
@@ -415,6 +419,7 @@ namespace CHRISUpdate.Process
         /// Add or update security data
         /// </summary>
         /// <param name="employeeData"></param>
+        /// Have to map ID to Chris ID for Ajducaitor Auth
         private void AddOrUpdate(Security employeeData)
         {
             try

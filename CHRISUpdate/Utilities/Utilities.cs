@@ -1,7 +1,8 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using System;
 
-namespace CHRISUpdate.Utilities
+namespace HRUpdate.Utilities
 {
     class Utilities
     {
@@ -25,6 +26,6 @@ namespace CHRISUpdate.Utilities
             shaM.Dispose();
 
             return hashedFullSSN;
-        }
+        }        
     }
 }

@@ -2,22 +2,21 @@
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
-using CHRISUpdate.Process;
+using HRUpdate.Process;
 
-namespace CHRISUpdate
+namespace HRUpdate
 {
-    class Program
+    static class Program
     {
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         //File paths from config file
-        private static string chrisFilePath = ConfigurationManager.AppSettings["CHRISFILENAME"].ToString(); //AppDomain.CurrentDomain.BaseDirectory +
-        private static string separationFilePath = ConfigurationManager.AppSettings["SEPARATIONFILENAME"].ToString(); //AppDomain.CurrentDomain.BaseDirectory +
-        private static string organizationFilePath = ConfigurationManager.AppSettings["ORGFILENAME"].ToString(); //AppDomain.CurrentDomain.BaseDirectory +
+        private static string chrisFilePath = ConfigurationManager.AppSettings["CHRISFILENAME"].ToString();
+        private static string separationFilePath = ConfigurationManager.AppSettings["SEPARATIONFILENAME"].ToString();        
 
         //Stopwatch objects
-        private static Stopwatch stopWatch = new Stopwatch();
+        private static Stopwatch timeForApp = new Stopwatch();
         private static Stopwatch timeForProcesses = new Stopwatch();
 
         /// <summary>
@@ -27,10 +26,10 @@ namespace CHRISUpdate
         static void Main(string[] args)
         {
             //Start timer
-            stopWatch.Start();
+            timeForApp.Start();
 
             //Log start of application
-            log.Info("Application Started");
+            log.Info("Application Started: " + DateTime.Now);
 
             //Output application start
             Console.WriteLine("Application Started: " + DateTime.Now);
@@ -39,7 +38,7 @@ namespace CHRISUpdate
             ProcessData processData = new ProcessData();
 
             //Log action
-            log.Info("Processing CHRIS File");
+            log.Info("Processing HR Links File:" + DateTime.Now);
 
             //Start timer
             timeForProcesses.Start();
@@ -52,9 +51,8 @@ namespace CHRISUpdate
             if (File.Exists(separationFilePath))
                 processData.ProcessSeparationFile(separationFilePath);
 
-            //Process if file exists
-            //if (File.Exists(organizationFilePath))
-            //    processData.ProcessOrganizationFile(organizationFilePath);
+            //Log action
+            log.Info("Done Processing HR Links File:" + DateTime.Now);
 
             //Stop timer
             timeForProcesses.Stop();
@@ -66,16 +64,16 @@ namespace CHRISUpdate
             log.Info(string.Format("Processed Files in {0} milliseconds", timeForProcesses.ElapsedMilliseconds));
 
             //Stop second timer
-            stopWatch.Stop();
+            timeForApp.Stop();
 
             //Output total time
-            Console.WriteLine(string.Format("Application Completed in {0} milliseconds", stopWatch.ElapsedMilliseconds));
+            Console.WriteLine(string.Format("Application Completed in {0} milliseconds", timeForApp.ElapsedMilliseconds));
 
             //Log total time
-            log.Info(string.Format("Application Completed in {0} milliseconds", stopWatch.ElapsedMilliseconds));
+            log.Info(string.Format("Application Completed in {0} milliseconds", timeForApp.ElapsedMilliseconds));
 
             //Log application end
-            log.Info("Application Done");
+            log.Info("Application Done: " + DateTime.Now);
 
 #if DEBUG
             //Wait for key press

@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace CHRISUpdate.Models
+namespace HRUpdate.Models
 {
-    class ChrisData
+    class HRData
     {
         public string EmployeeNumber { get; set; }
         public string ChrisID { get; set; }

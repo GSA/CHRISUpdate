@@ -1,7 +1,7 @@
 ﻿using CsvHelper.TypeConversion;
 using System;
 
-namespace CHRISUpdate.Mapping
+namespace HRUpdate.Mapping
 {
     //changed the poco classes to accept null values nullable dates DateTime?
     sealed class DateConverter : DateTimeConverter
@@ -49,15 +49,16 @@ namespace CHRISUpdate.Mapping
 
     sealed class SSNConverter : StringConverter
     {
-        Utilities.Utilities u = new Utilities.Utilities();
+        //Utilities.Utilities u = new Utilities.Utilities();
 
         public override object ConvertFromString(TypeConverterOptions options, string text)
         {
-            Console.WriteLine(text);
+            //Console.WriteLine(text);
             if (string.IsNullOrEmpty(text))
                 return null;
 
-            return u.HashSSN(text);
+            //return u.HashSSN(text);
+            return text;
         }
     }
 

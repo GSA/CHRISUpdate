@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CHRISUpdate.Models
+namespace HRUpdate.Models
 {
     class Organization
     {

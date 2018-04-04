@@ -1,7 +1,7 @@
-﻿using CHRISUpdate.Models;
+﻿using HRUpdate.Models;
 using CsvHelper.Configuration;
 
-namespace CHRISUpdate.Mapping
+namespace HRUpdate.Mapping
 {
     //class SeparationMapping { }
 
