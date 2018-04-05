@@ -1,30 +1,31 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using HRLinks.Mapping;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
-using MySql.Data.MySqlClient;
+using HRUpdate.Utilities;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.IO;
 using System.Linq;
 
 namespace HRUpdate.Process
-{    
+{
     class ProcessData
     {
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         //Class to work with CSV's
-        private static CsvConfiguration config = new CsvConfiguration();
+        private static CsvConfiguration config = new CsvConfiguration();       
+        private SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator(); 
 
         int processedRecords = 0; //rolling count of records that were processed
         int processedUsers = 0;  //rolling count of users processed
         int unprocessedUsers = 0; //rolling count of unprocessed users
 
-        readonly SaveData save = new SaveData();        
+        readonly SaveData save = new SaveData();
+        
 
         //Constructor
         //Assigns defaults
@@ -72,7 +73,7 @@ namespace HRUpdate.Process
                         //chrisData.Person.Supervisor = chrisData.Supervisor.LastNameSuffix + ", " + chrisData.Supervisor.FirstName + " " + chrisData.Supervisor.MiddleName;
 
                         //Save the data
-                        save.SaveCHRISInformation(hrData);
+                        //save.SaveCHRISInformation(hrData);
 
                         //Increment processed
                         processedUsers += 1;
@@ -108,16 +109,14 @@ namespace HRUpdate.Process
         /// <param name="separationFile"></param>
         public void ProcessSeparationFile(string separationFile)
         {
-            //Log function start
             log.Info("Processing Separation Users");            
-
-            //Initialize counters
+                       
             processedRecords = 0;
             processedUsers = 0;
             unprocessedUsers = 0;
-
-            //Initialize list to hold mapped csv data
+                       
             List<Separation> separationList;
+            List<SeperationSummary> separationSummary = new List<SeperationSummary>();
 
             //Call function that loads file and maps to csv
             separationList = GetFileData<Separation, CustomSeparationMap>(separationFile, config);
@@ -137,6 +136,23 @@ namespace HRUpdate.Process
                     }
                     else
                     {
+                        var separtationIssue = separationList
+                            .Where(w => w.EmployeeID == separationData.EmployeeID)
+                            .Select
+                                (
+                                    s =>
+                                        new SeperationSummary
+                                        {
+                                            GCIMSID = separationResults.Item1,
+                                            EmployeeID = s.EmployeeID,
+                                            SeparationCode = s.SeparationCode,
+                                            Action = "Unknown"
+                                        }
+                                ).ToList();
+                        
+
+                        separationSummary.AddRange(separtationIssue);
+
                         unprocessedUsers += 1;
                     }
 
@@ -147,8 +163,10 @@ namespace HRUpdate.Process
                 log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", processedUsers));
                 log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", unprocessedUsers));
                 log.Info("Separation Processed Records: " + String.Format("{0:#,###0}", processedRecords));
+
+                summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>("test.csv", separationSummary);
             }
-            //Catch all errors
+            //Catch all errorsSeperationMapping
             catch (Exception ex)
             {
                 //Log error
