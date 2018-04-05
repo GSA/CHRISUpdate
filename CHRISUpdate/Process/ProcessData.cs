@@ -17,7 +17,8 @@ namespace HRUpdate.Process
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         //Class to work with CSV's
-        private static CsvConfiguration config = new CsvConfiguration();       
+        //private static CsvConfiguration config = new CsvConfiguration();
+             
         private SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator(); 
 
         int processedRecords = 0; //rolling count of records that were processed
@@ -31,9 +32,9 @@ namespace HRUpdate.Process
         //Assigns defaults
         public ProcessData()
         {
-            config.Delimiter = "~";
-            config.HasHeaderRecord = false;
-            config.WillThrowOnMissingField = false;
+            //config.Delimiter = "~";
+            //config.HasHeaderRecord = false;
+            //config.WillThrowOnMissingField = false;
         }      
 
         /// <summary>
@@ -50,7 +51,7 @@ namespace HRUpdate.Process
                 List<HR> hrList;
 
                 //Call function to map file to csv
-                hrList = GetFileData<HR, HRMapping>(chrisFile, config);
+                hrList = GetFileData<HR, HRMapping>(chrisFile);
 
                 //Start Processin the HR Data
                 foreach (HR hrData in hrList)
@@ -119,7 +120,7 @@ namespace HRUpdate.Process
             List<SeperationSummary> separationSummary = new List<SeperationSummary>();
 
             //Call function that loads file and maps to csv
-            separationList = GetFileData<Separation, CustomSeparationMap>(separationFile, config);
+            separationList = GetFileData<Separation, CustomSeparationMap>(separationFile);
 
             try
             {
@@ -182,12 +183,15 @@ namespace HRUpdate.Process
         /// <param name="filePath"></param>
         /// <param name="config"></param>
         /// <returns>A list of the type of objects specified</returns>
-        private List<TClass> GetFileData<TClass, TMap>(string filePath, CsvConfiguration config)
+        private List<TClass> GetFileData<TClass, TMap>(string filePath)
             where TClass : class
-            where TMap : CsvClassMap<TClass>
+            where TMap : ClassMap<TClass>
         {
-            CsvParser csvParser = new CsvParser(new StreamReader(filePath), config);
-            CsvReader csvReader = new CsvReader(csvParser);            
+            CsvParser csvParser = new CsvParser(new StreamReader(filePath));
+            CsvReader csvReader = new CsvReader(csvParser);
+
+            csvReader.Configuration.Delimiter = "~";
+            csvReader.Configuration.HasHeaderRecord = false;
 
             csvReader.Configuration.RegisterClassMap<TMap>();
 

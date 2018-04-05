@@ -5,7 +5,7 @@ namespace HRUpdate.Mapping
 {
     class OrganizationMapping { }
 
-    sealed class CustomOrganizationMap : CsvClassMap<Organization>
+    sealed class CustomOrganizationMap : ClassMap<Organization>
     {
         public CustomOrganizationMap()
         {

@@ -15,26 +15,9 @@ namespace HRUpdate.Utilities
         //Empty Contructor
         public SummaryFileGenerator() { }
 
-        //public void GenerateSummaryFile(string fileName, Summary summary)
-        //{
-        //    try
-        //    {
-        //        Creates the summary file
-        //        using (CsvWriter csvWriter = new CsvWriter(new StreamWriter(ConfigurationManager.AppSettings["SUMMARYFILEPATH"], false)))
-        //        {
-        //            csvWriter.Configuration.RegisterClassMap(new SummaryMappng());
-        //            csvWriter.WriteRecords(summary);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.Error("Error Writing Summary File: " + fileName + " - " + ex.Message + " - " + ex.InnerException);
-        //    }
-        //}
-
         public void GenerateSummaryFile<TClass,TMap>(string fileName, List<TClass> summaryData)
             where TClass : class
-            where TMap : CsvClassMap<TClass>
+            where TMap : ClassMap<TClass>
         {
             try
             {   

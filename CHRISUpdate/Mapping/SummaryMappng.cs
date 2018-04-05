@@ -3,7 +3,7 @@ using HRUpdate.Models;
 
 namespace HRLinks.Mapping
 {
-    sealed class SummaryMappng : CsvClassMap<Person>
+    sealed class SummaryMappng : ClassMap<Person>
     {
         public SummaryMappng()
         {
@@ -15,7 +15,7 @@ namespace HRLinks.Mapping
         }
     }
 
-    sealed class SeperationMapping: CsvClassMap<SeperationSummary>
+    sealed class SeperationMapping: ClassMap<SeperationSummary>
     {
         public SeperationMapping()
         {

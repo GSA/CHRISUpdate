@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace HRUpdate.Models
 {
@@ -15,7 +12,7 @@ namespace HRUpdate.Models
     }
 
     class SeperationSummary
-    {
+    {       
         public Int64 GCIMSID { get; set; }
         public Int64 EmployeeID { get; set; }
         public string SeparationCode { get; set; }

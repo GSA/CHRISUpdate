@@ -3,7 +3,7 @@ using HRUpdate.Models;
 
 namespace HRUpdate.Mapping
 {
-    public sealed class HRMapping : CsvClassMap<HR>
+    public sealed class HRMapping : ClassMap<HR>
     {      
         public HRMapping()
         {
@@ -17,7 +17,7 @@ namespace HRUpdate.Mapping
             Map(m => m.HomeState).Index(HRConstants.HOME_STATE);
             Map(m => m.HomeZipCode).Index(HRConstants.HOME_ZIP_CODE);
             Map(m => m.HomeCountry).Index(HRConstants.HOME_COUNTRY);
-            Map(m => m.SSN).Index(HRConstants.SSN).TypeConverter<SSNConverter>();
+            Map(m => m.SSN).Index(HRConstants.SSN); //.TypeConverter<SSNConverter>();
 
             References<EmployeeMap>(m => m.Employee);
             References<PositionMap>(m => m.Position);
@@ -27,7 +27,7 @@ namespace HRUpdate.Mapping
         }
     }
 
-    public sealed class EmployeeMap : CsvClassMap<Employee>
+    public sealed class EmployeeMap : ClassMap<Employee>
     {
         public EmployeeMap()
         {
@@ -53,7 +53,7 @@ namespace HRUpdate.Mapping
     }
 
     //Need two inserts 
-    public sealed class PositionMap : CsvClassMap<Position>
+    public sealed class PositionMap : ClassMap<Position>
     {
         public PositionMap()
         {
@@ -75,7 +75,7 @@ namespace HRUpdate.Mapping
             Map(m => m.LevelGrade).Index(HRConstants.LEVEL_GRADE);
             Map(m => m.OfficeSymbol).Index(HRConstants.POSITION_ORGANIZATION);
             Map(m => m.OrganizationCode).Index(HRConstants.ORGANIZATION_CODE);
-            Map(m => m.Region).Index(HRConstants.REGION).TypeConverter<RegionConverter>(); //Look at using .Format();
+            Map(m => m.Region).Index(HRConstants.REGION); //.TypeConverter<RegionConverter>(); //Look at using .Format();
             Map(m => m.PayPlan).Index(HRConstants.PAY_PLAN);
             Map(m => m.PositionControlNumber).Index(HRConstants.POSITION_CONTROL_NUMBER);
             Map(m => m.DutyCity).Index(HRConstants.DUTY_CITY);
@@ -91,7 +91,7 @@ namespace HRUpdate.Mapping
             Map(m => m.DetailLevelGrade).Index(HRConstants.DETAIL_LEVEL_GRADE);
             Map(m => m.DetailOfficeSymbol).Index(HRConstants.DETAIL_OFFICE_SYMBOL);
             Map(m => m.DetailOrganizationCode).Index(HRConstants.DETAIL_ORGANIZATION_CODE);
-            Map(m => m.DetailRegion).Index(HRConstants.DETAIL_REGION).TypeConverter<RegionConverter>(); //Look at using .Format();
+            Map(m => m.DetailRegion).Index(HRConstants.DETAIL_REGION); //.TypeConverter<RegionConverter>(); //Look at using .Format();
             Map(m => m.DetailPayPlan).Index(HRConstants.DETAIL_PAY_PLAN);
             Map(m => m.DetailPositionTitle).Index(HRConstants.DETAIL_POSITION_TITLE);
             Map(m => m.DetailPositionControlNumber).Index(HRConstants.DETAIL_POSITION_CONTROL_NUMBER);
@@ -104,7 +104,7 @@ namespace HRUpdate.Mapping
     }
 
     //Need to handle this it's different (look up based on chris id) -- should just be the ID
-    public sealed class SecurityMap : CsvClassMap<Security>
+    public sealed class SecurityMap : ClassMap<Security>
     {
         public SecurityMap()
         {
@@ -117,7 +117,7 @@ namespace HRUpdate.Mapping
         }
     }
 
-    public sealed class SupervisorMap : CsvClassMap<Supervisor>
+    public sealed class SupervisorMap : ClassMap<Supervisor>
     {
         //Need to use HR Links employee's supervisor unique identifier column and get the name and ID of this person
         public SupervisorMap()
@@ -128,7 +128,7 @@ namespace HRUpdate.Mapping
             Map(m => m.SupervisorEmployeeID).Index(HRConstants.SUPERVISOR_CHRIS_ID);        }
     }
 
-    public sealed class PersonMap : CsvClassMap<Person>
+    public sealed class PersonMap : ClassMap<Person>
     {
         public PersonMap()
         {
@@ -139,7 +139,7 @@ namespace HRUpdate.Mapping
             Map(m => m.OfficeSymbol).Index(HRConstants.POSITION_ORGANIZATION);
             //Regex is done in the SP
             Map(m => m.MajorOrg).Index(HRConstants.POSITION_ORGANIZATION);
-            Map(m => m.Region).Index(HRConstants.REGION).TypeConverter<RegionConverter>(); //Look at using .Format();            
+            Map(m => m.Region).Index(HRConstants.REGION); //.TypeConverter<RegionConverter>(); //Look at using .Format();            
         }
     }
 }

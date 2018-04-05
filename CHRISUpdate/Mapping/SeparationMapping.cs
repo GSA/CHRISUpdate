@@ -3,7 +3,7 @@ using HRUpdate.Models;
 
 namespace HRUpdate.Mapping
 {
-    sealed class CustomSeparationMap : CsvClassMap<Separation>
+    sealed class CustomSeparationMap : ClassMap<Separation>
     {
         public CustomSeparationMap()
         {            
