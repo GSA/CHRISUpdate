@@ -1,7 +1,13 @@
 <appSettings>
-    <add key="KEY" value="REPLACEME" />
-    <add key="HRFILE" value=""/>
-    <add key="SEPARATIONFILE" value=""/>
-    <add key="LOADPII" value="false"/>
+  <add key="KEY" value="REPLACEME" />
+  <add key="HRFILE" value="[path]" />
+  <add key="SEPARATIONFILE" value="[path]" />
+  <add key="LOADPII" value="false" />
+  <add key="SLEEPTIMER" value="5" />
+  <add key="SMTPSERVER" value="" />
+  <add key="DEFAULTEMAIL" value="[email]" />
+  <add key="CC" value="[email]" />
+  <add key="BCC" value="[email]" />
+  <add key="SUMMARYFILEPATH" value="[path]" />
 </appSettings>
   

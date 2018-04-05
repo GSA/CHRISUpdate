@@ -39,7 +39,7 @@ namespace HRUpdate.Process
         /// Processes chris file
         /// </summary>
         /// <param name="chrisFile"></param>
-        public void ProcessCHRISFile(string chrisFile)
+        public void ProcessHRFile(string chrisFile)
         {
             //Log start of processing file
             log.Info("Processing HR Users");

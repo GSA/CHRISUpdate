@@ -45,7 +45,7 @@ namespace HRUpdate
 
             //Only process if the file is there
             if (File.Exists(hrFilePath))
-                processData.ProcessCHRISFile(hrFilePath);
+                processData.ProcessHRFile(hrFilePath);
 
             //Only process if the file is there
             if (File.Exists(separationFilePath))
