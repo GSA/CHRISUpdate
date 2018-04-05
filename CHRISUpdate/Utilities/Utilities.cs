@@ -18,11 +18,11 @@ namespace HRUpdate.Utilities
 
             ssn = ssn.Replace("-", string.Empty);
 
-            //Using UTF8 because this only contains ASCII text
-            if (ssn.Length == 9)
-                hashedFullSSN = shaM.ComputeHash(Encoding.UTF8.GetBytes(ssn));
-
-            shaM.Dispose();
+            using (shaM)
+            {
+                if (ssn.Length == 9)
+                    hashedFullSSN = shaM.ComputeHash(Encoding.UTF8.GetBytes(ssn));
+            }
 
             return hashedFullSSN;
         }        

@@ -12,15 +12,15 @@ namespace HRUpdate
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         //File paths from config file
-        private static string chrisFilePath = ConfigurationManager.AppSettings["CHRISFILENAME"].ToString();
-        private static string separationFilePath = ConfigurationManager.AppSettings["SEPARATIONFILENAME"].ToString();        
+        private static string hrFilePath = ConfigurationManager.AppSettings["HRFILE"].ToString();
+        private static string separationFilePath = ConfigurationManager.AppSettings["SEPARATIONFILE"].ToString();        
 
         //Stopwatch objects
         private static Stopwatch timeForApp = new Stopwatch();
         private static Stopwatch timeForProcesses = new Stopwatch();
 
         /// <summary>
-        /// Main
+        /// Entrance into processsing the HR File
         /// </summary>
         /// <param name="args"></param>
         static void Main(string[] args)
@@ -44,8 +44,8 @@ namespace HRUpdate
             timeForProcesses.Start();
 
             //Only process if the file is there
-            if (File.Exists(chrisFilePath))
-                processData.ProcessCHRISFile(chrisFilePath);
+            if (File.Exists(hrFilePath))
+                processData.ProcessCHRISFile(hrFilePath);
 
             //Only process if the file is there
             if (File.Exists(separationFilePath))

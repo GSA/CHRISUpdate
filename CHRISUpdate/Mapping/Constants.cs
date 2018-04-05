@@ -135,14 +135,8 @@ namespace HRUpdate.Mapping
     public class SeparationConstants
     {
         private SeparationConstants() { }
-
-        //public const int UNIQUE_ID = 0;
-        public const int CHRIS_ID = 0;
-        //public const int LAST_NAME_AND_SUFFIX = 2;
-        //public const int FIRST_NAME = 3;
-        //public const int MIDDLE_NAME = 4;
-        //public const int PREFERRED_NAME = 5;
-        //public const int SSN = 6;
+               
+        public const int EMPLOYEE_ID = 0;       
         public const int SEPARATION_CODE = 1;
         public const int SEPARATION_DATE = 2;
     }

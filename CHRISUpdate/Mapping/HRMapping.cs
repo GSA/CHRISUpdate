@@ -62,9 +62,7 @@ namespace HRUpdate.Mapping
             Map(m => m.PositionOrganization).Index(HRConstants.POSITION_ORGANIZATION);
             Map(m => m.AgencyCodeSubelment).Index(HRConstants.AGENCY_CODE_SUBELEMENT);
             Map(m => m.Sensitivity).Index(HRConstants.SENSITIVITY);
-            Map(m => m.TeleworkEligible).Index(HRConstants.TELEWORK_ELIGIBLE);
-
-            //Map(m => m.PositionNumber).Index(CHRISConstants.POSITION_NUMBER);
+            Map(m => m.TeleworkEligible).Index(HRConstants.TELEWORK_ELIGIBLE);           
 
             //Map(m => m.IsDetail).Index(CHRISConstants.ASSIGNMENT_STATUS).TypeConverter<AssignmentConverter>();
 
@@ -80,7 +78,6 @@ namespace HRUpdate.Mapping
             Map(m => m.Region).Index(HRConstants.REGION).TypeConverter<RegionConverter>(); //Look at using .Format();
             Map(m => m.PayPlan).Index(HRConstants.PAY_PLAN);
             Map(m => m.PositionControlNumber).Index(HRConstants.POSITION_CONTROL_NUMBER);
-            //Map(m => m.PositionControlNumberIndicator).Index(CHRISConstants.POSITION_CONTROL_NUMBER_INDICATOR);
             Map(m => m.DutyCity).Index(HRConstants.DUTY_CITY);
             Map(m => m.DutyCode).Index(HRConstants.DUTY_CODE);
             Map(m => m.DutyCounty).Index(HRConstants.DUTY_COUNTY);
@@ -98,7 +95,6 @@ namespace HRUpdate.Mapping
             Map(m => m.DetailPayPlan).Index(HRConstants.DETAIL_PAY_PLAN);
             Map(m => m.DetailPositionTitle).Index(HRConstants.DETAIL_POSITION_TITLE);
             Map(m => m.DetailPositionControlNumber).Index(HRConstants.DETAIL_POSITION_CONTROL_NUMBER);
-            //Map(m => m.DetailPositionControlNumberIndicator).Index(CHRISConstants.DETAIL_POSITION_CONTROL_NUMBER_INDICATOR);
             Map(m => m.DetailPositionNumber).Index(HRConstants.DETAIL_POSITION_CONTROL_NUMBER);
             Map(m => m.DetailDutyCity).Index(HRConstants.DETAIL_DUTY_CITY);
             Map(m => m.DetailDutyCode).Index(HRConstants.DETAIL_DUTY_CODE);
@@ -129,18 +125,7 @@ namespace HRUpdate.Mapping
             //CHRIS ID of current person
             Map(m => m.EmployeeID).Index(HRConstants.CHRIS_ID);
             Map(m => m.UniqueEmployeeID).Index(HRConstants.CHRIS_EMPLOYEE_NUMBER);
-            Map(m => m.SupervisorEmployeeID).Index(HRConstants.SUPERVISOR_CHRIS_ID);
-
-
-            //Map(m => m.EMail).Index(CHRISConstants.SUPERVISOR_EMAIL);
-            //Map(m => m.FirstName).Index(CHRISConstants.SUPERVISOR_FIRST_NAME);
-            //Map(m => m.LastNameSuffix).Index(CHRISConstants.SUPERVISOR_LAST_NAME_SUFFIX);
-            //Map(m => m.MiddleName).Index(CHRISConstants.SUPERVISOR_MIDDLE_NAME);
-            //Map(m => m.PositionControlNumber).Index(CHRISConstants.SUPERVISOR_POSITION_CONTROL_NUMBER);
-            //Map(m => m.PositionControlNumberIndicator).Index(CHRISConstants.SUPERVISOR_POSITION_CONTROL_NUMBER_INDICATOR);
-            //Map(m => m.SupervisorEmployeeID).Index(CHRISConstants.SUPERVISOR_CHRIS_ID);
-            //Map(m => m.UniqueEmployeeID).Index(CHRISConstants.SUPERVISOR_EMPLOYEE_NUMBER);
-        }
+            Map(m => m.SupervisorEmployeeID).Index(HRConstants.SUPERVISOR_CHRIS_ID);        }
     }
 
     public sealed class PersonMap : CsvClassMap<Person>
@@ -154,10 +139,7 @@ namespace HRUpdate.Mapping
             Map(m => m.OfficeSymbol).Index(HRConstants.POSITION_ORGANIZATION);
             //Regex is done in the SP
             Map(m => m.MajorOrg).Index(HRConstants.POSITION_ORGANIZATION);
-            Map(m => m.Region).Index(HRConstants.REGION).TypeConverter<RegionConverter>(); //Look at using .Format();
-
-            //Do not map this will have to be set before saving
-            //Map(m => m.Supervisor).ToString();
+            Map(m => m.Region).Index(HRConstants.REGION).TypeConverter<RegionConverter>(); //Look at using .Format();            
         }
     }
 }

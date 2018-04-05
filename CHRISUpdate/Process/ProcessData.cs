@@ -11,8 +11,7 @@ using System.IO;
 using System.Linq;
 
 namespace HRUpdate.Process
-{
-    //private static Stopwatch timeForProcesses = new Stopwatch();
+{    
     class ProcessData
     {
         //Reference to logger
@@ -21,24 +20,11 @@ namespace HRUpdate.Process
         //Class to work with CSV's
         private static CsvConfiguration config = new CsvConfiguration();
 
-        //Set up database connections
-        private readonly MySqlConnection conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["GCIMS"].ToString());
-        private readonly MySqlCommand cmd = new MySqlCommand();
-        private readonly MySqlConnection connHR = new MySqlConnection(ConfigurationManager.ConnectionStrings["HR"].ToString());
-        private readonly MySqlCommand cmdHR = new MySqlCommand();
-
-        //Class variables
-        private static List<HR> chrisList = new List<HR>();
-        private static List<HRData> chrisListData = new List<HRData>();
-
         int processedRecords = 0; //rolling count of records that were processed
         int processedUsers = 0;  //rolling count of users processed
         int unprocessedUsers = 0; //rolling count of unprocessed users
 
-        readonly SaveData save = new SaveData();
-
-        //Need better naming namespace and convention here
-        readonly Utilities.Utilities u = new Utilities.Utilities();
+        readonly SaveData save = new SaveData();        
 
         //Constructor
         //Assigns defaults
@@ -60,27 +46,22 @@ namespace HRUpdate.Process
 
             try
             {
+                List<HR> hrList;
+
                 //Call function to map file to csv
-                chrisList = GetFileData<HR, HRMapping>(chrisFile, config);
+                hrList = GetFileData<HR, HRMapping>(chrisFile, config);
 
-                //string json = JsonConvert.SerializeObject(chrisList.Where(w => w.EmployeeNumber == "00001575"), Formatting.Indented);
-                
-                //Yale
-                //string json = JsonConvert.SerializeObject(chrisList.Where(e => new[] { "00004624", "00001604", "00002058", "00009957", "00009413" }.Contains(e.EmployeeNumber)), Formatting.Indented);
-
-                //Jason
-                //string json = JsonConvert.SerializeObject(chrisList.Where(e => new[] { "00008197", "00005573", "00005574", "00005575", "00005576" }.Contains(e.EmployeeNumber)), Formatting.Indented);
-
-                foreach (HR hrData in chrisList) // Loop through List with foreach - Chris chrisData in chrisList
+                //Start Processin the HR Data
+                foreach (HR hrData in hrList)
                 {
                     int personID = 0;
 
                     //Hash the ssn 
-                    byte[] SSN;
-                    SSN = u.HashSSN(hrData.SSN);
+                    //byte[] SSN;
+                    //SSN = u.HashSSN(hrData.SSN);
 
                     //If person id > 0 meaning it found a person id
-                    if (GetPersonID(SSN, out personID) > 0)
+                    if (1 == 1) //(GetPersonID(SSN, out personID) > 0)
                     {
                         //Assign the Id to all the associated locations
                         hrData.Employee.PersonID = personID;
@@ -91,42 +72,33 @@ namespace HRUpdate.Process
                         //chrisData.Person.Supervisor = chrisData.Supervisor.LastNameSuffix + ", " + chrisData.Supervisor.FirstName + " " + chrisData.Supervisor.MiddleName;
 
                         //Save the data
-                        save.SaveCHRISInformation(hrData, connHR);
+                        save.SaveCHRISInformation(hrData);
 
                         //Increment processed
                         processedUsers += 1;
                     }
                 //If a certain percentage is met (the threshold) then we need to generate an error file. (Are we doing this, we are having a meeting about this stuff)
                     else
-                    {
-                    //For now we are going to skip a person if they are not found in GCIMS.
-                    //We are thinking this might be the source to actually add a new person to GCIMS.
-                    //We need to talk to operations about this issue.
-                    //log.Warn("Unable to process user");
+                    {                      
+                        //Increment unprocessed
+                        unprocessedUsers += 1;
 
-                    //Increment unprocessed
-                    unprocessedUsers += 1;
+                        //Log not found warning
+                        log.Warn("Not Found! " + hrData.Employee.EmployeeID + " " + hrData.Employee.FirstName + " " + hrData.Employee.LastName);
+                    }
 
-                    //Log not found warning
-                    log.Warn("Not Found! " + hrData.Employee.EmployeeID + " " + hrData.Employee.FirstName + " " + hrData.Employee.LastName);
-                }
-
-                processedRecords += 1;
+                    processedRecords += 1;
                 }
 
                 //Add log entries
                 log.Info("CHRIS Records Processed: " + String.Format("{0:#,###0}", processedUsers));
                 log.Info("CHRIS Users Not Processed: " + String.Format("{0:#,###0}", unprocessedUsers));
-                log.Info("CHRIS Processed Records: " + String.Format("{0:#,###0}", processedRecords));
-
-                //Close connection
-                connHR.Close();
-                conn.Close();
+                log.Info("CHRIS Processed Records: " + String.Format("{0:#,###0}", processedRecords));                
             }
             //Catch all errors
             catch (Exception ex)
             {
-                log.Error("Process CHRIS Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);                
+                log.Error("Process HR Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);                
             }
         }
 
@@ -137,56 +109,41 @@ namespace HRUpdate.Process
         public void ProcessSeparationFile(string separationFile)
         {
             //Log function start
-            log.Info("Processing Separation Users");
-
-            //If we can't open the DB just crash here no point going forward (just making sure we have a connection)
-            //if (connHR.State == ConnectionState.Closed)
-            //{
-            //    connHR.Open();
-            //    cmdHR.Connection = connHR;
-            //}
+            log.Info("Processing Separation Users");            
 
             //Initialize counters
-            processedRecords = 0; //rolling count of records that were processed
-            processedUsers = 0;  //rolling count of users processed
-            unprocessedUsers = 0; //rolling count of unprocessed users
+            processedRecords = 0;
+            processedUsers = 0;
+            unprocessedUsers = 0;
 
             //Initialize list to hold mapped csv data
-            List<Separation> separationList; // = new List<Separation>();
+            List<Separation> separationList;
 
             //Call function that loads file and maps to csv
             separationList = GetFileData<Separation, CustomSeparationMap>(separationFile, config);
 
             try
             {
-                //Iterate through all data
+                //Iterate the data
                 foreach (Separation separationData in separationList)
                 {
-                    //If employee exists based on employee id
-                    if (DoesEmployeeExist(separationData.ChrisID)) //EmployeeID = Chris ID
-                    {
-                        //Save data
-                        save.SaveSeparationInformation(separationData, connHR);
+                    Tuple<int, int, string> separationResults;
 
-                        //Increment
+                    separationResults = save.SaveSeparationInformation(separationData);
+
+                    if (separationResults.Item1 > 0)
+                    {
                         processedUsers += 1;
                     }
-                    //If a certain percentage is met (the threshold) then we need to generate an error file. (Are we doing this, we are having a meeting about this stuff)
                     else
                     {
-                        //For now we are going to skip a person if they are not found in GCIMS.
-                        //We are thinking this might be the source to actually add a new person to GCIMS.
-                        //We need to talk to operations about this issue.
-                        //log.Warn("Unable to process user");
                         unprocessedUsers += 1;
-                        log.Warn("Not Found! " + separationData.ChrisID);
                     }
 
-                    //Moved here on 9/15 was in the wrong location and was reporting 1 always
-                    processedRecords += 1;
+                    processedRecords += 1;                    
                 }
 
-                //Add to log
+                //Log Separation Process
                 log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", processedUsers));
                 log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", unprocessedUsers));
                 log.Info("Separation Processed Records: " + String.Format("{0:#,###0}", processedRecords));
@@ -197,185 +154,7 @@ namespace HRUpdate.Process
                 //Log error
                 log.Error("Process Separation Users Error:" + ex.Message + " " + ex.InnerException); 
             }
-        }
-
-        /// <summary>
-        /// Process organization file
-        /// </summary>
-        /// <param name="organizationFile"></param>
-        public void ProcessOrganizationFile(string organizationFile)
-        {
-            //Log start of function
-            log.Info("Processing Separation Users");
-
-            //If we can't open the DB just crash here no point going forward (just making sure we have a connection)
-            //if (conn.State == ConnectionState.Closed)
-            //{
-            //    conn.Open();
-            //    cmd.Connection = conn;
-            //}
-
-            //Declare counters
-            processedRecords = 0; //rolling count of records that were processed
-            processedUsers = 0;  //rolling count of users processed
-            unprocessedUsers = 0; //rolling count of unprocessed users
-
-            //List to hold csv data
-            List<Organization> organizationList; //= new List<Organization>();
-
-            //Populate list with csv data
-            organizationList = GetFileData<Organization, CustomOrganizationMap>(organizationFile, config);
-
-            //save.SaveCHRISInformation(chrisData);
-
-            //Return if nothing to store
-            if (organizationList.Count == 0)
-                return;
-
-            //Iterate and save data
-            foreach (Organization organizationData in organizationList)
-            {
-                //Save the data
-                save.SaveOrganizationInformation(organizationData);
-
-                //Increment counter
-                processedRecords += 1;
-            }
-
-            //continue to process
-        }
-
-        /// <summary>
-        /// Gets person id from db using hashed ssn
-        /// The out param and the return are the same for some reason. 
-        /// </summary>
-        /// <param name="ssn"></param>
-        /// <param name="personID"></param>
-        /// <returns></returns>
-        private int GetPersonID(byte[] ssn, out int personID)
-        {
-            //Open connection if not open
-            if (conn.State == ConnectionState.Closed)
-            {
-                conn.Open();
-                cmd.Connection = conn;
-            }
-
-            try
-            {
-                object obj;
-
-                personID = 0;
-
-                //Set query string
-                cmd.CommandText = "Select pers_id from person where pers_hashed_ssn = @ssn";
-
-                //Clear parameters and add sql parameter for ssn
-                cmd.Parameters.Clear();
-                cmd.Parameters.AddWithValue("@ssn", ssn);
-
-                //Run command
-                obj = cmd.ExecuteScalar();
-
-                //Parse ID from object if not null
-                if (obj != null)
-                    personID = int.Parse(obj.ToString());
-
-                //Return person id
-                return personID;
-            }
-            //Catch all exceptions
-            catch (Exception ex)
-            {
-                //Log error and re-throw
-                log.Error(ex.Message + " - " + ex.InnerException);
-                throw;
-            }
-        }
-
-        //Overload in case we just want to return without an out
-        private int GetPersonID(byte[] ssn)
-        {
-            try
-            {
-                using (conn)
-                {
-                    if (conn.State == ConnectionState.Closed)
-                        conn.Open();
-
-                    using (cmd)
-                    {
-                        cmd.Connection = conn;
-
-                        object obj;
-
-                        cmd.CommandText = "Select pers_id from person where pers_hashed_ssn = @ssn";
-
-                        cmd.Parameters.Clear();
-                        cmd.Parameters.AddWithValue("@ssn", ssn);
-
-                        obj = cmd.ExecuteScalar();
-
-                        if (obj != null)
-                            return int.Parse(obj.ToString());
-
-                        return 0;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex.Message + " - " + ex.InnerException);
-                return 0;
-            }            
-        }
-
-        /// <summary>
-        /// Determines if employee exists by employee id
-        /// </summary>
-        /// <param name="empID"></param>
-        /// <returns></returns>
-        private bool DoesEmployeeExist(string empID)
-        {
-            try
-            {
-                using (connHR)
-                {
-                    if (connHR.State == ConnectionState.Closed)
-                        connHR.Open();
-
-                    using (cmdHR)
-                    {
-                        cmdHR.Connection = connHR;
-                        cmdHR.CommandType = CommandType.Text;
-
-                        object obj;
-
-                        //Create query string
-                        cmdHR.CommandText = "Select emp_id from employee where emp_id = @empID";
-
-                        //Clear and set parameters
-                        cmdHR.Parameters.Clear();
-                        cmdHR.Parameters.AddWithValue("@empID", empID);
-
-                        //Execute query
-                        obj = cmdHR.ExecuteScalar();
-
-                        //If object not null return true
-                        if (obj != null)
-                            return true;
-
-                        //Else return false
-                        return false;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex.Message + " - " + ex.InnerException);
-                throw;
-            }            
-        }
+        }   
 
         /// <summary>
         /// Takes a file and loads the data into the object type specified using the mapping
@@ -390,18 +169,7 @@ namespace HRUpdate.Process
             where TMap : CsvClassMap<TClass>
         {
             CsvParser csvParser = new CsvParser(new StreamReader(filePath), config);
-            CsvReader csvReader = new CsvReader(csvParser);
-
-            //Used for testing
-            //while (true)
-            //{
-                //var row = csvParser.Read();
-                //if (row == null)
-                //{
-                    //Console.WriteLine(row[0] + " - " + row[1] + " - " + row[2]);
-                    //break;
-                //}
-            //}
+            CsvReader csvReader = new CsvReader(csvParser);            
 
             csvReader.Configuration.RegisterClassMap<TMap>();
 

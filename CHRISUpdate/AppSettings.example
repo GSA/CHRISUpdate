@@ -1,8 +1,7 @@
 <appSettings>
     <add key="KEY" value="REPLACEME" />
-    <add key="CHRISFILENAME" value="C:\Temp\chris\smallfile.dat"/> <!-- CHRISData.dat || smallfile.dat -->
-    <add key="SEPARATIONFILENAME" value="CHRISGCIMSEXEMPOUT.dat"/> <!-- SeparationData.dat -->
-    <add key="ORGFILENAME" value="OrgData.dat"/>
+    <add key="HRFILE" value=""/>
+    <add key="SEPARATIONFILE" value=""/>
     <add key="LOADPII" value="false"/>
 </appSettings>
   

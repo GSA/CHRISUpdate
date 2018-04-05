@@ -11,15 +11,11 @@ namespace HRUpdate.Process
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        //Set connection string from config file
-        private static string connectionString = ConfigurationManager.ConnectionStrings["HR"].ToString();
-
         //Set up connection
-        readonly MySqlCommand cmd = new MySqlCommand();
+        private readonly MySqlConnection conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["GCIMS"].ToString());
+        private readonly MySqlCommand cmd = new MySqlCommand();              
 
-        //Want to turn this into the type converter in mapping
-        readonly Utilities.Utilities u = new Utilities.Utilities();
-
+        //Empty Contructor
         public SaveData(){}
 
         /// <summary>
@@ -28,7 +24,7 @@ namespace HRUpdate.Process
         /// <param name="saveData"></param>
         /// <param name="conn"></param>
         /// <returns>bool</returns>
-        public bool SaveCHRISInformation(HR saveData, MySqlConnection conn)
+        public bool SaveCHRISInformation(HR saveData)
         {
             try
             {
@@ -63,12 +59,11 @@ namespace HRUpdate.Process
         }
 
         /// <summary>
-        /// Save separation info and return true if successful
+        /// Saves Separation Data
         /// </summary>
-        /// <param name="saveData"></param>
-        /// <param name="conn"></param>
-        /// <returns>Bool</returns>
-        public bool SaveSeparationInformation(Separation saveData, MySqlConnection conn)
+        /// <param name="separationData"></param>
+        /// <returns></returns>
+        public Tuple<int, int, string>SaveSeparationInformation(Separation separationData)
         {
             try
             {
@@ -78,109 +73,39 @@ namespace HRUpdate.Process
                         conn.Open();
 
                     using (cmd)
-                    {
-                        //Set cmd
+                    {                        
                         cmd.Connection = conn;
-                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandType = CommandType.StoredProcedure;                        
+                        cmd.CommandText = "HR_Separation";
 
-                        //AddOrupdate<Separation>(saveData, "Separation");
+                        //Clear sql parameters and create new sql parameters
+                        cmd.Parameters.Clear();
+                        MySqlParameter[] employeParameters = new MySqlParameter[] 
+                        {
+                            new MySqlParameter { ParameterName = "emplID", Value = separationData.EmployeeID, MySqlDbType = MySqlDbType.Int32},
+                            new MySqlParameter { ParameterName = "separationReasonCode", Value = separationData.SeparationCode, MySqlDbType = MySqlDbType.VarChar, Size = 3},
+                            new MySqlParameter { ParameterName = "separationDate", Value = separationData.SeparationDate, MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "persID", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "result", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
+                        };
 
-                        //Save data
-                        AddOrUpdate(saveData);
+                        cmd.Parameters.AddRange(employeParameters);
+                       
+                        cmd.ExecuteNonQuery();
 
-                        //If success return true
-                        return true;
+                        return new Tuple<int, int, string>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["SQLExceptionWarning"].Value.ToString());
                     }
 
                 }
             }
             catch (Exception ex)
             {
-                log.Warn("[SaveSeparationInformation] Unable to save " + saveData.ChrisID + " - " + ex.Message + " - " + ex.InnerException);
-                return false;
+                log.Warn("[SaveSeparationInformation] Unable to save " + separationData.EmployeeID + " - " + ex.Message + " - " + ex.InnerException);
+                return new Tuple<int, int, string>(-1, -1, "Unknown Error");
             }                    
         }
-
-        /// <summary>
-        /// Always returns true
-        /// Function has no purpose
-        /// </summary>
-        /// <param name="saveData"></param>
-        /// <returns>Bool</returns>
-        public bool SaveOrganizationInformation(Organization saveData)
-        {
-            //AddOrupdate<Organization>(saveData, "Organization");
-            return true;
-        }
-
-        /// <summary>
-        /// Save organization data
-        /// </summary>
-        /// <param name="organizationData"></param>
-        private void AddOrUpdate(Organization organizationData)
-        {
-            try
-            {
-                //Set cmd
-                cmd.CommandText = "Organization";
-
-                //Clear parameters and add new parameters
-                cmd.Parameters.Clear();
-                MySqlParameter[] employeParameters = new MySqlParameter[] {
-                                        new MySqlParameter { ParameterName = "@SeparationCode", Value = organizationData.AbolishedbyOrder, MySqlDbType = MySqlDbType.VarChar, Size = 2},
-                                        new MySqlParameter { ParameterName = "@SeparationDate", Value = organizationData.ChangedByOrder, MySqlDbType = MySqlDbType.Date},
-                                        new MySqlParameter { ParameterName = "@EmpID", Value = organizationData.ChangedByOrder, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is CHRIS ID
-                                    };
-
-                //Add sql parameters to cmd
-                cmd.Parameters.AddRange(employeParameters);
-
-                //Execute cmd
-                cmd.ExecuteNonQuery();
-            }
-            //Catch all exceptions
-            catch (Exception ex)
-            {
-                //Log error and re-throw
-                log.Error("Process Organization Users Error:" + ex.Message + " " + ex.InnerException);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Save separation data in db
-        /// </summary>
-        /// <param name="separationData"></param>
-        private void AddOrUpdate(Separation separationData)
-        {
-            try
-            {
-                //Set up cmd
-                cmd.CommandText = "Separation";
-
-                //Clear sql parameters and create new sql parameters
-                cmd.Parameters.Clear();
-                MySqlParameter[] employeParameters = new MySqlParameter[] {
-                                        new MySqlParameter { ParameterName = "@SeparationCode", Value = separationData.SeparationCode, MySqlDbType = MySqlDbType.VarChar, Size = 3},
-                                        new MySqlParameter { ParameterName = "@SeparationDate", Value = separationData.SeparationDate, MySqlDbType = MySqlDbType.Date},
-                                        new MySqlParameter { ParameterName = "@EmpID", Value = separationData.ChrisID, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is CHRIS ID
-                                    };
-
-                //Add parameters to cmd
-                cmd.Parameters.AddRange(employeParameters);
-
-                //Execute query
-                cmd.ExecuteNonQuery();
-            }
-            //Catch all exceptions
-            catch (Exception ex)
-            {
-                //Log error and re-throw
-                log.Error("Process Separation Users Error:" + ex.Message + " " + ex.InnerException);
-                throw;
-            }
-        }
-
+       
         /// <summary>
         /// Add or update person data
         /// </summary>
@@ -222,9 +147,7 @@ namespace HRUpdate.Process
                 throw;
             }
         }
-
-        //auto set separation values always to null here
-
+                
         /// <summary>
         /// Add or update employee data
         /// </summary>
@@ -453,55 +376,6 @@ namespace HRUpdate.Process
                 log.Error("[AddOrUpdate - Security] - Process Users Error:" + ex.Message + " " + ex.InnerException);
                 throw;
             }
-        }
-
-        //need to figure out how to get this to work
-        //private void AddOrUpdate<T>(T saveData, string commandText) where T : class
-        //{
-        //    try
-        //    {
-        //        cmd.CommandText = commandText;
-
-        //        object result = Convert.ChangeType(saveData, typeof(T));
-
-        //        PopulateParameters(result);
-
-        //        cmd.ExecuteNonQuery();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.Error("Error while trying to save data:" + ex.Message + " " + ex.InnerException);
-        //        throw;
-        //    }
-        //}
-
-        ////private void PopulateParamters<T>(T saveData) where T : Employee
-        ////{
-
-        ////}
-
-        //private void PopulateParameters(Employee saveData)
-        //{
-
-        //}
-
-        //private void PopulateParameters(Position saveData)
-        //{
-
-        //}
-
-        //private void PopulateParameters<T>(T saveData) where T : class
-        //{
-        //    cmd.Parameters.Clear();
-
-        //    MySqlParameter[] employeParameters = new MySqlParameter[] {
-        //                                new MySqlParameter { ParameterName = "@SeparationCode", Value = organizationData.AbolishedbyOrder, MySqlDbType = MySqlDbType.VarChar, Size = 2},
-        //                                new MySqlParameter { ParameterName = "@SeparationDate", Value = organizationData.ChangedByOrder, MySqlDbType = MySqlDbType.Date},
-        //                                new MySqlParameter { ParameterName = "@EmpID", Value = organizationData.ChangedByOrder, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is CHRIS ID
-        //                            };
-
-        //    cmd.Parameters.AddRange(employeParameters);
-
-        //}
+        }       
     }
 }
