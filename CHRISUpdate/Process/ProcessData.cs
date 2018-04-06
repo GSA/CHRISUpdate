@@ -55,27 +55,31 @@ namespace HRUpdate.Process
                 Console.WriteLine(result.DifferencesString);
 
             Console.ReadLine();
-        } 
+        }
 
         /// <summary>
-        /// Processes chris file
+        /// Get HR Data
+        /// Loop HR Data
+        /// Get GCIMS Record
+        /// Update GCIMS Record
         /// </summary>
-        /// <param name="chrisFile"></param>
-        public void ProcessHRFile(string chrisFile)
+        /// <param name="hrFile"></param>
+        public void ProcessHRFile(string hrFile)
         {
-            //Log start of processing file
             log.Info("Processing HR Users");
 
             try
             {
-                List<Employee> hrList;
+                List<Employee> employeeData;
 
                 //Call function to map file to csv
-                hrList = GetFileData<Employee, EmployeeMapping>(chrisFile);
+                employeeData = GetFileData<Employee, EmployeeMapping>(hrFile);
 
                 //Start Processin the HR Data
-                foreach (Employee hrData in hrList)
+                foreach (Employee employee in employeeData)
                 {
+                    //save.GetGCIMSRecord(employee.Person.EmployeeID);
+                   
                     int personID = 0;
                     
                     //If person id > 0 meaning it found a person id

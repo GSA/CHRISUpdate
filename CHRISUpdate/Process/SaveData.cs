@@ -18,6 +18,31 @@ namespace HRUpdate.Process
         //Empty Contructor
         public SaveData(){}
 
+        public Tuple<int, int, string> GetGCIMSRecord(string EmployeeID, int ssn, string lastName, DateTime? dateOfBirth)
+        {
+            try
+            {
+                using (conn)
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    using (cmd)
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = "HR_GetRecord";
+
+                        return new Tuple<int, int, string>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["SQLExceptionWarning"].Value.ToString());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new Tuple<int, int, string>(-1, -1, "Unknown Error");
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
