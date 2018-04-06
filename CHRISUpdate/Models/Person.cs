@@ -8,7 +8,7 @@
         public string MiddleName { get; set; }
         public string Suffix { get; set; }
         public string CordialName { get; set; }
-        public string SSN { get; set; }
+        public int SSN { get; set; }
         public string Gender { get; set; }
         public string SCDLeave { get; set; }
         public string FERO { get; set; }

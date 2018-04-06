@@ -78,7 +78,7 @@ namespace HRUpdate.Process
                 //Start Processin the HR Data
                 foreach (Employee employee in employeeData)
                 {
-                    //save.GetGCIMSRecord(employee.Person.EmployeeID);
+                    save.GetGCIMSRecord(employee.Person.EmployeeID, employee.Person.SSN, employee.Person.LastName, employee.Birth.DateOfBirth);
                    
                     int personID = 0;
                     
