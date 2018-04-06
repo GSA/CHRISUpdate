@@ -17,7 +17,7 @@ namespace HRUpdate
 
         //Stopwatch objects
         private static Stopwatch timeForApp = new Stopwatch();
-        private static Stopwatch timeForProcesses = new Stopwatch();
+        private static Stopwatch timeForProcess = new Stopwatch();
 
         /// <summary>
         /// Entrance into processsing the HR File
@@ -38,30 +38,35 @@ namespace HRUpdate
             ProcessData processData = new ProcessData();
 
             //Log action
-            log.Info("Processing HR Links File:" + DateTime.Now);
+            log.Info("Processing HR Files:" + DateTime.Now);
 
-            //Start timer
-            timeForProcesses.Start();
-
-            //Only process if the file is there
+            //HR File
             if (File.Exists(hrFilePath))
+            {
+                log.Info("Starting Processing HR File: " + DateTime.Now);
+
+                timeForProcess.Start();                
                 processData.ProcessHRFile(hrFilePath);
+                timeForProcess.Stop();
 
-            //Only process if the file is there
+                log.Info("Done Processing HR File: " + DateTime.Now);
+                log.Info("HR File Processing Time: " + timeForProcess.ElapsedMilliseconds);
+            }       
+            
+            //Separation File
             if (File.Exists(separationFilePath))
+            {
+                log.Info("Starting Processing Separation File: " + DateTime.Now);
+
+                timeForProcess.Start();
                 processData.ProcessSeparationFile(separationFilePath);
+                timeForProcess.Stop();
 
-            //Log action
-            log.Info("Done Processing HR Links File:" + DateTime.Now);
-
-            //Stop timer
-            timeForProcesses.Stop();
-
-#if DEBUG
-            Console.WriteLine(string.Format("Processed Files in {0} milliseconds", timeForProcesses.ElapsedMilliseconds));
-#endif
-            //Log elapsed time for processing
-            log.Info(string.Format("Processed Files in {0} milliseconds", timeForProcesses.ElapsedMilliseconds));
+                log.Info("Done Processing Separation File: " + DateTime.Now);
+                log.Info("Separation File Processing Time: " + timeForProcess.ElapsedMilliseconds);
+            }
+                
+            log.Info("Done Processing HR Links File:" + DateTime.Now);            
 
             //Stop second timer
             timeForApp.Stop();
@@ -74,6 +79,9 @@ namespace HRUpdate
 
             //Log application end
             log.Info("Application Done: " + DateTime.Now);
+
+            //Output application start
+            Console.WriteLine("Applicaton Ended: " + DateTime.Now);
 
 #if DEBUG
             //Wait for key press
