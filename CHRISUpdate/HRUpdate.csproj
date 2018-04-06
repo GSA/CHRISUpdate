@@ -98,7 +98,6 @@
     <Compile Include="Models\Birth.cs" />
     <Compile Include="Models\Detail.cs" />
     <Compile Include="Models\Emergency.cs" />
-    <Compile Include="Models\HRData.cs" />
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\Investigation.cs" />
     <Compile Include="Models\Person.cs" />
@@ -106,7 +105,6 @@
     <Compile Include="Models\Security.cs" />
     <Compile Include="Models\Separation.cs" />
     <Compile Include="Models\Summary.cs" />
-    <Compile Include="Models\Supervisor.cs" />
     <Compile Include="Process\ProcessData.cs" />
     <Compile Include="Process\SaveData.cs" />
     <Compile Include="Program.cs" />

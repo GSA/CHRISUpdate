@@ -10,6 +10,8 @@ namespace HRUpdate.Mapping
             References<PersonMap>(m => m.Person);
             References<AddressMap>(m => m.Address);
             References<BirthMap>(m => m.Birth);
+            References<PositionMap>(m => m.Position);
+            References<EmergencyMap>(m => m.Emergency);
         }
     }
 
@@ -65,6 +67,40 @@ namespace HRUpdate.Mapping
             Map(m => m.Citizen).Index(HRConstants.CITIZEN);
             Map(m => m.DateOfBirth).Index(HRConstants.DATE_OF_BIRTH);
 
+        }
+    }
+
+    public sealed class PositionMap: ClassMap<Position>
+    {
+        public PositionMap()
+        {
+            Map(m => m.PositionControlNumber).Index(HRConstants.POSITION_CONTROL_NUMBER);
+            Map(m => m.PositionTitle).Index(HRConstants.POSITION_TITLE);
+            Map(m => m.PositionOrganization).Index(HRConstants.POSITION_ORGANIZATION);
+            Map(m => m.SupervisoryStatus).Index(HRConstants.SUPERVISORY_STATUS);
+            Map(m => m.PayPlan).Index(HRConstants.PAY_PLAN);
+            Map(m => m.JobSeries).Index(HRConstants.JOB_SERIES);
+            Map(m => m.PayGrade).Index(HRConstants.LEVEL_GRADE);
+            Map(m => m.WorkSchedule).Index(HRConstants.WORK_SCHEDULE);
+            Map(m => m.PositionTeleworkEligibility).Index(HRConstants.TELEWORK_ELIGIBLE);
+            Map(m => m.PositionStartDate).Index(HRConstants.POSITION_START_DATE);
+            Map(m => m.AgencyCodeSubelement).Index(HRConstants.AGENCY_CODE_SUBELEMENT);
+            Map(m => m.SupervisorEmployeeID).Index(HRConstants.SUPERVISOR_EMPLOYEE_ID);
+        }
+    }
+
+    public sealed class EmergencyMap: ClassMap<Emergency>
+    {
+        public EmergencyMap()
+        {
+            Map(m => m.EmergencyContactName).Index(HRConstants.EMERGENCY_POC_NAME);
+            Map(m => m.EmergencyContactHomePhone).Index(HRConstants.EMERGENCY_POC_HOME_PHONE_NUMBER);
+            Map(m => m.EmergencyContactWorkPhone).Index(HRConstants.EMERGENCY_POC_WORK_PHONE_NUMBER);
+            Map(m => m.EmergencyContactCellPhone).Index(HRConstants.EMERGENCY_POC_CELL_NUMBER);
+            Map(m => m.OutOfAreaContactName).Index(HRConstants.EMERGENCY_OUT_OF_AREA_NAME);
+            Map(m => m.OutOfAreaContactHomePhone).Index(HRConstants.EMERGENCY_OUT_OF_AREA_HOME_PHONE_NUMBER);
+            Map(m => m.OutOfAreaContactWorkPhone).Index(HRConstants.EMERGENCY_OUT_OF_AREA_HOME_WORK_PHONE_NUMBER);
+            Map(m => m.OutOfAreaContactCellPhone).Index(HRConstants.EMERGENCY_OUT_OF_AREA_CELL_NUMBER);
         }
     }
 }

@@ -80,7 +80,7 @@ namespace HRUpdate.Mapping
         public const int DETAIL_DUTY_STATE = 64;
         public const int DETAIL_DUTY_COUNTY = 65;
 
-        public const int SUPERVISOR_CHRIS_ID = 66; //Supervisor Unique ID 
+        public const int SUPERVISOR_EMPLOYEE_ID = 66; //Supervisor Unique ID 
                
 
         public const int HOME_ADDRESS_3 = 67;

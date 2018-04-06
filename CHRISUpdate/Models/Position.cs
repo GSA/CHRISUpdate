@@ -1,4 +1,6 @@
-﻿namespace HRUpdate.Models
+﻿using System;
+
+namespace HRUpdate.Models
 {
     public class Position
     {
@@ -12,7 +14,7 @@
         public string WorkSchedule { get; set; }
         public string PositionTeleworkEligibility { get; set; }
         public string PositionSensitivity { get; set; }
-        public string PositionStartDate { get; set; }
+        public DateTime? PositionStartDate { get; set; }
         public string AgencyCodeSubelement { get; set; }
         public string SupervisorEmployeeID { get; set; }
     }
