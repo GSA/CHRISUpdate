@@ -7,11 +7,11 @@ namespace HRLinks.Mapping
     {
         public SummaryMappng()
         {
-            Map(m => m.PersonID);
+            //Map(m => m.PersonID);
             Map(m => m.FirstName);
             Map(m => m.MiddleName);
             Map(m => m.LastName);
-            Map(m => m.Action);
+            //Map(m => m.Action);
         }
     }
 

@@ -40,6 +40,10 @@ namespace HRUpdate
             //Log action
             log.Info("Processing HR Files:" + DateTime.Now);
 
+            processData.CompareObject(hrFilePath);
+
+            return;
+
             //HR File
             if (File.Exists(hrFilePath))
             {

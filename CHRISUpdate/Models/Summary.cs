@@ -14,7 +14,7 @@ namespace HRUpdate.Models
     class SeperationSummary
     {       
         public Int64 GCIMSID { get; set; }
-        public Int64 EmployeeID { get; set; }
+        public string EmployeeID { get; set; }
         public string SeparationCode { get; set; }
         public string Action { get; set; }
     }

@@ -3,25 +3,20 @@
 namespace HRUpdate.Mapping
 {
     public static class HRConstants
-    {
-        public const int CHRIS_ID = 0; //THIS IS THE EMPLOYEEID
-
-        public const int CHRIS_EMPLOYEE_NUMBER = 0; //UNIQUE EMPLOYEE ID
-        //public const int POSITION_NUMBER = 1;
-
+    {        
+        public const int EMPLOYEE_NUMBER = 0;        
         public const int EMPLOYEE_LAST_NAME = 1;
         public const int EMPLOYEE_SUFFIX = 2;
-        //public const int EMPLOYEE_FAMILY_SUFFIX = 2;
         public const int EMPLOYEE_FIRST_NAME = 3;
         public const int EMPLOYEE_MIDDLE_NAME = 4;
-        
 
-        //5 pob city
-        //6 pob state
-        //7 pob country
-        //8 country of citizenship
-        //9 us citizen
-        //10 preferred first name
+        public const int CORDIAL_NAME = 10;
+
+        public const int BIRTH_CITY = 5;
+        public const int BIRTH_STATE = 6;
+        public const int BIRTH_COUNTRY = 7;
+        public const int COUNTRY_OF_CITIZENSHIP = 8;
+        public const int CITIZEN = 9;
 
         public const int AGENCY_CODE = 11;
         public const int HOME_ADDRESS_1 = 12;
@@ -31,8 +26,7 @@ namespace HRUpdate.Mapping
         public const int HOME_ZIP_CODE = 16;
         public const int HOME_COUNTRY = 17;
         public const int SSN = 18;
-
-        //19 DOB
+        public const int DATE_OF_BIRTH = 19;
 
         public const int EMPLOYEE_STATUS = 20;
         public const int GENDER = 21;
@@ -57,8 +51,8 @@ namespace HRUpdate.Mapping
         public const int LEVEL_GRADE = 37;
         public const int WORK_SCHEDULE = 38;
 
-        //39 Key Emergency Essential Designation
-        //40 LEO Position Indicator
+        public const int FERO = 39;
+        public const int LEO = 40;
 
         public const int TELEWORK_ELIGIBLE = 41;
         public const int SENSITIVITY = 42;
@@ -87,49 +81,32 @@ namespace HRUpdate.Mapping
         public const int DETAIL_DUTY_COUNTY = 65;
 
         public const int SUPERVISOR_CHRIS_ID = 66; //Supervisor Unique ID 
-
-        //public const int SUPERVISOR_EMPLOYEE_NUMBER = ;
-        //public const int SUPERVISOR_LAST_NAME_SUFFIX = ;
-        //public const int SUPERVISOR_FIRST_NAME = ;
-        //public const int SUPERVISOR_MIDDLE_NAME = ;
-        //public const int SUPERVISOR_POSITION_CONTROL_NUMBER = ;
-        //public const int SUPERVISOR_POSITION_CONTROL_NUMBER_INDICATOR = ;
-        //public const int SUPERVISOR_EMAIL = ;
+               
 
         public const int HOME_ADDRESS_3 = 67;
         public const int POSITION_TITLE = 68;
         public const int POSITION_ORGANIZATION = 69; //Office Symbol
 
-        //70 Personal Home Phone
-        //71 Personal Cell Phone
-        //72 Personal Email Address
-        //73 Emergency Point of Contact Full name
-        //74 Emergency POC Home Phone Number
-        //75 Emergency POC Work Phone Number
-        //76 Emergency POC Cell Number
-        //77 Out of Area Emergency Point of Contact Full name
-        //78 Out of Area POC Home Phone Number
-        //79 Out of Area POC Work Phone Number
-        //80 Out of Area POC Cell Number
-        //81 Work Building #
-        //82 Work Address Line 1
-        //83 Work Address City
-        //84 Work Address State
-        //85 Work Address Zip Code
-        //86 Work Phone Number
-        //87 Work FAX Number
-        //88 Work Cell Number
-        //89 Work Phone Number TTY
+        public const int PERSONAL_HOME_PHONE = 70;
+        public const int PERSONAL_CELL_PHONE = 71;
+        public const int PERSONAL_EMAIL_ADDRESS = 72;
 
-        //public const int TYPE_OF_EMPLOYMENT = ;
-        //public const int HANDICAP = ;
-        //public const int ASSIGNMENT_STATUS = ;
-        //public const int DUTY_STATUS = ;
-        //public const int POSITION_CONTROL_NUMBER_INDICATOR = ;
-        public const int ADJUDICATION_AUTH = 31;        
-        //public const int DETAIL_POSITION_CONTROL_NUMBER_INDICATOR =;
+        public const int EMERGENCY_POC_NAME = 73;
+        public const int EMERGENCY_POC_HOME_PHONE_NUMBER = 74;
+        public const int EMERGENCY_POC_WORK_PHONE_NUMBER = 75;
+        public const int EMERGENCY_POC_CELL_NUMBER = 76;
+        public const int EMERGENCY_OUT_OF_AREA_NAME = 77;
+        public const int EMERGENCY_OUT_OF_AREA_HOME_PHONE_NUMBER = 78;
+        public const int EMERGENCY_OUT_OF_AREA_HOME_WORK_PHONE_NUMBER = 79;
+        public const int EMERGENCY_OUT_OF_AREA_CELL_NUMBER = 80;
+
+
+        public const int WORK_PHONE_NUMBER = 86;
+        public const int WORK_FAX_NUMBER = 87;
+        public const int WORK_CELL_NUMBER = 88;
+        public const int WORK_PHONE_NUMBER_TTY = 89;
         
-
+        public const int ADJUDICATION_AUTH = 31;
     }
 
     public class SeparationConstants
@@ -139,34 +116,5 @@ namespace HRUpdate.Mapping
         public const int EMPLOYEE_ID = 0;       
         public const int SEPARATION_CODE = 1;
         public const int SEPARATION_DATE = 2;
-    }
-
-    public class OrganizationConstants
-    {
-        private OrganizationConstants() { }
-
-        public const int ABOLISHED_BY_ORDER = 0;
-        public const int AGENCY_CODE_SUBLEMENT = 1;
-        public const int CHANGED_BY_ORDER = 2;
-        public const int CREATED_BY_ORDER = 3;
-        public const int DATE_ABOLISHED = 4;
-        public const int DATE_OF_LAST_CHANGE = 5;
-        public const int FROM_DATE = 6;
-        public const int LOCATION = 7;
-        public const int LOCATION_ADDRESS = 8;
-        public const int NAME = 9;
-        public const int OFFICE_SYMBOL = 10;
-        public const int OPM_ORGANIZATIONAL_COMPONENT = 11;
-        public const int ORGINFO_LINE_1 = 12;
-        public const int ORGINFO_LINE_2 = 13;
-        public const int ORGINFO_LINE_3 = 14;
-        public const int ORGINFO_LINE_4 = 15;
-        public const int ORGINFO_LINE_5 = 16;
-        public const int ORGINFO_LINE_6 = 17;
-        public const int PERSONNEL_OFFICE_IDENTIFIER = 18;
-        public const int TO_DATE = 19;
-        public const int OCT_ORG_TITLE = 20;
-        public const int ORG_CLASSIFICATIONS_NAME = 21;
-        public const int ORG_CLASSIFICATIONS_ENABLED = 22;
     }
 }

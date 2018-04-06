@@ -20,9 +20,13 @@ namespace HRUpdate.Utilities
             where TMap : ClassMap<TClass>
         {
             try
-            {   
+            {
+                string summaryFileName;
+
+                summaryFileName = fileName + "_" + DateTime.Now.ToString("yyyyMMddHHmmss_FFFF") + ".csv";
+
                 //Creates the summary file
-                using (CsvWriter csvWriter = new CsvWriter(new StreamWriter(ConfigurationManager.AppSettings["SUMMARYFILEPATH"] + fileName, false)))
+                using (CsvWriter csvWriter = new CsvWriter(new StreamWriter(ConfigurationManager.AppSettings["SUMMARYFILEPATH"] + summaryFileName, false)))
                 {
                     csvWriter.Configuration.RegisterClassMap<TMap>();
                     csvWriter.WriteRecords(summaryData);

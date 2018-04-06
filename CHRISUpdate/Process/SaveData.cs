@@ -24,7 +24,7 @@ namespace HRUpdate.Process
         /// <param name="saveData"></param>
         /// <returns></returns>
         /// Change to person data
-        public bool UpdatePersonInformation(HR saveData)
+        public bool UpdatePersonInformation(Employee saveData)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace HRUpdate.Process
             catch (Exception ex)
             {
                 //Log error and return false for failure while saving
-                log.Warn("[SaveCHRISInformation] - Unable to save " + saveData.ChrisID + " - " + ex.Message + " - " + ex.InnerException);
+                //log.Warn("[SaveCHRISInformation] - Unable to save " + saveData.ChrisID + " - " + ex.Message + " - " + ex.InnerException);
                 return false;
             }
         }

@@ -9,8 +9,9 @@
   <add key="CC" value="[email]" />
   <add key="BCC" value="[email]" />
   <add key="SUMMARYFILEPATH" value="[path]" />
-  <add key="SUCCESSFILENAME" value="[filename]" />
-  <add key="SEPARATIONFILENAME" value="[filename]" />
-  <add key="ERRORFILENAME" value="[filename]" />
+  <add key="SUCCESSSUMMARYFILENAME" value="[filename]" />
+  <add key="ERRORSUMMARYFILENAME" value="[filename]" />
+  <add key="SEPARATIONSUMMARYFILENAME" value="[filename]" />
+  <add key="SEPARATIONERRORSUMMARYFILENAME" value="[filename]" />
 </appSettings>
   
