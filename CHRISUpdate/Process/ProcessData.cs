@@ -16,26 +16,15 @@ namespace HRUpdate.Process
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        //Class to work with CSV's
-        //private static CsvConfiguration config = new CsvConfiguration();
-             
-        private SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator(); 
+        private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
+        private readonly SaveData save = new SaveData();
 
         int processedRecords = 0; //rolling count of records that were processed
         int processedUsers = 0;  //rolling count of users processed
         int unprocessedUsers = 0; //rolling count of unprocessed users
 
-        readonly SaveData save = new SaveData();
-        
-
         //Constructor
-        //Assigns defaults
-        public ProcessData()
-        {
-            //config.Delimiter = "~";
-            //config.HasHeaderRecord = false;
-            //config.WillThrowOnMissingField = false;
-        }      
+        public ProcessData() { }  
 
         /// <summary>
         /// Processes chris file
@@ -57,11 +46,7 @@ namespace HRUpdate.Process
                 foreach (HR hrData in hrList)
                 {
                     int personID = 0;
-
-                    //Hash the ssn 
-                    //byte[] SSN;
-                    //SSN = u.HashSSN(hrData.SSN);
-
+                    
                     //If person id > 0 meaning it found a person id
                     if (1 == 1) //(GetPersonID(SSN, out personID) > 0)
                     {
