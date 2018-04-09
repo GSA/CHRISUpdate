@@ -75,10 +75,14 @@ namespace HRUpdate.Process
                 //Call function to map file to csv
                 employeeData = GetFileData<Employee, EmployeeMapping>(hrFile);
 
+                Tuple<int, int, string> personResults;
+
                 //Start Processin the HR Data
                 foreach (Employee employee in employeeData)
                 {
-                    save.GetGCIMSRecord(employee.Person.EmployeeID, employee.Person.SSN, employee.Person.LastName, employee.Birth.DateOfBirth);
+                    personResults = save.GetGCIMSRecord(employee.Person.EmployeeID, employee.Person.SSN, employee.Person.LastName, employee.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
+
+                    Console.WriteLine(personResults.Item1);
                    
                     int personID = 0;
                     

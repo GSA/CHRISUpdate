@@ -1,6 +1,7 @@
 ﻿using HRUpdate.Models;
 using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 
@@ -17,8 +18,8 @@ namespace HRUpdate.Process
 
         //Empty Contructor
         public SaveData(){}
-
-        public Tuple<int, int, string> GetGCIMSRecord(string EmployeeID, int ssn, string lastName, DateTime? dateOfBirth)
+        
+        public Tuple<int, int, string> GetGCIMSRecord(string EmployeeID, int ssn, string lastName, string dateOfBirth)
         {
             try
             {
@@ -33,12 +34,54 @@ namespace HRUpdate.Process
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandText = "HR_GetRecord";
 
+                        cmd.Parameters.Clear();
+                        MySqlParameter[] personParameters = new MySqlParameter[]
+                        {
+                            new MySqlParameter { ParameterName = "ssn", Value = ssn, MySqlDbType = MySqlDbType.Int32},
+                            new MySqlParameter { ParameterName = "lastName", Value = lastName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
+                            new MySqlParameter { ParameterName = "dateOfBirth", Value = dateOfBirth, MySqlDbType = MySqlDbType.VarChar, Size = 10},
+                            new MySqlParameter { ParameterName = "emplID", MySqlDbType = MySqlDbType.VarChar, Size = 12 },
+                            new MySqlParameter { ParameterName = "persID", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "result", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
+                        };
+
+                        cmd.Parameters.AddRange(personParameters);
+
+                        MySqlDataReader dr;
+                        
+                        dr = cmd.ExecuteReader();
+
+                        List<Employee> gcimsData = new List<Employee>();
+                        Person p = new Person();
+                        Birth b = new Birth();
+
+                        using (dr)
+                        {
+                            while (dr.Read())
+                            {
+                                p.FirstName = dr[1].ToString();
+                                p.MiddleName = dr[2].ToString();
+                                p.LastName = dr[3].ToString();
+
+                                gcimsData.Add(new Employee
+                                {
+                                    Person = p,
+                                    Birth = b
+                                }
+                                    );
+
+                                Console.WriteLine("The Data: " + string.Format("{0}", dr[1]));
+                            }
+                        }
+
                         return new Tuple<int, int, string>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["SQLExceptionWarning"].Value.ToString());
                     }
                 }
             }
             catch (Exception ex)
             {
+                log.Error("GetGCIMSRecord: " + EmployeeID + " - " + ex.Message + " - " + ex.InnerException);
                 return new Tuple<int, int, string>(-1, -1, "Unknown Error");
             }
         }
@@ -71,8 +114,7 @@ namespace HRUpdate.Process
             //Catch all errors
             catch (Exception ex)
             {
-                //Log error and return false for failure while saving
-                //log.Warn("[SaveCHRISInformation] - Unable to save " + saveData.ChrisID + " - " + ex.Message + " - " + ex.InnerException);
+                log.Error("");         
                 return false;
             }
         }
@@ -96,10 +138,9 @@ namespace HRUpdate.Process
                         cmd.Connection = conn;
                         cmd.CommandType = CommandType.StoredProcedure;                        
                         cmd.CommandText = "HR_Separation";
-
-                        //Clear sql parameters and create new sql parameters
+                        
                         cmd.Parameters.Clear();
-                        MySqlParameter[] employeParameters = new MySqlParameter[] 
+                        MySqlParameter[] employeeParameters = new MySqlParameter[] 
                         {
                             new MySqlParameter { ParameterName = "emplID", Value = separationData.EmployeeID, MySqlDbType = MySqlDbType.Int32},
                             new MySqlParameter { ParameterName = "separationReasonCode", Value = separationData.SeparationCode, MySqlDbType = MySqlDbType.VarChar, Size = 3},
@@ -109,7 +150,7 @@ namespace HRUpdate.Process
                             new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
                         };
 
-                        cmd.Parameters.AddRange(employeParameters);
+                        cmd.Parameters.AddRange(employeeParameters);
                        
                         cmd.ExecuteNonQuery();
 
@@ -120,7 +161,7 @@ namespace HRUpdate.Process
             }
             catch (Exception ex)
             {
-                log.Warn("[SaveSeparationInformation] Unable to save " + separationData.EmployeeID + " - " + ex.Message + " - " + ex.InnerException);
+                log.Error("SaveSeparationInformation: " + separationData.EmployeeID + " - " + ex.Message + " - " + ex.InnerException);
                 return new Tuple<int, int, string>(-1, -1, "Unknown Error");
             }                    
         }
