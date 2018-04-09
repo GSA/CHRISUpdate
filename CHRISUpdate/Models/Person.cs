@@ -8,11 +8,11 @@
         public string MiddleName { get; set; }
         public string Suffix { get; set; }
         public string CordialName { get; set; }
-        public int SSN { get; set; }
+        public string SSN { get; set; }
         public string Gender { get; set; }
         public string SCDLeave { get; set; }
-        public string FERO { get; set; }
-        public string LEO { get; set; }
+        public bool FERO { get; set; }
+        public bool LEO { get; set; }
         public string Region { get; set; }
         public string OrganizationCode { get; set; }
         public string JobTitle { get; set; }        

@@ -39,6 +39,7 @@ namespace HRUpdate.Process
 
             CompareLogic compareLogic = new CompareLogic();
             compareLogic.Config.MaxDifferences = 500;
+            //compareLogic.Config.AttributesToIgnore("Hello");
 
             hrData = GetFileData<Employee, EmployeeMapping>(chrisFile);
             gcimsData = GetFileData<Employee, EmployeeMapping>(chrisFile);
@@ -55,6 +56,21 @@ namespace HRUpdate.Process
                 Console.WriteLine(result.DifferencesString);
 
             Console.ReadLine();
+        }
+
+        private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
+        {
+            CompareLogic compareLogic = new CompareLogic();
+            compareLogic.Config.MaxDifferences = 500;
+
+            ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
+
+            return result.AreEqual;
+
+            //if (!result.AreEqual)
+            //    Console.WriteLine(result.DifferencesString);
+
+            //Console.ReadLine();
         }
 
         /// <summary>
@@ -75,7 +91,7 @@ namespace HRUpdate.Process
                 //Call function to map file to csv
                 employeeData = GetFileData<Employee, EmployeeMapping>(hrFile);
 
-                Tuple<int, int, string> personResults;
+                Tuple<int, int, string, Employee> personResults;
 
                 //Start Processin the HR Data
                 foreach (Employee employee in employeeData)
@@ -83,12 +99,16 @@ namespace HRUpdate.Process
                     personResults = save.GetGCIMSRecord(employee.Person.EmployeeID, employee.Person.SSN, employee.Person.LastName, employee.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
 
                     Console.WriteLine(personResults.Item1);
-                   
-                    int personID = 0;
+
+
+                    int personID = personResults.Item1;                    
                     
-                    //If person id > 0 meaning it found a person id
-                    if (1 == 1) //(GetPersonID(SSN, out personID) > 0)
+                    if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item4, employee))
                     {
+                        //Employee gcimsRecord = personResults.Item4;
+
+                        Console.WriteLine("Update Record");
+
                         //Assign the Id to all the associated locations
                         //hrData.Employee.PersonID = personID;
 

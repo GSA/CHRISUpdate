@@ -1,4 +1,7 @@
-﻿using HRUpdate.Models;
+﻿using AutoMapper;
+using AutoMapper.Data;
+using HRUpdate.Models;
+using HRUpdate.Mapping;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
@@ -19,7 +22,7 @@ namespace HRUpdate.Process
         //Empty Contructor
         public SaveData(){}
         
-        public Tuple<int, int, string> GetGCIMSRecord(string EmployeeID, int ssn, string lastName, string dateOfBirth)
+        public Tuple<int, int, string, Employee> GetGCIMSRecord(string EmployeeID, string ssn, string lastName, string dateOfBirth)
         {
             try
             {
@@ -30,6 +33,8 @@ namespace HRUpdate.Process
 
                     using (cmd)
                     {
+                        MySqlDataReader dr;
+
                         cmd.Connection = conn;
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandText = "HR_GetRecord";
@@ -37,7 +42,7 @@ namespace HRUpdate.Process
                         cmd.Parameters.Clear();
                         MySqlParameter[] personParameters = new MySqlParameter[]
                         {
-                            new MySqlParameter { ParameterName = "ssn", Value = ssn, MySqlDbType = MySqlDbType.Int32},
+                            new MySqlParameter { ParameterName = "ssn", Value = ssn, MySqlDbType = MySqlDbType.VarChar, Size = 9},
                             new MySqlParameter { ParameterName = "lastName", Value = lastName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
                             new MySqlParameter { ParameterName = "dateOfBirth", Value = dateOfBirth, MySqlDbType = MySqlDbType.VarChar, Size = 10},
                             new MySqlParameter { ParameterName = "emplID", MySqlDbType = MySqlDbType.VarChar, Size = 12 },
@@ -48,42 +53,75 @@ namespace HRUpdate.Process
 
                         cmd.Parameters.AddRange(personParameters);
 
-                        MySqlDataReader dr;
-                        
-                        dr = cmd.ExecuteReader();
-
-                        List<Employee> gcimsData = new List<Employee>();
-                        Person p = new Person();
-                        Birth b = new Birth();
-
-                        using (dr)
+                        Mapper.Initialize(cfg =>
                         {
-                            while (dr.Read())
+                            cfg.AddDataReaderMapping();
+
+                            cfg.CreateMap<Employee, Address>().ForMember(dest => dest.HomeAddress1, opt => opt.Ignore());
+                            cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SSN, opt => opt.Ignore());
+
+                        });
+
+                        //Mapper.AssertConfigurationIsValid();
+
+                        MySqlDataReader gcimsData;
+
+                        Employee gcimsRecord = new Employee();
+
+                        gcimsData = cmd.ExecuteReader();
+
+                        using (gcimsData)
+                        {
+                            if (gcimsData.HasRows)
                             {
-                                p.FirstName = dr[1].ToString();
-                                p.MiddleName = dr[2].ToString();
-                                p.LastName = dr[3].ToString();
-
-                                gcimsData.Add(new Employee
-                                {
-                                    Person = p,
-                                    Birth = b
-                                }
-                                    );
-
-                                Console.WriteLine("The Data: " + string.Format("{0}", dr[1]));
+                                gcimsRecord = LoadGCIMSData(gcimsData);
                             }
-                        }
-
-                        return new Tuple<int, int, string>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["SQLExceptionWarning"].Value.ToString());
+                        }                           
+                                                 
+                        return new Tuple<int, int, string, Employee>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["SQLExceptionWarning"].Value.ToString(), gcimsRecord);
                     }
                 }
             }
             catch (Exception ex)
             {
                 log.Error("GetGCIMSRecord: " + EmployeeID + " - " + ex.Message + " - " + ex.InnerException);
-                return new Tuple<int, int, string>(-1, -1, "Unknown Error");
+                return new Tuple<int, int, string, Employee>(-1, -1, "Unknown Error", null);
             }
+        }
+
+        private Employee LoadGCIMSData(MySqlDataReader gcimsData)
+        {            
+            Employee employee = new Employee();
+
+            Employee eTest = new Employee();
+
+            Address address = new Address();
+            Birth birth = new Birth();
+            Detail detail;
+            Emergency emergency = new Emergency();
+            Investigation investigation;
+            Person person = new Person();
+            Position position;
+
+            while (gcimsData.Read())
+            {   
+                address = Mapper.Map<IDataReader, Address>(gcimsData);
+                birth = Mapper.Map<IDataReader, Birth>(gcimsData);
+                //Mapper.Map<IDataReader, Detail>(gcimsData);
+                emergency = Mapper.Map<IDataReader, Emergency>(gcimsData);
+                //Mapper.Map<IDataReader, Investigation>(gcimsData);
+                person = Mapper.Map<IDataReader, Person>(gcimsData);
+                //position = Mapper.Map<IDataReader, Position>(gcimsData);
+                eTest = Mapper.Map<IDataReader, Employee>(gcimsData);
+            }
+
+
+            employee.Birth = birth;
+            employee.Address = address;
+            employee.Emergency = emergency;
+            employee.Person = person;
+
+            return employee;
         }
 
         /// <summary>

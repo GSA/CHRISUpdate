@@ -28,8 +28,8 @@ namespace HRUpdate.Mapping
             Map(m => m.SSN).Index(HRConstants.SSN);
             Map(m => m.Gender).Index(HRConstants.GENDER);
             Map(m => m.SCDLeave).Index(HRConstants.SCD_LEAVE);
-            Map(m => m.FERO).Index(HRConstants.FERO);
-            Map(m => m.LEO).Index(HRConstants.LEO);
+            Map(m => m.FERO).Index(HRConstants.FERO).TypeConverter<FEROConverter>();
+            Map(m => m.LEO).Index(HRConstants.LEO).TypeConverter<LEOConverter>(); ;
             Map(m => m.Region).Index(HRConstants.REGION);
             Map(m => m.OrganizationCode).Index(HRConstants.ORGANIZATION_CODE);
             Map(m => m.JobTitle).Index(HRConstants.JOB_TITLE);
