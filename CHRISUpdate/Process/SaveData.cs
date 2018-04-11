@@ -149,7 +149,7 @@ namespace HRUpdate.Process
         /// </summary>
         /// <param name="separationData"></param>
         /// <returns></returns>
-        public Tuple<int, int, string>SaveSeparationInformation(Separation separationData)
+        public Tuple<int, int, string, string>SaveSeparationInformation(Separation separationData)
         {
             try
             {
@@ -172,6 +172,7 @@ namespace HRUpdate.Process
                             new MySqlParameter { ParameterName = "separationDate", Value = separationData.SeparationDate, MySqlDbType = MySqlDbType.Date},
                             new MySqlParameter { ParameterName = "persID", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
                             new MySqlParameter { ParameterName = "result", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "actionMsg", MySqlDbType = MySqlDbType.VarChar, Size = 50, Direction = ParameterDirection.Output },
                             new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
                         };
 
@@ -179,7 +180,7 @@ namespace HRUpdate.Process
                        
                         cmd.ExecuteNonQuery();
 
-                        return new Tuple<int, int, string>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["SQLExceptionWarning"].Value.ToString());
+                        return new Tuple<int, int, string, string>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["actionMsg"].Value.ToString(), cmd.Parameters["SQLExceptionWarning"].Value.ToString());
                     }
 
                 }
@@ -187,7 +188,7 @@ namespace HRUpdate.Process
             catch (Exception ex)
             {
                 log.Error("SaveSeparationInformation: " + separationData.EmployeeID + " - " + ex.Message + " - " + ex.InnerException);
-                return new Tuple<int, int, string>(-1, -1, "Unknown Error");
+                return new Tuple<int, int, string, string>(-1, -1, "Unknown Error", "Uknown SQL Exception Warning");
             }                    
         }
     }

@@ -41,17 +41,17 @@ namespace HRUpdate
             log.Info("Processing HR Files:" + DateTime.Now);
 
             //HR File
-            if (File.Exists(hrFilePath))
-            {
-                log.Info("Starting Processing HR File: " + DateTime.Now);
+            //if (File.Exists(hrFilePath))
+            //{
+            //    log.Info("Starting Processing HR File: " + DateTime.Now);
 
-                timeForProcess.Start();                
-                processData.ProcessHRFile(hrFilePath);
-                timeForProcess.Stop();
+            //    timeForProcess.Start();                
+            //    processData.ProcessHRFile(hrFilePath);
+            //    timeForProcess.Stop();
 
-                log.Info("Done Processing HR File: " + DateTime.Now);
-                log.Info("HR File Processing Time: " + timeForProcess.ElapsedMilliseconds);
-            }       
+            //    log.Info("Done Processing HR File: " + DateTime.Now);
+            //    log.Info("HR File Processing Time: " + timeForProcess.ElapsedMilliseconds);
+            //}       
             
             //Separation File
             if (File.Exists(separationFilePath))
@@ -66,7 +66,9 @@ namespace HRUpdate
                 log.Info("Separation File Processing Time: " + timeForProcess.ElapsedMilliseconds);
             }
                 
-            log.Info("Done Processing HR Links File:" + DateTime.Now);            
+            log.Info("Done Processing HR Links File:" + DateTime.Now);
+
+            //processData.SendSummaryEMail();           
 
             //Stop second timer
             timeForApp.Stop();

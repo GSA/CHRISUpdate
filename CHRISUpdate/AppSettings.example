@@ -5,6 +5,7 @@
   <add key="LOADPII" value="false" />
   <add key="SLEEPTIMER" value="5" />
   <add key="SMTPSERVER" value="" />
+  <add key="EMAILSUBJECT" value =""/>
   <add key="DEFAULTEMAIL" value="[email]" />
   <add key="CC" value="[email]" />
   <add key="BCC" value="[email]" />

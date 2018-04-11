@@ -10,10 +10,11 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace HRUpdate.Process
 {
-    class ProcessData
+    internal class ProcessData
     {
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -21,12 +22,24 @@ namespace HRUpdate.Process
         private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
         private readonly SaveData save = new SaveData();
 
-        int processedRecords = 0; //rolling count of records that were processed
-        int processedUsers = 0;  //rolling count of users processed
-        int unprocessedUsers = 0; //rolling count of unprocessed users
+        private string successSummaryFilename;
+        private string errorSummaryFilename;
+        private string separationSummaryFilename;
+        private string separationErrorSummaryFilename;        
 
         //Constructor
-        public ProcessData() { }
+        public ProcessData()
+        {            
+            successSummaryFilename = string.Empty;
+            errorSummaryFilename = string.Empty;
+            separationSummaryFilename = string.Empty;
+            separationErrorSummaryFilename = string.Empty;
+        }
+
+        private int TotalRecordsProcessed(int recordsProcessed, int notProcessed)
+        {
+            return recordsProcessed + notProcessed;
+        }
 
         public void CompareObject(string chrisFile)
         {            
@@ -76,14 +89,14 @@ namespace HRUpdate.Process
 
             try
             {
-                processedRecords = 0;
-                processedUsers = 0;
-                unprocessedUsers = 0;
-
                 List<Employee> usersToProcess;
-                List<ProcessedSummary> usersProcessedSuccessfullySummary = new List<ProcessedSummary>();
-                List<ProcessedSummary> usersProcessedErrorSummary = new List<ProcessedSummary>();
 
+                //Successful Users Processed
+                List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
+
+                //Unsuccessful Users Processed
+                List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
+                
                 //Call function to map file to csv
                 usersToProcess = GetFileData<Employee, EmployeeMapping>(hrFile);
 
@@ -117,9 +130,7 @@ namespace HRUpdate.Process
                                          }
                                  ).ToList();
 
-                        usersProcessedSuccessfullySummary.AddRange(processedUserSuccess);
-
-                        processedUsers += 1;
+                        successfulHRUsersProcessed.AddRange(processedUserSuccess);
                     }
                     else
                     {
@@ -139,20 +150,16 @@ namespace HRUpdate.Process
                                  ).ToList();
 
 
-                        usersProcessedErrorSummary.AddRange(proccessedUserIssue);
-
-                        unprocessedUsers += 1;
+                        unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
                     }
-
-                    processedRecords += 1;
                 }
 
                 //Add log entries
-                log.Info("GcIMS Records Processed: " + String.Format("{0:#,###0}", processedUsers));
-                log.Info("CHRIS Users Not Processed: " + String.Format("{0:#,###0}", unprocessedUsers));
-                log.Info("CHRIS Processed Records: " + String.Format("{0:#,###0}", processedRecords));
+                log.Info("HR Records Processed: " + String.Format("{0:#,###0}", successfulHRUsersProcessed.Count));
+                log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
+                log.Info("HR Processed Records: " + String.Format("{0:#,###0}", TotalRecordsProcessed(successfulHRUsersProcessed.Count, unsuccessfulHRUsersProcessed.Count)));
 
-                GenerateUsersProccessedSummaryFiles(usersProcessedSuccessfullySummary, usersProcessedErrorSummary);
+                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed);
             }
             //Catch all errors
             catch (Exception ex)
@@ -167,22 +174,17 @@ namespace HRUpdate.Process
         /// <param name="separationFile"></param>
         public void ProcessSeparationFile(string separationFile)
         {
-            log.Info("Processing Separation Users");            
-            
+            log.Info("Processing Separation Users");
                         
             try
             {
-                processedRecords = 0;
-                processedUsers = 0;
-                unprocessedUsers = 0;
-
                 List<Separation> separationUsersToProcess;
-                List<SeperationSummary> separationSuccessSummary = new List<SeperationSummary>();
-                List<SeperationSummary> separationErrorSummary = new List<SeperationSummary>();
+                List<SeperationSummary> successfulSeparationUsersProcessed = new List<SeperationSummary>();
+                List<SeperationSummary> unsuccessfulSeparationUsersProcessed = new List<SeperationSummary>();
 
                 separationUsersToProcess = GetFileData<Separation, CustomSeparationMap>(separationFile);
 
-                Tuple<int, int, string> separationResults;
+                Tuple<int, int, string, string> separationResults;
 
                 foreach (Separation separationData in separationUsersToProcess)
                 {
@@ -200,13 +202,11 @@ namespace HRUpdate.Process
                                              GCIMSID = separationResults.Item1,
                                              EmployeeID = s.EmployeeID,
                                              SeparationCode = s.SeparationCode,
-                                             Action = "Success"
+                                             Action = separationResults.Item3
                                          }
                                  ).ToList();
 
-                        separationSuccessSummary.AddRange(separationSuccess);
-
-                        processedUsers += 1;
+                        successfulSeparationUsersProcessed.AddRange(separationSuccess);
                     }
                     else
                     {
@@ -220,24 +220,19 @@ namespace HRUpdate.Process
                                             GCIMSID = separationResults.Item1,
                                             EmployeeID = s.EmployeeID,
                                             SeparationCode = s.SeparationCode,
-                                            Action = "Unknown"
+                                            Action = separationResults.Item3
                                         }
                                 ).ToList();
 
-
-                        separationErrorSummary.AddRange(separationIssue);
-
-                        unprocessedUsers += 1;
-                    }
-
-                    processedRecords += 1;                    
+                        unsuccessfulSeparationUsersProcessed.AddRange(separationIssue);
+                    }             
                 }
                 
-                log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", processedUsers));
-                log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", unprocessedUsers));
-                log.Info("Separation Processed Records: " + String.Format("{0:#,###0}", processedRecords));
+                log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", successfulSeparationUsersProcessed.Count));
+                log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulSeparationUsersProcessed.Count));
+                log.Info("Separation Processed Records: " + String.Format("{0:#,###0}", TotalRecordsProcessed(successfulSeparationUsersProcessed.Count, unsuccessfulSeparationUsersProcessed.Count)));
 
-                GenerateSeparationSummaryFiles(separationSuccessSummary, separationErrorSummary);
+                GenerateSeparationSummaryFiles(successfulSeparationUsersProcessed, unsuccessfulSeparationUsersProcessed);
             }
             catch (Exception ex)
             {   
@@ -252,8 +247,8 @@ namespace HRUpdate.Process
         /// <param name="separationErrorSummary"></param>
         private void GenerateSeparationSummaryFiles(List<SeperationSummary> separationSuccessSummary, List<SeperationSummary> separationErrorSummary)
         {
-            summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
-            summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
+            separationSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
+            separationErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
         }
 
         /// <summary>
@@ -262,9 +257,34 @@ namespace HRUpdate.Process
         /// <param name="processedSuccessSummary"></param>
         /// <param name="processedErrorSummary"></param>
         private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary)
+        {  
+            successSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), usersProcessedSuccessSummary);
+            errorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
+        }
+
+        internal void SendSummaryEMail()
         {
-            summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), usersProcessedSuccessSummary);
-            summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
+            EMail email = new EMail();
+            StringBuilder emailAttachments = new StringBuilder();
+            string subject = string.Empty;
+
+            subject = ConfigurationManager.AppSettings["EMAILSUBJECT"].ToString() + DateTime.Now.ToString("MMMM dd, yyyy");
+
+            using (email)
+            {                
+                email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(), "", "", subject, "", "", "", "", true);
+            }                
+        }
+
+        public string GenerateEMailBody(string fileName, int totalAdjudications, string errors = "")
+        {
+            string template = File.ReadAllText(ConfigurationManager.AppSettings["SUMMARYTEMPLATE"]);
+
+            template = template.Replace("[FILENAME]", Path.GetFileName(fileName));
+            template = template.Replace("[TACOUNT]", totalAdjudications.ToString());
+            template = template.Replace("[ERRORS]", errors);
+
+            return template;
         }
 
         /// <summary>

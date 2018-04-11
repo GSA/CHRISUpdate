@@ -25,6 +25,6 @@ namespace HRUpdate.Utilities
             }
 
             return hashedFullSSN;
-        }        
+        }
     }
 }

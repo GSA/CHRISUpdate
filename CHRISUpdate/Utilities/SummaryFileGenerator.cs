@@ -15,7 +15,7 @@ namespace HRUpdate.Utilities
         //Empty Contructor
         public SummaryFileGenerator() { }
 
-        public void GenerateSummaryFile<TClass,TMap>(string fileName, List<TClass> summaryData)
+        internal string GenerateSummaryFile<TClass,TMap>(string fileName, List<TClass> summaryData)
             where TClass : class
             where TMap : ClassMap<TClass>
         {
@@ -31,10 +31,13 @@ namespace HRUpdate.Utilities
                     csvWriter.Configuration.RegisterClassMap<TMap>();
                     csvWriter.WriteRecords(summaryData);
                 }
+
+                return summaryFileName;
             }
             catch (Exception ex)
             {
                 log.Error("Error Writing Summary File: " + fileName + " - " + ex.Message + " - " + ex.InnerException);
+                return "";
             }
         }        
     }
