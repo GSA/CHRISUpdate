@@ -120,10 +120,6 @@ namespace HRUpdate.Process
                         usersProcessedSuccessfullySummary.AddRange(processedUserSuccess);
 
                         processedUsers += 1;
-
-
-
-                        processedUsers += 1;
                     }
                     else
                     {
