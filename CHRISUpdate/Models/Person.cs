@@ -15,13 +15,7 @@
         public bool LEO { get; set; }
         public string Region { get; set; }
         public string OrganizationCode { get; set; }
-        public string JobTitle { get; set; }        
-        public string HomePhone { get; set; }
-        public string HomeCell { get; set; }
+        public string JobTitle { get; set; }
         public string HomeEmail { get; set; }
-        public string WorkPhone { get; set; }
-        public string WorkFax { get; set; }
-        public string WorkCell { get; set; }
-        public string WorkTTY { get; set; }  
     }
 }

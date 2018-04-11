@@ -31,24 +31,16 @@ namespace HRUpdate.Process
         public void CompareObject(string chrisFile)
         {            
             List<Employee> hrData;
-            List<Employee> gcimsData;
-
-            //Call function to map file to csv
-            //one = GetFileData<Person, PersonMapping>(chrisFile);
-            //two = GetFileData<Person, PersonMapping>(chrisFile);
+            List<Employee> gcimsData;           
 
             CompareLogic compareLogic = new CompareLogic();
             compareLogic.Config.MaxDifferences = 500;
-            //compareLogic.Config.AttributesToIgnore("Hello");
 
             hrData = GetFileData<Employee, EmployeeMapping>(chrisFile);
             gcimsData = GetFileData<Employee, EmployeeMapping>(chrisFile);
 
             var hrFilter = hrData.Where(w => w.Person.EmployeeID == "00004624");
-            var gcimsFilter = gcimsData.Where(w => w.Person.EmployeeID == "00007172");
-
-            // oneFilter = one.Where(w => w.ID == "00004624");
-            //var twoFilter = one.Where(w => w.ID == "00007172");
+            var gcimsFilter = gcimsData.Where(w => w.Person.EmployeeID == "00007172");            
 
             ComparisonResult result = compareLogic.Compare(hrFilter, gcimsFilter);
 
@@ -61,7 +53,7 @@ namespace HRUpdate.Process
         private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
         {
             CompareLogic compareLogic = new CompareLogic();
-            compareLogic.Config.MaxDifferences = 500;
+            compareLogic.Config.MembersToIgnore.Add("Person.SSN");
 
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
@@ -69,8 +61,6 @@ namespace HRUpdate.Process
 
             //if (!result.AreEqual)
             //    Console.WriteLine(result.DifferencesString);
-
-            //Console.ReadLine();
         }
 
         /// <summary>
@@ -86,60 +76,87 @@ namespace HRUpdate.Process
 
             try
             {
-                List<Employee> employeeData;
+                processedRecords = 0;
+                processedUsers = 0;
+                unprocessedUsers = 0;
+
+                List<Employee> usersToProcess;
+                List<ProcessedSummary> usersProcessedSuccessfullySummary = new List<ProcessedSummary>();
+                List<ProcessedSummary> usersProcessedErrorSummary = new List<ProcessedSummary>();
 
                 //Call function to map file to csv
-                employeeData = GetFileData<Employee, EmployeeMapping>(hrFile);
+                usersToProcess = GetFileData<Employee, EmployeeMapping>(hrFile);
 
                 Tuple<int, int, string, Employee> personResults;
 
                 //Start Processin the HR Data
-                foreach (Employee employee in employeeData)
+                foreach (Employee employeeData in usersToProcess)
                 {
-                    personResults = save.GetGCIMSRecord(employee.Person.EmployeeID, employee.Person.SSN, employee.Person.LastName, employee.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
-
-                    Console.WriteLine(personResults.Item1);
-
-
+                    personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, employeeData.Person.SSN, employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
+                    
                     int personID = personResults.Item1;                    
                     
-                    if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item4, employee))
+                    if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item4, employeeData))
                     {
-                        //Employee gcimsRecord = personResults.Item4;
-
                         Console.WriteLine("Update Record");
 
-                        //Assign the Id to all the associated locations
-                        //hrData.Employee.PersonID = personID;
+                        //SaveData
 
-                        //PersonID and Set Supervisor name (we are not able to map this as it's a combined field)
-                        //Reason personID is apart of person is we can just pass the object to the save method
-                        //hrData.Person.PersonID = personID;
-                        //chrisData.Person.Supervisor = chrisData.Supervisor.LastNameSuffix + ", " + chrisData.Supervisor.FirstName + " " + chrisData.Supervisor.MiddleName;
+                        var processedUserSuccess = usersToProcess
+                             .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                             .Select
+                                 (
+                                     s =>
+                                         new ProcessedSummary
+                                         {
+                                             ID = personResults.Item1,
+                                             FirstName = s.Person.FirstName,
+                                             MiddleName = s.Person.MiddleName,
+                                             LastName = s.Person.LastName,
+                                             Action = "Success"
+                                         }
+                                 ).ToList();
 
-                        //Save the data
-                        //save.SaveCHRISInformation(hrData);
+                        usersProcessedSuccessfullySummary.AddRange(processedUserSuccess);
 
-                        //Increment processed
+                        processedUsers += 1;
+
+
+
                         processedUsers += 1;
                     }
-                //If a certain percentage is met (the threshold) then we need to generate an error file. (Are we doing this, we are having a meeting about this stuff)
                     else
-                    {                      
-                        //Increment unprocessed
-                        unprocessedUsers += 1;
+                    {
+                        var proccessedUserIssue = usersToProcess
+                            .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                            .Select
+                                 (
+                                     s =>
+                                         new ProcessedSummary
+                                         {
+                                             ID = personResults.Item1,
+                                             FirstName = s.Person.FirstName,
+                                             MiddleName = s.Person.MiddleName,
+                                             LastName = s.Person.LastName,
+                                             Action = "Unknown"
+                                         }
+                                 ).ToList();
 
-                        //Log not found warning
-                        //log.Warn("Not Found! " + hrData.Employee.EmployeeID + " " + hrData.Employee.FirstName + " " + hrData.Employee.LastName);
+
+                        usersProcessedErrorSummary.AddRange(proccessedUserIssue);
+
+                        unprocessedUsers += 1;
                     }
 
                     processedRecords += 1;
                 }
 
                 //Add log entries
-                log.Info("CHRIS Records Processed: " + String.Format("{0:#,###0}", processedUsers));
+                log.Info("GcIMS Records Processed: " + String.Format("{0:#,###0}", processedUsers));
                 log.Info("CHRIS Users Not Processed: " + String.Format("{0:#,###0}", unprocessedUsers));
-                log.Info("CHRIS Processed Records: " + String.Format("{0:#,###0}", processedRecords));                
+                log.Info("CHRIS Processed Records: " + String.Format("{0:#,###0}", processedRecords));
+
+                GenerateUsersProccessedSummaryFiles(usersProcessedSuccessfullySummary, usersProcessedErrorSummary);
             }
             //Catch all errors
             catch (Exception ex)
@@ -155,30 +172,29 @@ namespace HRUpdate.Process
         public void ProcessSeparationFile(string separationFile)
         {
             log.Info("Processing Separation Users");            
-                       
-            processedRecords = 0;
-            processedUsers = 0;
-            unprocessedUsers = 0;
-                       
-            List<Separation> separationList;
-            List<SeperationSummary> separationSuccessSummary = new List<SeperationSummary>();
-            List<SeperationSummary> separationErrorSummary = new List<SeperationSummary>();
-
-            //Call function that loads file and maps to csv
-            separationList = GetFileData<Separation, CustomSeparationMap>(separationFile);
             
+                        
             try
             {
-                //Iterate the data
-                foreach (Separation separationData in separationList)
-                {
-                    Tuple<int, int, string> separationResults;
+                processedRecords = 0;
+                processedUsers = 0;
+                unprocessedUsers = 0;
 
+                List<Separation> separationUsersToProcess;
+                List<SeperationSummary> separationSuccessSummary = new List<SeperationSummary>();
+                List<SeperationSummary> separationErrorSummary = new List<SeperationSummary>();
+
+                separationUsersToProcess = GetFileData<Separation, CustomSeparationMap>(separationFile);
+
+                Tuple<int, int, string> separationResults;
+
+                foreach (Separation separationData in separationUsersToProcess)
+                {
                     separationResults = save.SaveSeparationInformation(separationData);
                                         
                     if (separationResults.Item1 > 0)
                     {
-                        var separationSuccess = separationList
+                        var separationSuccess = separationUsersToProcess
                              .Where(w => w.EmployeeID == separationData.EmployeeID)
                              .Select
                                  (
@@ -198,7 +214,7 @@ namespace HRUpdate.Process
                     }
                     else
                     {
-                        var separationIssue = separationList
+                        var separationIssue = separationUsersToProcess
                             .Where(w => w.EmployeeID == separationData.EmployeeID)
                             .Select
                                 (
@@ -220,26 +236,39 @@ namespace HRUpdate.Process
 
                     processedRecords += 1;                    
                 }
-
-                //Log Separation Process
+                
                 log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", processedUsers));
                 log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", unprocessedUsers));
                 log.Info("Separation Processed Records: " + String.Format("{0:#,###0}", processedRecords));
 
                 GenerateSeparationSummaryFiles(separationSuccessSummary, separationErrorSummary);
             }
-            //Catch all errorsSeperationMapping
             catch (Exception ex)
-            {
-                //Log error
+            {   
                 log.Error("Process Separation Users Error:" + ex.Message + " " + ex.InnerException); 
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="separationSuccessSummary"></param>
+        /// <param name="separationErrorSummary"></param>
         private void GenerateSeparationSummaryFiles(List<SeperationSummary> separationSuccessSummary, List<SeperationSummary> separationErrorSummary)
         {
             summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
             summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="processedSuccessSummary"></param>
+        /// <param name="processedErrorSummary"></param>
+        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary)
+        {
+            summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), usersProcessedSuccessSummary);
+            summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
         }
 
         /// <summary>

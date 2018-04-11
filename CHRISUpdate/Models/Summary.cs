@@ -2,7 +2,7 @@
 
 namespace HRUpdate.Models
 {
-    class Summary
+    class ProcessedSummary
     {
         public Int64 ID { get; set; }
         public string FirstName { get; set; }

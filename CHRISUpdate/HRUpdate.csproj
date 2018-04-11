@@ -109,8 +109,8 @@
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\Investigation.cs" />
     <Compile Include="Models\Person.cs" />
+    <Compile Include="Models\Phone.cs" />
     <Compile Include="Models\Position.cs" />
-    <Compile Include="Models\Security.cs" />
     <Compile Include="Models\Separation.cs" />
     <Compile Include="Models\Summary.cs" />
     <Compile Include="Process\ProcessData.cs" />

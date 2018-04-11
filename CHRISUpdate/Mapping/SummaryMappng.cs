@@ -3,15 +3,15 @@ using HRUpdate.Models;
 
 namespace HRLinks.Mapping
 {
-    sealed class SummaryMappng : ClassMap<Person>
+    sealed class ProcessedSummaryMappng : ClassMap<ProcessedSummary>
     {
-        public SummaryMappng()
+        public ProcessedSummaryMappng()
         {
-            //Map(m => m.PersonID);
+            Map(m => m.ID);
             Map(m => m.FirstName);
             Map(m => m.MiddleName);
             Map(m => m.LastName);
-            //Map(m => m.Action);
+            Map(m => m.Action);
         }
     }
 

@@ -11,6 +11,7 @@ namespace HRUpdate.Mapping
             References<AddressMap>(m => m.Address);
             References<BirthMap>(m => m.Birth);
             References<PositionMap>(m => m.Position);
+            References<PhoneMap>(m => m.Phone);
             References<EmergencyMap>(m => m.Emergency);
         }
     }
@@ -33,13 +34,7 @@ namespace HRUpdate.Mapping
             Map(m => m.Region).Index(HRConstants.REGION);
             Map(m => m.OrganizationCode).Index(HRConstants.ORGANIZATION_CODE);
             Map(m => m.JobTitle).Index(HRConstants.JOB_TITLE);
-            Map(m => m.HomePhone).Index(HRConstants.PERSONAL_HOME_PHONE);
-            Map(m => m.HomeCell).Index(HRConstants.PERSONAL_CELL_PHONE);
             Map(m => m.HomeEmail).Index(HRConstants.PERSONAL_EMAIL_ADDRESS);
-            Map(m => m.WorkPhone).Index(HRConstants.WORK_PHONE_NUMBER);
-            Map(m => m.WorkFax).Index(HRConstants.WORK_FAX_NUMBER);
-            Map(m => m.WorkCell).Index(HRConstants.WORK_CELL_NUMBER);
-            Map(m => m.WorkTTY).Index(HRConstants.WORK_PHONE_NUMBER_TTY);
         }
     }
     public sealed class AddressMap : ClassMap<Address>
@@ -84,8 +79,25 @@ namespace HRUpdate.Mapping
             Map(m => m.WorkSchedule).Index(HRConstants.WORK_SCHEDULE);
             Map(m => m.PositionTeleworkEligibility).Index(HRConstants.TELEWORK_ELIGIBLE);
             Map(m => m.PositionStartDate).Index(HRConstants.POSITION_START_DATE);
+            Map(m => m.DutyLocationCode).Index(HRConstants.DUTY_CODE);
+            Map(m => m.DutyLocationCity).Index(HRConstants.DUTY_CITY);
+            Map(m => m.DutyLocationState).Index(HRConstants.DUTY_STATE);
+            Map(m => m.DutyLocationCounty).Index(HRConstants.DUTY_COUNTY);
             Map(m => m.AgencyCodeSubelement).Index(HRConstants.AGENCY_CODE_SUBELEMENT);
             Map(m => m.SupervisorEmployeeID).Index(HRConstants.SUPERVISOR_EMPLOYEE_ID);
+        }
+    }
+
+    public sealed class PhoneMap: ClassMap<Phone>
+    {
+        public PhoneMap()
+        {
+            Map(m => m.HomePhone).Index(HRConstants.PERSONAL_HOME_PHONE);
+            Map(m => m.HomeCell).Index(HRConstants.PERSONAL_CELL_PHONE);            
+            Map(m => m.WorkPhone).Index(HRConstants.WORK_PHONE_NUMBER);
+            Map(m => m.WorkFax).Index(HRConstants.WORK_FAX_NUMBER);
+            Map(m => m.WorkCell).Index(HRConstants.WORK_CELL_NUMBER);
+            Map(m => m.WorkTTY).Index(HRConstants.WORK_PHONE_NUMBER_TTY);
         }
     }
 

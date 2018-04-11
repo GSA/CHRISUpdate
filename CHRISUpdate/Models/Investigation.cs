@@ -8,9 +8,9 @@ namespace HRUpdate.Models
         public string TypeOfInvestigation { get; set; }
         public DateTime? DateOfInvestigation { get; set; }
         public string TypeOfInvestigationToRequest { get; set; }
-        public string InitialResult { get; set; }
+        public bool InitialResult { get; set; }
         public DateTime? InitialResultDate { get; set; }
-        public string FinalResult { get; set; }
+        public bool FinalResult { get; set; }
         public string FinalResultDate { get; set; }
         public string AdjudicatorEmployeeID { get; set; }
     }

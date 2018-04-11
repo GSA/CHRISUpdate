@@ -56,13 +56,9 @@ namespace HRUpdate.Process
                         Mapper.Initialize(cfg =>
                         {
                             cfg.AddDataReaderMapping();
-
-                            cfg.CreateMap<Employee, Address>().ForMember(dest => dest.HomeAddress1, opt => opt.Ignore());
                             cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SSN, opt => opt.Ignore());
 
                         });
-
-                        //Mapper.AssertConfigurationIsValid();
 
                         MySqlDataReader gcimsData;
 
@@ -91,35 +87,17 @@ namespace HRUpdate.Process
 
         private Employee LoadGCIMSData(MySqlDataReader gcimsData)
         {            
-            Employee employee = new Employee();
-
-            Employee eTest = new Employee();
-
-            Address address = new Address();
-            Birth birth = new Birth();
-            Detail detail;
-            Emergency emergency = new Emergency();
-            Investigation investigation;
-            Person person = new Person();
-            Position position;
+            Employee employee = new Employee();            
 
             while (gcimsData.Read())
-            {   
-                address = Mapper.Map<IDataReader, Address>(gcimsData);
-                birth = Mapper.Map<IDataReader, Birth>(gcimsData);
-                //Mapper.Map<IDataReader, Detail>(gcimsData);
-                emergency = Mapper.Map<IDataReader, Emergency>(gcimsData);
-                //Mapper.Map<IDataReader, Investigation>(gcimsData);
-                person = Mapper.Map<IDataReader, Person>(gcimsData);
-                //position = Mapper.Map<IDataReader, Position>(gcimsData);
-                eTest = Mapper.Map<IDataReader, Employee>(gcimsData);
+            {                
+                employee.Address = Mapper.Map<IDataReader, Address>(gcimsData);
+                employee.Birth = Mapper.Map<IDataReader, Birth>(gcimsData);
+                employee.Emergency = Mapper.Map<IDataReader, Emergency>(gcimsData);
+                employee.Investigaton = Mapper.Map<IDataReader, Investigation>(gcimsData);
+                employee.Person = Mapper.Map<IDataReader, Person>(gcimsData);
+                //employee.Position = Mapper.Map<IDataReader, Position>(gcimsData); //Need to fix SupervisorID          
             }
-
-
-            employee.Birth = birth;
-            employee.Address = address;
-            employee.Emergency = emergency;
-            employee.Person = person;
 
             return employee;
         }
@@ -130,7 +108,7 @@ namespace HRUpdate.Process
         /// <param name="saveData"></param>
         /// <returns></returns>
         /// Change to person data
-        public bool UpdatePersonInformation(Employee saveData)
+        public bool UpdatePersonInformation(Employee hrData)
         {
             try
             {
@@ -143,7 +121,16 @@ namespace HRUpdate.Process
                     {
                         cmd.Connection = conn;
                         cmd.CommandType = CommandType.StoredProcedure;
-                        
+
+                        cmd.Parameters.Clear();
+
+                        MySqlParameter[] personParameters = new MySqlParameter[]
+                        {
+                            new MySqlParameter { ParameterName = "emplID", Value = hrData.Person.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},
+                        };
+
+                        cmd.Parameters.AddRange(personParameters);
+
                         return true;
                     }
 

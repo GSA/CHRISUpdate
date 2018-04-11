@@ -10,6 +10,7 @@ namespace HRUpdate.Models
         public Investigation Investigaton { get; set; }
         public Emergency Emergency { get; set; }
         public Position Position { get; set; }
+        public Phone Phone { get; set; }
         public Detail Detail { get; set; }
     }
 }
