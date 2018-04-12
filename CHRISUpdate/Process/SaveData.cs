@@ -110,7 +110,7 @@ namespace HRUpdate.Process
         /// <param name="saveData"></param>
         /// <returns></returns>
         /// Change to person data
-        public bool UpdatePersonInformation(Employee hrData)
+        public Tuple<string, string, string> UpdatePersonInformation(Employee hrData)
         {
             try
             {
@@ -195,11 +195,14 @@ namespace HRUpdate.Process
                             new MySqlParameter { ParameterName = "workFax", Value = hrData.Phone.WorkFax, MySqlDbType = MySqlDbType.VarChar, Size = 22},
                             new MySqlParameter { ParameterName = "workCell", Value = hrData.Phone.WorkCell, MySqlDbType = MySqlDbType.VarChar, Size = 22},
                             new MySqlParameter { ParameterName = "workTTY", Value = hrData.Phone.WorkTTY, MySqlDbType = MySqlDbType.VarChar, Size = 22},
+                            new MySqlParameter { ParameterName = "result", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "actionMsg", MySqlDbType = MySqlDbType.VarChar, Size = 50, Direction = ParameterDirection.Output },
+                            new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
                         };
 
                         cmd.Parameters.AddRange(personParameters);
 
-                        return true;
+                        return new Tuple<string, string, string>(cmd.Parameters["result"].Value.ToString(), cmd.Parameters["actionMsg"].Value.ToString(), cmd.Parameters["SQLExceptionWarning"].Value.ToString());
                     }
 
                 }               
@@ -207,8 +210,8 @@ namespace HRUpdate.Process
             //Catch all errors
             catch (Exception ex)
             {
-                log.Error("");         
-                return false;
+                log.Error("GetGCIMSRecord: " + ex.Message + " - " + ex.InnerException);
+                return new Tuple<string, string, string>("-1", "-1", ex.Message.ToString());
             }
         }
 
