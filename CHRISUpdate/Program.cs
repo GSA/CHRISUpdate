@@ -1,4 +1,6 @@
-﻿using HRUpdate.Process;
+﻿using AutoMapper;
+using HRUpdate.Mapping;
+using HRUpdate.Process;
 using System;
 using System.Configuration;
 using System.Diagnostics;
@@ -19,6 +21,9 @@ namespace HRUpdate
         private static Stopwatch timeForApp = new Stopwatch();
         private static Stopwatch timeForProcess = new Stopwatch();
 
+        //private static HRLinksMapper map = new HRLinksMapper();
+        //private static IMapper mapper;
+
         /// <summary>
         /// Entrance into processsing the HR File
         /// </summary>
@@ -27,6 +32,15 @@ namespace HRUpdate
         {
             //Start timer
             timeForApp.Start();
+
+            
+
+            //Mapper.Initialize(cfg =>
+            //{
+            //    cfg.AddDataReaderMapping();
+            //    cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SSN, opt => opt.Ignore());
+
+            //});
 
             //Log start of application
             log.Info("Application Started: " + DateTime.Now);
@@ -41,18 +55,18 @@ namespace HRUpdate
             log.Info("Processing HR Files:" + DateTime.Now);
 
             //HR File
-            //if (File.Exists(hrFilePath))
-            //{
-            //    log.Info("Starting Processing HR File: " + DateTime.Now);
+            if (File.Exists(hrFilePath))
+            {
+                log.Info("Starting Processing HR File: " + DateTime.Now);
 
-            //    timeForProcess.Start();                
-            //    processData.ProcessHRFile(hrFilePath);
-            //    timeForProcess.Stop();
+                timeForProcess.Start();
+                processData.ProcessHRFile(hrFilePath);
+                timeForProcess.Stop();
 
-            //    log.Info("Done Processing HR File: " + DateTime.Now);
-            //    log.Info("HR File Processing Time: " + timeForProcess.ElapsedMilliseconds);
-            //}       
-            
+                log.Info("Done Processing HR File: " + DateTime.Now);
+                log.Info("HR File Processing Time: " + timeForProcess.ElapsedMilliseconds);
+            }
+
             //Separation File
             if (File.Exists(separationFilePath))
             {
@@ -68,7 +82,7 @@ namespace HRUpdate
                 
             log.Info("Done Processing HR Links File:" + DateTime.Now);
 
-            //processData.SendSummaryEMail();           
+            processData.SendSummaryEMail();           
 
             //Stop second timer
             timeForApp.Stop();

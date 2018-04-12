@@ -22,24 +22,10 @@ namespace HRUpdate.Process
         private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
         private readonly SaveData save = new SaveData();
 
-        private string successSummaryFilename;
-        private string errorSummaryFilename;
-        private string separationSummaryFilename;
-        private string separationErrorSummaryFilename;        
+        private readonly EMailData emailData = new EMailData();           
 
         //Constructor
-        public ProcessData()
-        {            
-            successSummaryFilename = string.Empty;
-            errorSummaryFilename = string.Empty;
-            separationSummaryFilename = string.Empty;
-            separationErrorSummaryFilename = string.Empty;
-        }
-
-        private int TotalRecordsProcessed(int recordsProcessed, int notProcessed)
-        {
-            return recordsProcessed + notProcessed;
-        }
+        public ProcessData() { }        
 
         public void CompareObject(string chrisFile)
         {            
@@ -83,7 +69,7 @@ namespace HRUpdate.Process
         /// Update GCIMS Record
         /// </summary>
         /// <param name="hrFile"></param>
-        public void ProcessHRFile(string hrFile)
+        public void ProcessHRFile(string HRFile)
         {
             log.Info("Processing HR Users");
 
@@ -96,20 +82,22 @@ namespace HRUpdate.Process
 
                 //Unsuccessful Users Processed
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
-                
-                //Call function to map file to csv
-                usersToProcess = GetFileData<Employee, EmployeeMapping>(hrFile);
 
-                Tuple<int, int, string, Employee> personResults;
+                Utilities.Helpers helper = new Utilities.Helpers();
+
+                //Call function to map file to csv
+                usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
+
+                Tuple<int, int, string, string, Employee> personResults;
 
                 //Start Processin the HR Data
                 foreach (Employee employeeData in usersToProcess)
                 {
-                    personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, employeeData.Person.SSN, employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
+                    personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, helper.HashSSN(employeeData.Person.SSN), employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
                     
                     int personID = personResults.Item1;                    
                     
-                    if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item4, employeeData))
+                    if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item5, employeeData))
                     {
                         Console.WriteLine("Update Record");
 
@@ -126,7 +114,7 @@ namespace HRUpdate.Process
                                              FirstName = s.Person.FirstName,
                                              MiddleName = s.Person.MiddleName,
                                              LastName = s.Person.LastName,
-                                             Action = "Success"
+                                             Action = personResults.Item3
                                          }
                                  ).ToList();
 
@@ -145,7 +133,7 @@ namespace HRUpdate.Process
                                              FirstName = s.Person.FirstName,
                                              MiddleName = s.Person.MiddleName,
                                              LastName = s.Person.LastName,
-                                             Action = "Unknown"
+                                             Action = personResults.Item3
                                          }
                                  ).ToList();
 
@@ -154,10 +142,16 @@ namespace HRUpdate.Process
                     }
                 }
 
+                emailData.HRFilename = Path.GetFileName(HRFile);
+                emailData.HRAttempted = usersToProcess.Count;
+                emailData.HRSucceeded = successfulHRUsersProcessed.Count;
+                emailData.HRFailed = unsuccessfulHRUsersProcessed.Count;
+                emailData.HRHasErrors = unsuccessfulHRUsersProcessed.Count > 0 ? true : false;
+
                 //Add log entries
                 log.Info("HR Records Processed: " + String.Format("{0:#,###0}", successfulHRUsersProcessed.Count));
                 log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
-                log.Info("HR Processed Records: " + String.Format("{0:#,###0}", TotalRecordsProcessed(successfulHRUsersProcessed.Count, unsuccessfulHRUsersProcessed.Count)));
+                log.Info("HR Processed Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
 
                 GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed);
             }
@@ -172,7 +166,7 @@ namespace HRUpdate.Process
         /// Process separation file
         /// </summary>
         /// <param name="separationFile"></param>
-        public void ProcessSeparationFile(string separationFile)
+        public void ProcessSeparationFile(string SEPFile)
         {
             log.Info("Processing Separation Users");
                         
@@ -182,7 +176,7 @@ namespace HRUpdate.Process
                 List<SeperationSummary> successfulSeparationUsersProcessed = new List<SeperationSummary>();
                 List<SeperationSummary> unsuccessfulSeparationUsersProcessed = new List<SeperationSummary>();
 
-                separationUsersToProcess = GetFileData<Separation, CustomSeparationMap>(separationFile);
+                separationUsersToProcess = GetFileData<Separation, CustomSeparationMap>(SEPFile);
 
                 Tuple<int, int, string, string> separationResults;
 
@@ -227,10 +221,16 @@ namespace HRUpdate.Process
                         unsuccessfulSeparationUsersProcessed.AddRange(separationIssue);
                     }             
                 }
-                
+
+                emailData.SEPFileName = Path.GetFileName(SEPFile);
+                emailData.SEPAttempted = separationUsersToProcess.Count;
+                emailData.SEPSucceeded = successfulSeparationUsersProcessed.Count;
+                emailData.SEPFailed = unsuccessfulSeparationUsersProcessed.Count;
+                emailData.SEPHasErrors = unsuccessfulSeparationUsersProcessed.Count > 0 ? true : false;
+
                 log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", successfulSeparationUsersProcessed.Count));
                 log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulSeparationUsersProcessed.Count));
-                log.Info("Separation Processed Records: " + String.Format("{0:#,###0}", TotalRecordsProcessed(successfulSeparationUsersProcessed.Count, unsuccessfulSeparationUsersProcessed.Count)));
+                log.Info("Separation Processed Records: " + String.Format("{0:#,###0}", separationUsersToProcess.Count));
 
                 GenerateSeparationSummaryFiles(successfulSeparationUsersProcessed, unsuccessfulSeparationUsersProcessed);
             }
@@ -243,23 +243,23 @@ namespace HRUpdate.Process
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="separationSuccessSummary"></param>
-        /// <param name="separationErrorSummary"></param>
-        private void GenerateSeparationSummaryFiles(List<SeperationSummary> separationSuccessSummary, List<SeperationSummary> separationErrorSummary)
+        /// <param name="processedSuccessSummary"></param>
+        /// <param name="processedErrorSummary"></param>
+        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary)
         {
-            separationSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
-            separationErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
+            emailData.HRSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), usersProcessedSuccessSummary);
+            emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="processedSuccessSummary"></param>
-        /// <param name="processedErrorSummary"></param>
-        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary)
-        {  
-            successSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), usersProcessedSuccessSummary);
-            errorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
+        /// <param name="separationSuccessSummary"></param>
+        /// <param name="separationErrorSummary"></param>
+        private void GenerateSeparationSummaryFiles(List<SeperationSummary> separationSuccessSummary, List<SeperationSummary> separationErrorSummary)
+        {
+            emailData.SeparationSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
+            emailData.SeparationErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
         }
 
         internal void SendSummaryEMail()
@@ -267,22 +267,71 @@ namespace HRUpdate.Process
             EMail email = new EMail();
             StringBuilder emailAttachments = new StringBuilder();
             string subject = string.Empty;
+            string body = string.Empty;            
 
-            subject = ConfigurationManager.AppSettings["EMAILSUBJECT"].ToString() + DateTime.Now.ToString("MMMM dd, yyyy");
+            subject = ConfigurationManager.AppSettings["EMAILSUBJECT"].ToString() + " - " + DateTime.Now.ToString("MMMM dd, yyyy");
 
-            using (email)
-            {                
-                email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(), "", "", subject, "", "", "", "", true);
-            }                
+            body = GenerateEMailBody();
+
+            //using (email)
+            //{
+            //    email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(), "", "", subject, "", body, "", "", true);
+            //}
         }
 
-        public string GenerateEMailBody(string fileName, int totalAdjudications, string errors = "")
+        public string GenerateEMailBody()
         {
+            StringBuilder errors = new StringBuilder();
+
             string template = File.ReadAllText(ConfigurationManager.AppSettings["SUMMARYTEMPLATE"]);
 
-            template = template.Replace("[FILENAME]", Path.GetFileName(fileName));
-            template = template.Replace("[TACOUNT]", totalAdjudications.ToString());
-            template = template.Replace("[ERRORS]", errors);
+            //bool HRFileFound = false;
+            //bool SEPFileFound = false;
+
+            //HRFileFound = string.IsNullOrEmpty(emailData.HRFilename.ToString()) ? false : true;
+            //SEPFileFound = string.IsNullOrEmpty(emailData.SEPFileName.ToString()) ? false : true;
+
+            template = template.Replace("[FILENAMES]", emailData.HRFilename.ToString() + ", " + emailData.SEPFileName.ToString());
+
+            template = template.Replace("[HRATTEMPTED]", emailData.HRAttempted.ToString());
+            template = template.Replace("[HRSUCCEEDED]", emailData.HRSucceeded.ToString());
+            template = template.Replace("[HRFAILED]", emailData.HRFailed.ToString());
+
+            if (emailData.HRHasErrors)
+            {
+                errors.Clear();
+
+                errors.Append("<b><font color='red'>Errors were found processing the HR file</font></b><br />");
+                errors.Append("<br />Please see the attached file: <b><font color='red'>");
+                errors.Append(emailData.HRErrorSummaryFilename);
+                errors.Append("</font></b>");
+
+                template = template.Replace("[IFHRERRORS]", errors.ToString());
+            }
+            else
+            {
+                template = template.Replace("[IFHRERRORS]", null);
+            }
+
+            template = template.Replace("[SEPATTEMPTED]", emailData.SEPAttempted.ToString());
+            template = template.Replace("[SEPSUCCEEDED]", emailData.SEPSucceeded.ToString());
+            template = template.Replace("[SEPFAILED]", emailData.SEPFileName.ToString());
+
+            if (emailData.SEPHasErrors)
+            {
+                errors.Clear();
+
+                errors.Append("<b><font color='red'>Errors were found processing the separation file</font></b><br />");
+                errors.Append("<br />Please see the attached file: <b><font color='red'>");
+                errors.Append(emailData.SeparationErrorSummaryFilename);
+                errors.Append("</font></b>");
+
+                template = template.Replace("[IFSEPERRORS]", errors.ToString());
+            }
+            else
+            {
+                template = template.Replace("[IFSEPERRORS]", null);
+            }
 
             return template;
         }

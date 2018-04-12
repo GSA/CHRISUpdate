@@ -18,4 +18,29 @@ namespace HRUpdate.Models
         public string SeparationCode { get; set; }
         public string Action { get; set; }
     }
+
+    class EMailData
+    {   
+        public string HRFilename { get; set; }
+        public string SEPFileName { get; set; }
+        
+        public Int64 HRAttempted { get; set; }
+        public Int64 HRSucceeded { get; set; }
+        public Int64 HRFailed { get; set; }
+
+        public string HRSuccessfulSummaryFilename { get; set; }
+        public string HRErrorSummaryFilename { get; set; }
+
+        public bool HRHasErrors { get; set; }
+
+        public Int64 SEPAttempted { get; set; }
+        public Int64 SEPSucceeded { get; set; }
+        public Int64 SEPFailed { get; set; }
+
+        public string SeparationSuccessfulSummaryFilename { get; set; }
+        public string SeparationErrorSummaryFilename { get; set; }
+
+        public bool SEPHasErrors { get; set; }
+
+    }
 }

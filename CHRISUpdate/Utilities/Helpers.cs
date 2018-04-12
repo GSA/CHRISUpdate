@@ -3,7 +3,7 @@ using System.Text;
 
 namespace HRUpdate.Utilities
 {
-    class Utilities
+    class Helpers
     {
         /// <summary>
         /// Hashes SSN

@@ -10,6 +10,7 @@
   <add key="CC" value="[email]" />
   <add key="BCC" value="[email]" />
   <add key="SUMMARYFILEPATH" value="[path]" />
+  <add key="SUMMARYTEMPLATE" value="[path]" />
   <add key="SUCCESSSUMMARYFILENAME" value="[filename]" />
   <add key="ERRORSUMMARYFILENAME" value="[filename]" />
   <add key="SEPARATIONSUMMARYFILENAME" value="[filename]" />
