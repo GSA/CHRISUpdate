@@ -93,7 +93,7 @@ namespace HRUpdate.Process
                 //Start Processin the HR Data
                 foreach (Employee employeeData in usersToProcess)
                 {
-                    personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, helper.HashSSN(employeeData.Person.SSN), employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
+                    personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, helper.HashSSN(employeeData.Person.SocialSecurityNumber), employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
                     
                     int personID = personResults.Item1;                    
                     
@@ -247,8 +247,17 @@ namespace HRUpdate.Process
         /// <param name="processedErrorSummary"></param>
         private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary)
         {
-            emailData.HRSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), usersProcessedSuccessSummary);
-            emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
+            if (usersProcessedSuccessSummary.Count > 0)
+            {
+                emailData.HRSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), usersProcessedSuccessSummary);
+                log.Info("HR Success File Generated: " + emailData.HRSuccessfulSummaryFilename);
+            }
+
+            if (usersProcessedErrorSummary.Count > 0)
+            {
+                emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
+                log.Info("HR Error File Generated: " + emailData.HRErrorSummaryFilename);
+            }
         }
 
         /// <summary>
@@ -258,28 +267,40 @@ namespace HRUpdate.Process
         /// <param name="separationErrorSummary"></param>
         private void GenerateSeparationSummaryFiles(List<SeperationSummary> separationSuccessSummary, List<SeperationSummary> separationErrorSummary)
         {
-            emailData.SeparationSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
-            emailData.SeparationErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
+            if (separationSuccessSummary.Count > 0)
+            {
+                emailData.SeparationSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
+                log.Info("Separtion Success File Generated: " + emailData.SeparationSuccessfulSummaryFilename);
+            }
+
+            if (separationErrorSummary.Count > 0)
+            {
+                emailData.SeparationErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
+                log.Info("Separation Error File Generated: " + emailData.SeparationErrorSummaryFilename);
+            }
         }
 
         internal void SendSummaryEMail()
         {
             EMail email = new EMail();
-            StringBuilder emailAttachments = new StringBuilder();
+            
             string subject = string.Empty;
-            string body = string.Empty;            
+            string body = string.Empty;
+            string attahcments = string.Empty;         
 
             subject = ConfigurationManager.AppSettings["EMAILSUBJECT"].ToString() + " - " + DateTime.Now.ToString("MMMM dd, yyyy");
 
             body = GenerateEMailBody();
 
+            attahcments = SummaryAttachments();
+
             using (email)
             {
-                email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(), 
+                email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(),
                            ConfigurationManager.AppSettings["TO"].ToString(),
                            ConfigurationManager.AppSettings["CC"].ToString(),
                            ConfigurationManager.AppSettings["BCC"].ToString(),
-                           subject, body, "", ConfigurationManager.AppSettings["SMTPSERVER"].ToString(), true);
+                           subject, body, attahcments.TrimEnd(';'), ConfigurationManager.AppSettings["SMTPSERVER"].ToString(), true);
             }
         }
 
@@ -337,6 +358,36 @@ namespace HRUpdate.Process
             }
 
             return template;
+        }
+
+        private string SummaryAttachments()
+        {
+            StringBuilder attachments = new StringBuilder();
+
+            if (emailData.HRSuccessfulSummaryFilename != null)
+                attachments.Append(AddAttachment(emailData.HRSuccessfulSummaryFilename));
+
+            if (emailData.HRErrorSummaryFilename != null)
+                attachments.Append(AddAttachment(emailData.HRErrorSummaryFilename));
+
+            if (emailData.SeparationSuccessfulSummaryFilename != null)
+                attachments.Append(AddAttachment(emailData.SeparationSuccessfulSummaryFilename));
+
+            if (emailData.SeparationErrorSummaryFilename != null)
+                attachments.Append(AddAttachment(emailData.SeparationErrorSummaryFilename));
+
+            return attachments.ToString();
+        }
+
+        private string AddAttachment(string fileName)
+        {
+            StringBuilder addAttachment = new StringBuilder();
+
+            addAttachment.Append(ConfigurationManager.AppSettings["SUMMARYFILEPATH"]);
+            addAttachment.Append(fileName);
+            addAttachment.Append(";");
+
+            return addAttachment.ToString();
         }
 
         /// <summary>

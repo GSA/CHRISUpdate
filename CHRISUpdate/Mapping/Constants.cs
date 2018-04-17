@@ -25,12 +25,12 @@ namespace HRUpdate.Mapping
         public const int HOME_STATE = 15;
         public const int HOME_ZIP_CODE = 16;
         public const int HOME_COUNTRY = 17;
-        public const int SSN = 18;
+        public const int SOCIAL_SECURITY_NUMBER = 18;
         public const int DATE_OF_BIRTH = 19;
 
         public const int EMPLOYEE_STATUS = 20;
         public const int GENDER = 21;
-        public const int SCD_LEAVE = 22;
+        public const int SERVICE_COMPUTATION_DATE_LEAVE = 22;
         public const int PRIOR_COMPLETED = 23;
         public const int TYPE_COMPLETED = 24;
         public const int DATE_COMPLETED = 25;
@@ -51,8 +51,8 @@ namespace HRUpdate.Mapping
         public const int LEVEL_GRADE = 37;
         public const int WORK_SCHEDULE = 38;
 
-        public const int FERO = 39;
-        public const int LEO = 40;
+        public const int FEDERAL_EMERGENCY_RESPONSE_OFFICIAL = 39;
+        public const int LAW_ENFORCEMENT_OFFICER = 40;
 
         public const int TELEWORK_ELIGIBLE = 41;
         public const int SENSITIVITY = 42;
@@ -104,7 +104,7 @@ namespace HRUpdate.Mapping
         public const int WORK_PHONE_NUMBER = 86;
         public const int WORK_FAX_NUMBER = 87;
         public const int WORK_CELL_NUMBER = 88;
-        public const int WORK_PHONE_NUMBER_TTY = 89;
+        public const int WORK_PHONE_NUMBER_TEXT_TELEPHONE = 89;
         
         public const int ADJUDICATION_AUTH = 31;
     }

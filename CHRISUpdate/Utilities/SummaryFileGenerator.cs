@@ -31,7 +31,7 @@ namespace HRUpdate.Utilities
                     csvWriter.Configuration.RegisterClassMap<TMap>();
                     csvWriter.WriteRecords(summaryData);
                 }
-
+                
                 return summaryFileName;
             }
             catch (Exception ex)

@@ -111,11 +111,6 @@ namespace HRUpdate.Utilities
                     }
                     throw new SmtpException(smtpfailedrecipients_msg, ex);
                 }
-                finally
-                {
-                    SmtpMail.Dispose();
-                    message.Dispose();
-                }
             }
         }
 

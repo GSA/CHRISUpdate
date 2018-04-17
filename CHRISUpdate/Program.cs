@@ -20,10 +20,7 @@ namespace HRUpdate
         //Stopwatch objects
         private static Stopwatch timeForApp = new Stopwatch();
         private static Stopwatch timeForProcess = new Stopwatch();
-
-        //private static HRLinksMapper map = new HRLinksMapper();
-        //private static IMapper mapper;
-
+               
         /// <summary>
         /// Entrance into processsing the HR File
         /// </summary>
@@ -32,15 +29,6 @@ namespace HRUpdate
         {
             //Start timer
             timeForApp.Start();
-
-            
-
-            //Mapper.Initialize(cfg =>
-            //{
-            //    cfg.AddDataReaderMapping();
-            //    cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SSN, opt => opt.Ignore());
-
-            //});
 
             //Log start of application
             log.Info("Application Started: " + DateTime.Now);
@@ -66,6 +54,10 @@ namespace HRUpdate
                 log.Info("Done Processing HR File: " + DateTime.Now);
                 log.Info("HR File Processing Time: " + timeForProcess.ElapsedMilliseconds);
             }
+            else
+            {
+                log.Error("HR Links File Not Found");
+            }
 
             //Separation File
             if (File.Exists(separationFilePath))
@@ -79,8 +71,12 @@ namespace HRUpdate
                 log.Info("Done Processing Separation File: " + DateTime.Now);
                 log.Info("Separation File Processing Time: " + timeForProcess.ElapsedMilliseconds);
             }
+            else
+            {
+                log.Error("Separation File Not Found");
+            }
                 
-            log.Info("Done Processing HR Links File:" + DateTime.Now);
+            log.Info("Done Processing HR Links File(s):" + DateTime.Now);
 
             processData.SendSummaryEMail();           
 

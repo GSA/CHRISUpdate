@@ -26,11 +26,11 @@ namespace HRUpdate.Mapping
             Map(m => m.FirstName).Index(HRConstants.EMPLOYEE_FIRST_NAME);
             Map(m => m.MiddleName).Index(HRConstants.EMPLOYEE_MIDDLE_NAME);
             Map(m => m.CordialName).Index(HRConstants.CORDIAL_NAME);
-            Map(m => m.SSN).Index(HRConstants.SSN);
+            Map(m => m.SocialSecurityNumber).Index(HRConstants.SOCIAL_SECURITY_NUMBER);
             Map(m => m.Gender).Index(HRConstants.GENDER);
-            Map(m => m.SCDLeave).Index(HRConstants.SCD_LEAVE);
-            Map(m => m.FERO).Index(HRConstants.FERO).TypeConverter<FEROConverter>();
-            Map(m => m.LEO).Index(HRConstants.LEO).TypeConverter<LEOConverter>(); ;
+            Map(m => m.ServiceComputationDateLeave).Index(HRConstants.SERVICE_COMPUTATION_DATE_LEAVE);
+            Map(m => m.FederalEmergencyResponseOfficial).Index(HRConstants.FEDERAL_EMERGENCY_RESPONSE_OFFICIAL).TypeConverter<FederalEmergencyResponseOfficialConverter>();
+            Map(m => m.LawEnforcementOfficer).Index(HRConstants.LAW_ENFORCEMENT_OFFICER).TypeConverter<LawEnforcementOfficerConverter>(); ;
             Map(m => m.Region).Index(HRConstants.REGION);
             Map(m => m.OrganizationCode).Index(HRConstants.ORGANIZATION_CODE);
             Map(m => m.JobTitle).Index(HRConstants.JOB_TITLE);
@@ -97,7 +97,7 @@ namespace HRUpdate.Mapping
             Map(m => m.WorkPhone).Index(HRConstants.WORK_PHONE_NUMBER);
             Map(m => m.WorkFax).Index(HRConstants.WORK_FAX_NUMBER);
             Map(m => m.WorkCell).Index(HRConstants.WORK_CELL_NUMBER);
-            Map(m => m.WorkTTY).Index(HRConstants.WORK_PHONE_NUMBER_TTY);
+            Map(m => m.WorkTextTelephone).Index(HRConstants.WORK_PHONE_NUMBER_TEXT_TELEPHONE);
         }
     }
 

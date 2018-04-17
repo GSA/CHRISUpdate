@@ -7,6 +7,6 @@
         public string WorkPhone { get; set; }
         public string WorkFax { get; set; }
         public string WorkCell { get; set; }
-        public string WorkTTY { get; set; }
+        public string WorkTextTelephone { get; set; }
     }
 }

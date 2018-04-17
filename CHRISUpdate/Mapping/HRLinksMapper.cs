@@ -14,7 +14,7 @@ namespace HRUpdate.Mapping
             config = new MapperConfiguration(cfg =>
             {
                 cfg.AddDataReaderMapping();
-                cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SSN, opt => opt.Ignore());
+                cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SocialSecurityNumber, opt => opt.Ignore());
 
             });
         }

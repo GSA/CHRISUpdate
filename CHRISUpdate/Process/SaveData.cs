@@ -18,17 +18,14 @@ namespace HRUpdate.Process
         //Set up connection
         private readonly MySqlConnection conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["GCIMS"].ToString());
         private readonly MySqlCommand cmd = new MySqlCommand();
-
-        //private readonly HRLinksMapper map = new HRLinksMapper();
-        //private readonly IMapper mapper;
-
+        
         //Empty Contructor
         public SaveData()
         {
             Mapper.Initialize(cfg =>
             {
                 cfg.AddDataReaderMapping();
-                cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SSN, opt => opt.Ignore());
+                cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SocialSecurityNumber, opt => opt.Ignore());
             });
         }          
 
@@ -147,7 +144,7 @@ namespace HRUpdate.Process
                             new MySqlParameter { ParameterName = "homeCountry", Value = hrData.Address.HomeCountry, MySqlDbType = MySqlDbType.VarChar, Size = 2},
                             new MySqlParameter { ParameterName = "dateOfBirth", Value = hrData.Birth.DateOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "gender", Value = hrData.Person.Gender, MySqlDbType = MySqlDbType.VarChar, Size = 1},
-                            new MySqlParameter { ParameterName = "scdLeave", Value = hrData.Person.SCDLeave, MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "scdLeave", Value = hrData.Person.ServiceComputationDateLeave, MySqlDbType = MySqlDbType.Date},
                             new MySqlParameter { ParameterName = "priorInvestigation", Value = hrData.Investigation.PriorInvestigation, MySqlDbType = MySqlDbType.VarChar, Size = 20},
                             new MySqlParameter { ParameterName = "typeOfInvestigation", Value = hrData.Investigation.TypeOfInvestigation, MySqlDbType = MySqlDbType.VarChar, Size = 20},
                             new MySqlParameter { ParameterName = "dateOfInvestigation", Value = hrData.Investigation.DateOfInvestigation, MySqlDbType = MySqlDbType.Date},
@@ -164,8 +161,8 @@ namespace HRUpdate.Process
                             new MySqlParameter { ParameterName = "jobSeries", Value = hrData.Position.JobSeries, MySqlDbType = MySqlDbType.VarChar, Size = 8},
                             new MySqlParameter { ParameterName = "payGrade", Value = hrData.Position.PayGrade, MySqlDbType = MySqlDbType.VarChar, Size = 3},
                             new MySqlParameter { ParameterName = "workSchedule", Value = hrData.Position.WorkSchedule, MySqlDbType = MySqlDbType.VarChar, Size = 1},
-                            new MySqlParameter { ParameterName = "fero", Value = hrData.Person.FERO, MySqlDbType = MySqlDbType.Byte},
-                            new MySqlParameter { ParameterName = "leo", Value = hrData.Person.LEO, MySqlDbType = MySqlDbType.Byte},
+                            new MySqlParameter { ParameterName = "fero", Value = hrData.Person.FederalEmergencyResponseOfficial, MySqlDbType = MySqlDbType.Byte},
+                            new MySqlParameter { ParameterName = "leo", Value = hrData.Person.LawEnforcementOfficer, MySqlDbType = MySqlDbType.Byte},
                             new MySqlParameter { ParameterName = "positionTeleworkEligibility", Value = hrData.Position.PositionTeleworkEligibility, MySqlDbType = MySqlDbType.Byte},
                             new MySqlParameter { ParameterName = "positionSensitivity", Value = hrData.Position.PositionSensitivity, MySqlDbType = MySqlDbType.VarChar, Size = 4},
                             new MySqlParameter { ParameterName = "positionStartDate", Value = hrData.Position.PositionStartDate, MySqlDbType = MySqlDbType.Date},
@@ -194,7 +191,7 @@ namespace HRUpdate.Process
                             new MySqlParameter { ParameterName = "workPhone", Value = hrData.Phone.WorkPhone, MySqlDbType = MySqlDbType.VarChar, Size = 22},
                             new MySqlParameter { ParameterName = "workFax", Value = hrData.Phone.WorkFax, MySqlDbType = MySqlDbType.VarChar, Size = 22},
                             new MySqlParameter { ParameterName = "workCell", Value = hrData.Phone.WorkCell, MySqlDbType = MySqlDbType.VarChar, Size = 22},
-                            new MySqlParameter { ParameterName = "workTTY", Value = hrData.Phone.WorkTTY, MySqlDbType = MySqlDbType.VarChar, Size = 22},
+                            new MySqlParameter { ParameterName = "workTTY", Value = hrData.Phone.WorkTextTelephone, MySqlDbType = MySqlDbType.VarChar, Size = 22},
                         };
 
                         cmd.Parameters.AddRange(personParameters);

@@ -6,7 +6,7 @@ using AutoMapper;
 
 namespace HRUpdate.Mapping
 {
-    sealed class SSNConverter : ByteConverter
+    sealed class SocialSecurityNumberConverter : ByteConverter
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
@@ -16,7 +16,7 @@ namespace HRUpdate.Mapping
         }
     }
 
-    sealed class SSNConverter2 : ByteArrayConverter
+    sealed class SocialSecurityNumberConverter2 : ByteArrayConverter
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
@@ -26,7 +26,7 @@ namespace HRUpdate.Mapping
         }
     }
 
-    sealed class FEROConverter: BooleanConverter
+    sealed class FederalEmergencyResponseOfficialConverter: BooleanConverter
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
@@ -37,7 +37,7 @@ namespace HRUpdate.Mapping
         }
     }
 
-    sealed class LEOConverter: BooleanConverter
+    sealed class LawEnforcementOfficerConverter: BooleanConverter
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
