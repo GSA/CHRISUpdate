@@ -273,25 +273,28 @@ namespace HRUpdate.Process
 
             body = GenerateEMailBody();
 
-            //using (email)
-            //{
-            //    email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(), "", "", subject, "", body, "", "", true);
-            //}
+            using (email)
+            {
+                email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(), 
+                           ConfigurationManager.AppSettings["TO"].ToString(),
+                           ConfigurationManager.AppSettings["CC"].ToString(),
+                           ConfigurationManager.AppSettings["BCC"].ToString(),
+                           subject, body, "", ConfigurationManager.AppSettings["SMTPSERVER"].ToString(), true);
+            }
         }
 
         public string GenerateEMailBody()
         {
             StringBuilder errors = new StringBuilder();
+            StringBuilder fileNames = new StringBuilder();
 
             string template = File.ReadAllText(ConfigurationManager.AppSettings["SUMMARYTEMPLATE"]);
 
-            //bool HRFileFound = false;
-            //bool SEPFileFound = false;
-
-            //HRFileFound = string.IsNullOrEmpty(emailData.HRFilename.ToString()) ? false : true;
-            //SEPFileFound = string.IsNullOrEmpty(emailData.SEPFileName.ToString()) ? false : true;
-
-            template = template.Replace("[FILENAMES]", emailData.HRFilename.ToString() + ", " + emailData.SEPFileName.ToString());
+            fileNames.Append(emailData.HRFilename == null ? "No HR Links File Found" : emailData.HRFilename.ToString());
+            fileNames.Append(", ");
+            fileNames.Append(emailData.SEPFileName == null ? "No Separation File Found" : emailData.SEPFileName.ToString());
+            
+            template = template.Replace("[FILENAMES]", fileNames.ToString());
 
             template = template.Replace("[HRATTEMPTED]", emailData.HRAttempted.ToString());
             template = template.Replace("[HRSUCCEEDED]", emailData.HRSucceeded.ToString());
@@ -315,7 +318,7 @@ namespace HRUpdate.Process
 
             template = template.Replace("[SEPATTEMPTED]", emailData.SEPAttempted.ToString());
             template = template.Replace("[SEPSUCCEEDED]", emailData.SEPSucceeded.ToString());
-            template = template.Replace("[SEPFAILED]", emailData.SEPFileName.ToString());
+            template = template.Replace("[SEPFAILED]", emailData.SEPFailed.ToString());
 
             if (emailData.SEPHasErrors)
             {
