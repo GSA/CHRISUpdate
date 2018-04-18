@@ -11,7 +11,7 @@ namespace HRUpdate.Models
         public bool InitialResult { get; set; }
         public DateTime? InitialResultDate { get; set; }
         public bool FinalResult { get; set; }
-        public string FinalResultDate { get; set; }
+        public DateTime? FinalResultDate { get; set; }
         public string AdjudicatorEmployeeID { get; set; }
     }
 }

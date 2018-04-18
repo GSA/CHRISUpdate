@@ -7,16 +7,18 @@ namespace HRUpdate.Mapping
     {
         public EmployeeMapping()
         {
-            References<PersonMap>(m => m.Person);
-            References<AddressMap>(m => m.Address);
-            References<BirthMap>(m => m.Birth);
-            References<PositionMap>(m => m.Position);
-            References<PhoneMap>(m => m.Phone);
-            References<EmergencyMap>(m => m.Emergency);
+            References<PersonMap>(r => r.Person);
+            References<AddressMap>(r => r.Address);
+            References<BirthMap>(r => r.Birth);
+            References<PositionMap>(r => r.Position);
+            References<PhoneMap>(r => r.Phone);
+            References<EmergencyMap>(r => r.Emergency);
+            References<InvestigationMap>(r => r.Investigation);
+            References<DetailMap>(r => r.Detail);
         }
     }
 
-    public sealed class PersonMap: ClassMap<Person>
+    public sealed class PersonMap : ClassMap<Person>
     {
         public PersonMap()
         {
@@ -60,12 +62,12 @@ namespace HRUpdate.Mapping
             Map(m => m.CountryOfBirth).Index(HRConstants.BIRTH_COUNTRY);
             Map(m => m.CountryOfCitizenship).Index(HRConstants.COUNTRY_OF_CITIZENSHIP);
             Map(m => m.Citizen).Index(HRConstants.CITIZEN);
-            Map(m => m.DateOfBirth).Index(HRConstants.DATE_OF_BIRTH);
+            Map(m => m.DateOfBirth).Index(HRConstants.DATE_OF_BIRTH); //.TypeConverter<DateConversion>();
 
         }
     }
 
-    public sealed class PositionMap: ClassMap<Position>
+    public sealed class PositionMap : ClassMap<Position>
     {
         public PositionMap()
         {
@@ -77,7 +79,7 @@ namespace HRUpdate.Mapping
             Map(m => m.JobSeries).Index(HRConstants.JOB_SERIES);
             Map(m => m.PayGrade).Index(HRConstants.LEVEL_GRADE);
             Map(m => m.WorkSchedule).Index(HRConstants.WORK_SCHEDULE);
-            Map(m => m.PositionTeleworkEligibility).Index(HRConstants.TELEWORK_ELIGIBLE);
+            Map(m => m.PositionTeleworkEligibility).Index(HRConstants.TELEWORK_ELIGIBLE).TypeConverter<PositionTeleworkEligibilityConverter>();
             Map(m => m.PositionStartDate).Index(HRConstants.POSITION_START_DATE);
             Map(m => m.DutyLocationCode).Index(HRConstants.DUTY_CODE);
             Map(m => m.DutyLocationCity).Index(HRConstants.DUTY_CITY);
@@ -88,7 +90,7 @@ namespace HRUpdate.Mapping
         }
     }
 
-    public sealed class PhoneMap: ClassMap<Phone>
+    public sealed class PhoneMap : ClassMap<Phone>
     {
         public PhoneMap()
         {
@@ -101,7 +103,7 @@ namespace HRUpdate.Mapping
         }
     }
 
-    public sealed class EmergencyMap: ClassMap<Emergency>
+    public sealed class EmergencyMap : ClassMap<Emergency>
     {
         public EmergencyMap()
         {
@@ -113,6 +115,44 @@ namespace HRUpdate.Mapping
             Map(m => m.OutOfAreaContactHomePhone).Index(HRConstants.EMERGENCY_OUT_OF_AREA_HOME_PHONE_NUMBER);
             Map(m => m.OutOfAreaContactWorkPhone).Index(HRConstants.EMERGENCY_OUT_OF_AREA_HOME_WORK_PHONE_NUMBER);
             Map(m => m.OutOfAreaContactCellPhone).Index(HRConstants.EMERGENCY_OUT_OF_AREA_CELL_NUMBER);
+        }
+    }
+
+    public sealed class InvestigationMap : ClassMap<Investigation>
+    {
+        public InvestigationMap()
+        {
+            Map(m => m.PriorInvestigation).Index(HRConstants.PRIOR_INVESTIGATION);
+            Map(m => m.TypeOfInvestigation).Index(HRConstants.INVESTIGATION_TYPE);
+            Map(m => m.DateOfInvestigation).Index(HRConstants.DATE_OF_INVESTIGATION);
+            Map(m => m.TypeOfInvestigationToRequest).Index(HRConstants.INVESTIGATION_TYPE_REQUESTED);
+            Map(m => m.InitialResult).Index(HRConstants.INITIAL_RESULT_FINAL_OFFER).TypeConverter<InvistigationResultConverter>();
+            Map(m => m.InitialResultDate).Index(HRConstants.INITIAL_RESULT_FINAL_DATE);
+            Map(m => m.FinalResult).Index(HRConstants.FINAL_RESULT_OFFER).TypeConverter<InvistigationResultConverter>();
+            Map(m => m.FinalResultDate).Index(HRConstants.FINAL_RESULT_DATE);
+            Map(m => m.AdjudicatorEmployeeID).Index(HRConstants.ADJUDICATION_EMPLOYEE_ID);
+        }
+    }
+
+    public sealed class DetailMap : ClassMap<Detail>
+    {
+        public DetailMap()
+        {
+            Map(m => m.DetailBeginDate).Index(HRConstants.DETAIL_BEGIN_DATE);
+            Map(m => m.DetialEndDate).Index(HRConstants.DETAIL_END_DATE);
+            Map(m => m.DetailPositionControlNumber).Index(HRConstants.DETAIL_POSITION_CONTROL_NUMBER);
+            Map(m => m.DetailPositionTitle).Index(HRConstants.DETAIL_POSITION_TITLE);
+            Map(m => m.DetailOrganizationCode).Index(HRConstants.DETAIL_ORGANIZATION_CODE);
+            Map(m => m.DetailOfficeSymbol).Index(HRConstants.DETAIL_OFFICE_SYMBOL);
+            Map(m => m.DetailPayPlan).Index(HRConstants.DETAIL_PAY_PLAN);
+            Map(m => m.DetailJobSeries).Index(HRConstants.DETAIL_JOB_SERIES);
+            Map(m => m.DetailLevelGrade).Index(HRConstants.DETAIL_LEVEL_GRADE);
+            Map(m => m.DetailWorkSchedule).Index(HRConstants.DETAIL_WORK_SCHEDULE);
+            Map(m => m.DetailRegion).Index(HRConstants.DETAIL_REGION);
+            Map(m => m.DetailDutyLocationCode).Index(HRConstants.DETAIL_DUTY_LOCATION_CODE);
+            Map(m => m.DetailDutyLocationCity).Index(HRConstants.DETAIL_DUTY_LOCATION_CITY);
+            Map(m => m.DetailDutyLocationState).Index(HRConstants.DETAIL_DUTY_LOCATION_STATE);
+            Map(m => m.DetailDutyLocationCounty).Index(HRConstants.DETAIL_DUTY_LOCATION_COUNTY);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace HRUpdate.Models
+﻿using System;
+
+namespace HRUpdate.Models
 {
     public class Person
     {        
@@ -10,7 +12,7 @@
         public string CordialName { get; set; }
         public string SocialSecurityNumber { get; set; }
         public string Gender { get; set; }
-        public string ServiceComputationDateLeave { get; set; }
+        public DateTime? ServiceComputationDateLeave { get; set; }
         public bool FederalEmergencyResponseOfficial { get; set; }
         public bool LawEnforcementOfficer { get; set; }
         public string Region { get; set; }

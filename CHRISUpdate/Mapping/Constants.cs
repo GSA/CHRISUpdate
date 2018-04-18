@@ -31,17 +31,18 @@ namespace HRUpdate.Mapping
         public const int EMPLOYEE_STATUS = 20;
         public const int GENDER = 21;
         public const int SERVICE_COMPUTATION_DATE_LEAVE = 22;
-        public const int PRIOR_COMPLETED = 23;
-        public const int TYPE_COMPLETED = 24;
-        public const int DATE_COMPLETED = 25;
-        public const int TYPE_REQUESTED = 26;
+        public const int PRIOR_INVESTIGATION = 23;
+        public const int INVESTIGATION_TYPE = 24;
+        public const int DATE_OF_INVESTIGATION = 25;
+        public const int INVESTIGATION_TYPE_REQUESTED = 26;
 
-        //27 Initial Result (favorable or not) used to make final offer
-        //28 Initial Result (favorable or not) used to make final offer (date)
-        //29 Final Result (full investigation results)
-        //30 Final Result (full investigation results) date
+        public const int INITIAL_RESULT_FINAL_OFFER = 27;
+        public const int INITIAL_RESULT_FINAL_DATE = 28;
 
-        //31 Adjudicator's EMPLID
+        public const int FINAL_RESULT_OFFER = 29;
+        public const int FINAL_RESULT_DATE = 30;
+
+        public const int ADJUDICATION_EMPLOYEE_ID = 31;
 
         public const int POSITION_CONTROL_NUMBER = 32;
         public const int JOB_TITLE = 33;
@@ -75,13 +76,12 @@ namespace HRUpdate.Mapping
         public const int DETAIL_LEVEL_GRADE = 59;
         public const int DETAIL_WORK_SCHEDULE = 60;
         public const int DETAIL_REGION = 61;
-        public const int DETAIL_DUTY_CODE = 62;
-        public const int DETAIL_DUTY_CITY = 63;
-        public const int DETAIL_DUTY_STATE = 64;
-        public const int DETAIL_DUTY_COUNTY = 65;
+        public const int DETAIL_DUTY_LOCATION_CODE = 62;
+        public const int DETAIL_DUTY_LOCATION_CITY = 63;
+        public const int DETAIL_DUTY_LOCATION_STATE = 64;
+        public const int DETAIL_DUTY_LOCATION_COUNTY = 65;
 
-        public const int SUPERVISOR_EMPLOYEE_ID = 66; //Supervisor Unique ID 
-               
+        public const int SUPERVISOR_EMPLOYEE_ID = 66; //Supervisor Unique ID               
 
         public const int HOME_ADDRESS_3 = 67;
         public const int POSITION_TITLE = 68;
@@ -105,8 +105,6 @@ namespace HRUpdate.Mapping
         public const int WORK_FAX_NUMBER = 87;
         public const int WORK_CELL_NUMBER = 88;
         public const int WORK_PHONE_NUMBER_TEXT_TELEPHONE = 89;
-        
-        public const int ADJUDICATION_AUTH = 31;
     }
 
     public class SeparationConstants

@@ -53,6 +53,7 @@ namespace HRUpdate.Process
         {
             CompareLogic compareLogic = new CompareLogic();
             compareLogic.Config.MembersToIgnore.Add("Person.SSN");
+            compareLogic.Config.MembersToIgnore.Add("Detail");
 
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
@@ -89,6 +90,7 @@ namespace HRUpdate.Process
                 usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
 
                 Tuple<int, int, string, string, Employee> personResults;
+                Tuple<int, string, string> updatedResults;
 
                 //Start Processin the HR Data
                 foreach (Employee employeeData in usersToProcess)
@@ -99,11 +101,19 @@ namespace HRUpdate.Process
                     
                     if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item5, employeeData))
                     {
-                        Console.WriteLine("Update Record");
+                        log.Info("Update Record");
 
-                        //SaveData
+                        //if (IsDetail())
+                        //{
+                        //    //Fill out detail info
+                        //    //PopulateDetailInfoIntoMainObject
+                        //}
 
-                        var processedUserSuccess = usersToProcess
+                        updatedResults = save.UpdatePersonInformation(personResults.Item1, employeeData);
+
+                        if (updatedResults.Item1 > 0)
+                        {
+                            var processedUserSuccess = usersToProcess
                              .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
                              .Select
                                  (
@@ -114,11 +124,35 @@ namespace HRUpdate.Process
                                              FirstName = s.Person.FirstName,
                                              MiddleName = s.Person.MiddleName,
                                              LastName = s.Person.LastName,
-                                             Action = personResults.Item3
+                                             Action = updatedResults.Item2
                                          }
                                  ).ToList();
 
-                        successfulHRUsersProcessed.AddRange(processedUserSuccess);
+                            successfulHRUsersProcessed.AddRange(processedUserSuccess);
+
+                            log.Info("Successfully Updated Record: " + personResults.Item1);
+                        }
+                        else
+                        {
+                            var proccessedUserIssue = usersToProcess
+                            .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                            .Select
+                                 (
+                                     s =>
+                                         new ProcessedSummary
+                                         {
+                                             ID = personResults.Item1,
+                                             FirstName = s.Person.FirstName,
+                                             MiddleName = s.Person.MiddleName,
+                                             LastName = s.Person.LastName,
+                                             Action = updatedResults.Item3
+                                         }
+                                 ).ToList();
+
+
+                            unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+                        }
+                        
                     }
                     else
                     {
@@ -160,6 +194,12 @@ namespace HRUpdate.Process
             {
                 log.Error("Process HR Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);                
             }
+        }
+
+        private bool IsDetail(Employee dData)
+        {
+            //dData.Position.DutyLocationCity = dData.Detail.DetailDutyLocationCity;
+            return true;
         }
 
         /// <summary>

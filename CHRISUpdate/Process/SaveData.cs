@@ -29,7 +29,7 @@ namespace HRUpdate.Process
             });
         }          
 
-        public Tuple<int, int, string, string, Employee> GetGCIMSRecord(string EmployeeID, byte[] ssn, string lastName, string dateOfBirth)
+        public Tuple<int, int, string, string, Employee> GetGCIMSRecord(string employeeID, byte[] ssn, string lastName, string dateOfBirth)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace HRUpdate.Process
                             new MySqlParameter { ParameterName = "ssn", Value = ssn, MySqlDbType = MySqlDbType.VarBinary, Size = 32},
                             new MySqlParameter { ParameterName = "lastName", Value = lastName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
                             new MySqlParameter { ParameterName = "dateOfBirth", Value = dateOfBirth, MySqlDbType = MySqlDbType.VarChar, Size = 10},
-                            new MySqlParameter { ParameterName = "emplID", MySqlDbType = MySqlDbType.VarChar, Size = 12 },
+                            new MySqlParameter { ParameterName = "emplID", Value = employeeID, MySqlDbType = MySqlDbType.VarChar, Size = 12 },
                             new MySqlParameter { ParameterName = "persID", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
                             new MySqlParameter { ParameterName = "result", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
                             new MySqlParameter { ParameterName = "actionMsg", MySqlDbType = MySqlDbType.VarChar, Size = 50, Direction = ParameterDirection.Output },
@@ -79,7 +79,7 @@ namespace HRUpdate.Process
             }
             catch (Exception ex)
             {
-                log.Error("GetGCIMSRecord: " + EmployeeID + " - " + ex.Message + " - " + ex.InnerException);
+                log.Error("GetGCIMSRecord: " + employeeID + " - " + ex.Message + " - " + ex.InnerException);
                 return new Tuple<int, int, string, string, Employee>(-1, -1, ex.Message.ToString(), ex.InnerException.ToString(), null);
             }
         }
@@ -95,6 +95,8 @@ namespace HRUpdate.Process
                 employee.Emergency = Mapper.Map<IDataReader, Emergency>(gcimsData);
                 employee.Investigation = Mapper.Map<IDataReader, Investigation>(gcimsData);
                 employee.Person = Mapper.Map<IDataReader, Person>(gcimsData);
+                employee.Phone = Mapper.Map<IDataReader, Phone>(gcimsData);
+                //employee.Detail = Mapper.Map<IDataReader, Detail>(gcimsData);
                 //employee.Position = Mapper.Map<IDataReader, Position>(gcimsData); //Need to fix SupervisorID          
             }
 
@@ -107,7 +109,7 @@ namespace HRUpdate.Process
         /// <param name="saveData"></param>
         /// <returns></returns>
         /// Change to person data
-        public Tuple<string, string, string> UpdatePersonInformation(Employee hrData)
+        public Tuple<int, string, string> UpdatePersonInformation(int persID, Employee hrData)
         {
             try
             {
@@ -120,11 +122,15 @@ namespace HRUpdate.Process
                     {
                         cmd.Connection = conn;
                         cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = "HR_UpdatePerson";
 
                         cmd.Parameters.Clear();
 
+                        //If Detail select detail object values
+
                         MySqlParameter[] personParameters = new MySqlParameter[]
                         {
+                            new MySqlParameter { ParameterName = "persID", Value = persID, MySqlDbType = MySqlDbType.Int32},
                             new MySqlParameter { ParameterName = "emplID", Value = hrData.Person.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},
                             new MySqlParameter { ParameterName = "lastName", Value = hrData.Person.LastName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
                             new MySqlParameter { ParameterName = "suffix", Value = hrData.Person.Suffix, MySqlDbType = MySqlDbType.VarChar, Size = 15},
@@ -142,17 +148,17 @@ namespace HRUpdate.Process
                             new MySqlParameter { ParameterName = "homeState", Value = hrData.Address.HomeState, MySqlDbType = MySqlDbType.VarChar, Size = 2},
                             new MySqlParameter { ParameterName = "homeZipCode", Value = hrData.Address.HomeZipCode, MySqlDbType = MySqlDbType.VarChar, Size = 10},
                             new MySqlParameter { ParameterName = "homeCountry", Value = hrData.Address.HomeCountry, MySqlDbType = MySqlDbType.VarChar, Size = 2},
-                            new MySqlParameter { ParameterName = "dateOfBirth", Value = hrData.Birth.DateOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "dateOfBirth", Value = hrData.Birth.DateOfBirth?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "gender", Value = hrData.Person.Gender, MySqlDbType = MySqlDbType.VarChar, Size = 1},
-                            new MySqlParameter { ParameterName = "scdLeave", Value = hrData.Person.ServiceComputationDateLeave, MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "scdLeave", Value = hrData.Person.ServiceComputationDateLeave?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.Date},
                             new MySqlParameter { ParameterName = "priorInvestigation", Value = hrData.Investigation.PriorInvestigation, MySqlDbType = MySqlDbType.VarChar, Size = 20},
                             new MySqlParameter { ParameterName = "typeOfInvestigation", Value = hrData.Investigation.TypeOfInvestigation, MySqlDbType = MySqlDbType.VarChar, Size = 20},
-                            new MySqlParameter { ParameterName = "dateOfInvestigation", Value = hrData.Investigation.DateOfInvestigation, MySqlDbType = MySqlDbType.Date},
-                            new MySqlParameter { ParameterName = "typeOfInvestigation", Value = hrData.Investigation.TypeOfInvestigationToRequest, MySqlDbType = MySqlDbType.VarChar, Size = 12},
+                            new MySqlParameter { ParameterName = "dateOfInvestigation", Value = hrData.Investigation.DateOfInvestigation?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "typeOfInvestigationToRequest", Value = hrData.Investigation.TypeOfInvestigationToRequest, MySqlDbType = MySqlDbType.VarChar, Size = 12},
                             new MySqlParameter { ParameterName = "initialResult", Value = hrData.Investigation.InitialResult, MySqlDbType = MySqlDbType.Byte},
-                            new MySqlParameter { ParameterName = "initialResultDate", Value = hrData.Investigation.InitialResultDate, MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "initialResultDate", Value = hrData.Investigation.InitialResultDate?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.Date},
                             new MySqlParameter { ParameterName = "finalResult", Value = hrData.Investigation.FinalResult, MySqlDbType = MySqlDbType.Byte},
-                            new MySqlParameter { ParameterName = "finalResultDate", Value = hrData.Investigation.FinalResultDate, MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "finalResultDate", Value = hrData.Investigation.FinalResultDate?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.Date},
                             new MySqlParameter { ParameterName = "adjudicatorEmplID", Value = hrData.Investigation.AdjudicatorEmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},
                             new MySqlParameter { ParameterName = "pcn", Value = hrData.Position.PositionControlNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15},
                             new MySqlParameter { ParameterName = "jobTitle", Value = hrData.Position.PositionTitle, MySqlDbType = MySqlDbType.VarChar, Size = 70},
@@ -165,7 +171,7 @@ namespace HRUpdate.Process
                             new MySqlParameter { ParameterName = "leo", Value = hrData.Person.LawEnforcementOfficer, MySqlDbType = MySqlDbType.Byte},
                             new MySqlParameter { ParameterName = "positionTeleworkEligibility", Value = hrData.Position.PositionTeleworkEligibility, MySqlDbType = MySqlDbType.Byte},
                             new MySqlParameter { ParameterName = "positionSensitivity", Value = hrData.Position.PositionSensitivity, MySqlDbType = MySqlDbType.VarChar, Size = 4},
-                            new MySqlParameter { ParameterName = "positionStartDate", Value = hrData.Position.PositionStartDate, MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "positionStartDate", Value = hrData.Position.PositionStartDate?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.Date},
                             new MySqlParameter { ParameterName = "region", Value = hrData.Person.Region, MySqlDbType = MySqlDbType.VarChar, Size = 3},
                             new MySqlParameter { ParameterName = "dutyLocationCode", Value = hrData.Position.DutyLocationCode, MySqlDbType = MySqlDbType.VarChar, Size = 9},
                             new MySqlParameter { ParameterName = "dutyLocationCity", Value = hrData.Position.DutyLocationCity, MySqlDbType = MySqlDbType.VarChar, Size = 40},
@@ -192,11 +198,16 @@ namespace HRUpdate.Process
                             new MySqlParameter { ParameterName = "workFax", Value = hrData.Phone.WorkFax, MySqlDbType = MySqlDbType.VarChar, Size = 22},
                             new MySqlParameter { ParameterName = "workCell", Value = hrData.Phone.WorkCell, MySqlDbType = MySqlDbType.VarChar, Size = 22},
                             new MySqlParameter { ParameterName = "workTTY", Value = hrData.Phone.WorkTextTelephone, MySqlDbType = MySqlDbType.VarChar, Size = 22},
+                            new MySqlParameter { ParameterName = "result", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "actionMsg", MySqlDbType = MySqlDbType.VarChar, Size = 50, Direction = ParameterDirection.Output },
+                            new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
                         };
 
-                        cmd.Parameters.AddRange(personParameters);
+                        cmd.Parameters.AddRange(personParameters);                        
 
-                        return new Tuple<string, string, string>(cmd.Parameters["result"].Value.ToString(), cmd.Parameters["actionMsg"].Value.ToString(), cmd.Parameters["SQLExceptionWarning"].Value.ToString());
+                        cmd.ExecuteNonQuery();
+
+                        return new Tuple<int, string, string>((int)cmd.Parameters["result"].Value, cmd.Parameters["actionMsg"].Value.ToString(), cmd.Parameters["SQLExceptionWarning"].Value.ToString());
                     }
 
                 }               
@@ -204,8 +215,8 @@ namespace HRUpdate.Process
             //Catch all errors
             catch (Exception ex)
             {
-                log.Error("GetGCIMSRecord: " + ex.Message + " - " + ex.InnerException);
-                return new Tuple<string, string, string>("-1", "-1", ex.Message.ToString());
+                log.Error("Updating GCIMS Record: " + ex.Message + " - " + ex.InnerException);
+                return new Tuple<int, string, string>(-1, "-1", ex.Message.ToString());
             }
         }
 

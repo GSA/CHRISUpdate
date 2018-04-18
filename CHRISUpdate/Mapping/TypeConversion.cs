@@ -16,15 +16,36 @@ namespace HRUpdate.Mapping
         }
     }
 
-    sealed class SocialSecurityNumberConverter2 : ByteArrayConverter
+    sealed class PositionTeleworkEligibilityConverter: BooleanConverter
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            Utilities.Helpers helper = new Utilities.Helpers();
+            if (text.Contains("Y"))
+                return true;
 
-            return helper.HashSSN(text);
+            return false;
         }
     }
+
+    //sealed class DateConversion : StringConverter
+    //{
+    //    public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+    //    {
+    //        if (string.IsNullOrEmpty(text))
+    //            return "";
+
+    //        DateTime date;
+    //        DateTime? converteDate;
+
+    //        if (DateTime.TryParse(text, out date))
+    //        {
+    //            converteDate = date;
+    //            return converteDate;
+    //        }
+
+    //        return null;
+    //    }
+    //}
 
     sealed class FederalEmergencyResponseOfficialConverter: BooleanConverter
     {
@@ -43,6 +64,17 @@ namespace HRUpdate.Mapping
         {
             if (text.Contains("0"))
                 return false;
+
+            return false;
+        }
+    }
+
+    sealed class InvistigationResultConverter: BooleanConverter
+    {
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        {
+            if (text.Contains("1"))
+                return true;
 
             return false;
         }

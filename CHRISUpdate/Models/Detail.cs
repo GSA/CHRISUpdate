@@ -6,7 +6,7 @@ namespace HRUpdate.Models
     {
         public DateTime? DetailBeginDate { get; set; }
         public DateTime? DetialEndDate { get; set; }
-        public Int64 DetailPositionControlNumber { get; set; }
+        public string DetailPositionControlNumber { get; set; }
         public string DetailPositionTitle { get; set; }
         public string DetailOrganizationCode { get; set; }
         public string DetailOfficeSymbol { get; set; }
