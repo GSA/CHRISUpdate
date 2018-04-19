@@ -22,39 +22,18 @@ namespace HRUpdate.Process
         private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
         private readonly SaveData save = new SaveData();
 
-        private readonly EMailData emailData = new EMailData();           
+        private readonly EMailData emailData = new EMailData();
+        private readonly Helpers helper = new Utilities.Helpers();
 
         //Constructor
         public ProcessData() { }        
-
-        public void CompareObject(string chrisFile)
-        {            
-            List<Employee> hrData;
-            List<Employee> gcimsData;           
-
-            CompareLogic compareLogic = new CompareLogic();
-            compareLogic.Config.MaxDifferences = 500;
-
-            hrData = GetFileData<Employee, EmployeeMapping>(chrisFile);
-            gcimsData = GetFileData<Employee, EmployeeMapping>(chrisFile);
-
-            //var hrFilter = hrData.Where(w => w.Person.EmployeeID == "00004624");
-            //var gcimsFilter = gcimsData.Where(w => w.Person.EmployeeID == "00007172");            
-
-            //ComparisonResult result = compareLogic.Compare(hrFilter, gcimsFilter);
-
-            //if (!result.AreEqual)
-            //    Console.WriteLine(result.DifferencesString);
-
-            Console.ReadLine();
-        }
-
+        
         private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
         {
             CompareLogic compareLogic = new CompareLogic();
-            compareLogic.Config.MembersToIgnore.Add("Person.SSN");
+            compareLogic.Config.MembersToIgnore.Add("Person.SocialSecurityNumber");
+            compareLogic.Config.MembersToIgnore.Add("Detail");
             //compareLogic.Config.MembersToIgnore.Add("Birth");
-            //compareLogic.Config.MembersToIgnore.Add("Detail");
             //compareLogic.Config.MembersToIgnore.Add("Emergency");
             //compareLogic.Config.MembersToIgnore.Add("Person");
             //compareLogic.Config.MembersToIgnore.Add("Phone");
@@ -79,31 +58,24 @@ namespace HRUpdate.Process
             try
             {
                 List<Employee> usersToProcess;
-
-                //Successful Users Processed
                 List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
-
-                //Unsuccessful Users Processed
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
-
-                Utilities.Helpers helper = new Utilities.Helpers();
-
-                //Call function to map file to csv
+                
                 usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
 
                 Tuple<int, int, string, string, Employee> personResults;
                 Tuple<int, string, string> updatedResults;
 
-                //Start Processin the HR Data
+                //Start Processing the HR Data
                 foreach (Employee employeeData in usersToProcess)
                 {
                     personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, helper.HashSSN(employeeData.Person.SocialSecurityNumber), employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
-                    
+
                     int personID = personResults.Item1;                    
                     
                     if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item5, employeeData))
                     {
-                        log.Info("Update Record");                        
+                        log.Info("Updating Record:" + personResults.Item1);                        
 
                         updatedResults = save.UpdatePersonInformation(personResults.Item1, employeeData);
 
@@ -116,7 +88,7 @@ namespace HRUpdate.Process
                                      s =>
                                          new ProcessedSummary
                                          {
-                                             ID = personResults.Item1,
+                                             GCIMSID = personResults.Item1,
                                              FirstName = s.Person.FirstName,
                                              MiddleName = s.Person.MiddleName,
                                              LastName = s.Person.LastName,
@@ -137,7 +109,7 @@ namespace HRUpdate.Process
                                      s =>
                                          new ProcessedSummary
                                          {
-                                             ID = personResults.Item1,
+                                             GCIMSID = personResults.Item1,
                                              FirstName = s.Person.FirstName,
                                              MiddleName = s.Person.MiddleName,
                                              LastName = s.Person.LastName,
@@ -145,10 +117,8 @@ namespace HRUpdate.Process
                                          }
                                  ).ToList();
 
-
                             unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
                         }
-                        
                     }
                     else
                     {
@@ -159,14 +129,13 @@ namespace HRUpdate.Process
                                      s =>
                                          new ProcessedSummary
                                          {
-                                             ID = personResults.Item1,
+                                             GCIMSID = personResults.Item1,
                                              FirstName = s.Person.FirstName,
                                              MiddleName = s.Person.MiddleName,
                                              LastName = s.Person.LastName,
                                              Action = personResults.Item3
                                          }
                                  ).ToList();
-
 
                         unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
                     }
@@ -179,9 +148,9 @@ namespace HRUpdate.Process
                 emailData.HRHasErrors = unsuccessfulHRUsersProcessed.Count > 0 ? true : false;
 
                 //Add log entries
-                log.Info("HR Records Processed: " + String.Format("{0:#,###0}", successfulHRUsersProcessed.Count));
+                log.Info("HR Records Updated: " + String.Format("{0:#,###0}", successfulHRUsersProcessed.Count));
                 log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
-                log.Info("HR Processed Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
+                log.Info("HR Records Processed: " + String.Format("{0:#,###0}", usersToProcess.Count));
 
                 GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed);
             }
@@ -221,9 +190,11 @@ namespace HRUpdate.Process
                 foreach (Separation separationData in separationUsersToProcess)
                 {
                     separationResults = save.SaveSeparationInformation(separationData);
-                                        
+
                     if (separationResults.Item1 > 0)
                     {
+                        log.Info("Separating User: " + separationResults.Item1);
+
                         var separationSuccess = separationUsersToProcess
                              .Where(w => w.EmployeeID == separationData.EmployeeID)
                              .Select
@@ -239,6 +210,8 @@ namespace HRUpdate.Process
                                  ).ToList();
 
                         successfulSeparationUsersProcessed.AddRange(separationSuccess);
+
+                        log.Info("Successfully Seperated Record: " + separationResults.Item1);
                     }
                     else
                     {
@@ -288,13 +261,13 @@ namespace HRUpdate.Process
             if (usersProcessedSuccessSummary.Count > 0)
             {
                 emailData.HRSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), usersProcessedSuccessSummary);
-                log.Info("HR Success File Generated: " + emailData.HRSuccessfulSummaryFilename);
+                log.Info("HR Success File: " + emailData.HRSuccessfulSummaryFilename);
             }
 
             if (usersProcessedErrorSummary.Count > 0)
             {
                 emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
-                log.Info("HR Error File Generated: " + emailData.HRErrorSummaryFilename);
+                log.Info("HR Error File: " + emailData.HRErrorSummaryFilename);
             }
         }
 
@@ -308,13 +281,13 @@ namespace HRUpdate.Process
             if (separationSuccessSummary.Count > 0)
             {
                 emailData.SeparationSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
-                log.Info("Separtion Success File Generated: " + emailData.SeparationSuccessfulSummaryFilename);
+                log.Info("Separtion Success File: " + emailData.SeparationSuccessfulSummaryFilename);
             }
 
             if (separationErrorSummary.Count > 0)
             {
                 emailData.SeparationErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
-                log.Info("Separation Error File Generated: " + emailData.SeparationErrorSummaryFilename);
+                log.Info("Separation Error File: " + emailData.SeparationErrorSummaryFilename);
             }
         }
 
@@ -334,11 +307,11 @@ namespace HRUpdate.Process
 
             using (email)
             {
-                email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(),
-                           ConfigurationManager.AppSettings["TO"].ToString(),
-                           ConfigurationManager.AppSettings["CC"].ToString(),
-                           ConfigurationManager.AppSettings["BCC"].ToString(),
-                           subject, body, attahcments.TrimEnd(';'), ConfigurationManager.AppSettings["SMTPSERVER"].ToString(), true);
+                //email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(),
+                //           ConfigurationManager.AppSettings["TO"].ToString(),
+                //           ConfigurationManager.AppSettings["CC"].ToString(),
+                //           ConfigurationManager.AppSettings["BCC"].ToString(),
+                //           subject, body, attahcments.TrimEnd(';'), ConfigurationManager.AppSettings["SMTPSERVER"].ToString(), true);
             }
         }
 

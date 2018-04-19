@@ -7,11 +7,11 @@ namespace HRLinks.Mapping
     {
         public ProcessedSummaryMappng()
         {
-            Map(m => m.ID);
-            Map(m => m.FirstName);
-            Map(m => m.MiddleName);
-            Map(m => m.LastName);
-            Map(m => m.Action);
+            Map(m => m.GCIMSID).Name("GCIMS ID");
+            Map(m => m.FirstName).Name("First Name");
+            Map(m => m.MiddleName).Name("Middle Name");
+            Map(m => m.LastName).Name("Last Name");
+            Map(m => m.Action).Name("Action");
         }
     }
 

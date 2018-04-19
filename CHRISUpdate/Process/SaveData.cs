@@ -25,8 +25,8 @@ namespace HRUpdate.Process
             Mapper.Initialize(cfg =>
             {
                 cfg.AddDataReaderMapping();
+                cfg.AllowNullCollections = true;               
                 cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SocialSecurityNumber, opt => opt.Ignore());
-                cfg.CreateMap<Employee, Position>().ForMember(dest => dest.SupervisorEmployeeID, opt => opt.Ignore());
             });
         }          
 
@@ -69,14 +69,7 @@ namespace HRUpdate.Process
                         using (gcimsData)
                         {
                             if (gcimsData.HasRows)
-                            {
-                                //while (gcimsData.Read())
-                                //{
-                                //    Console.WriteLine(gcimsData[0].ToString());
-                                //}
-
                                 gcimsRecord = MapGCIMSData(gcimsData);
-                            }
                         }                           
                                                  
                         return new Tuple<int, int, string, string, Employee>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["actionMsg"].Value.ToString(), cmd.Parameters["SQLExceptionWarning"].Value.ToString(), gcimsRecord);
