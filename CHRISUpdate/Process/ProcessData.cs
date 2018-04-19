@@ -38,13 +38,13 @@ namespace HRUpdate.Process
             hrData = GetFileData<Employee, EmployeeMapping>(chrisFile);
             gcimsData = GetFileData<Employee, EmployeeMapping>(chrisFile);
 
-            var hrFilter = hrData.Where(w => w.Person.EmployeeID == "00004624");
-            var gcimsFilter = gcimsData.Where(w => w.Person.EmployeeID == "00007172");            
+            //var hrFilter = hrData.Where(w => w.Person.EmployeeID == "00004624");
+            //var gcimsFilter = gcimsData.Where(w => w.Person.EmployeeID == "00007172");            
 
-            ComparisonResult result = compareLogic.Compare(hrFilter, gcimsFilter);
+            //ComparisonResult result = compareLogic.Compare(hrFilter, gcimsFilter);
 
-            if (!result.AreEqual)
-                Console.WriteLine(result.DifferencesString);
+            //if (!result.AreEqual)
+            //    Console.WriteLine(result.DifferencesString);
 
             Console.ReadLine();
         }
@@ -53,14 +53,16 @@ namespace HRUpdate.Process
         {
             CompareLogic compareLogic = new CompareLogic();
             compareLogic.Config.MembersToIgnore.Add("Person.SSN");
-            compareLogic.Config.MembersToIgnore.Add("Detail");
+            //compareLogic.Config.MembersToIgnore.Add("Birth");
+            //compareLogic.Config.MembersToIgnore.Add("Detail");
+            //compareLogic.Config.MembersToIgnore.Add("Emergency");
+            //compareLogic.Config.MembersToIgnore.Add("Person");
+            //compareLogic.Config.MembersToIgnore.Add("Phone");
+            //compareLogic.Config.MembersToIgnore.Add("Position");
 
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
-            return result.AreEqual;
-
-            //if (!result.AreEqual)
-            //    Console.WriteLine(result.DifferencesString);
+            return result.AreEqual;            
         }
 
         /// <summary>
@@ -101,13 +103,7 @@ namespace HRUpdate.Process
                     
                     if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item5, employeeData))
                     {
-                        log.Info("Update Record");
-
-                        //if (IsDetail())
-                        //{
-                        //    //Fill out detail info
-                        //    //PopulateDetailInfoIntoMainObject
-                        //}
+                        log.Info("Update Record");                        
 
                         updatedResults = save.UpdatePersonInformation(personResults.Item1, employeeData);
 
@@ -198,8 +194,10 @@ namespace HRUpdate.Process
 
         private bool IsDetail(Employee dData)
         {
-            //dData.Position.DutyLocationCity = dData.Detail.DetailDutyLocationCity;
-            return true;
+            if (dData.Detail.DetailBeginDate != null || dData.Detail.DetailDutyLocationCity != null)
+                return true;
+
+            return false;
         }
 
         /// <summary>

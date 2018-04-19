@@ -79,12 +79,12 @@ namespace HRUpdate.Mapping
             Map(m => m.JobSeries).Index(HRConstants.JOB_SERIES);
             Map(m => m.PayGrade).Index(HRConstants.LEVEL_GRADE);
             Map(m => m.WorkSchedule).Index(HRConstants.WORK_SCHEDULE);
-            Map(m => m.PositionTeleworkEligibility).Index(HRConstants.TELEWORK_ELIGIBLE).TypeConverter<PositionTeleworkEligibilityConverter>();
+            Map(m => m.PositionTeleworkEligibility).Index(HRConstants.POSITION_TELEWORK_ELIGIBLE).TypeConverter<PositionTeleworkEligibilityConverter>();
             Map(m => m.PositionStartDate).Index(HRConstants.POSITION_START_DATE);
-            Map(m => m.DutyLocationCode).Index(HRConstants.DUTY_CODE);
-            Map(m => m.DutyLocationCity).Index(HRConstants.DUTY_CITY);
-            Map(m => m.DutyLocationState).Index(HRConstants.DUTY_STATE);
-            Map(m => m.DutyLocationCounty).Index(HRConstants.DUTY_COUNTY);
+            Map(m => m.DutyLocationCode).Index(HRConstants.DUTY_LOCATION_CODE);
+            Map(m => m.DutyLocationCity).Index(HRConstants.DUTY_LOCATION_CITY);
+            Map(m => m.DutyLocationState).Index(HRConstants.DUTY_LOCATION_STATE);
+            Map(m => m.DutyLocationCounty).Index(HRConstants.DUTY_LOCATION_COUNTY);
             Map(m => m.AgencyCodeSubelement).Index(HRConstants.AGENCY_CODE_SUBELEMENT);
             Map(m => m.SupervisorEmployeeID).Index(HRConstants.SUPERVISOR_EMPLOYEE_ID);
         }

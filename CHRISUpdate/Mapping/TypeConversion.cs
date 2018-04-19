@@ -14,7 +14,7 @@ namespace HRUpdate.Mapping
 
             return helper.HashSSN(text);            
         }
-    }
+    }   
 
     sealed class PositionTeleworkEligibilityConverter: BooleanConverter
     {
@@ -25,27 +25,7 @@ namespace HRUpdate.Mapping
 
             return false;
         }
-    }
-
-    //sealed class DateConversion : StringConverter
-    //{
-    //    public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
-    //    {
-    //        if (string.IsNullOrEmpty(text))
-    //            return "";
-
-    //        DateTime date;
-    //        DateTime? converteDate;
-
-    //        if (DateTime.TryParse(text, out date))
-    //        {
-    //            converteDate = date;
-    //            return converteDate;
-    //        }
-
-    //        return null;
-    //    }
-    //}
+    }    
 
     sealed class FederalEmergencyResponseOfficialConverter: BooleanConverter
     {

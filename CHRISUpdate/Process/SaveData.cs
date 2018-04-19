@@ -26,6 +26,7 @@ namespace HRUpdate.Process
             {
                 cfg.AddDataReaderMapping();
                 cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SocialSecurityNumber, opt => opt.Ignore());
+                cfg.CreateMap<Employee, Position>().ForMember(dest => dest.SupervisorEmployeeID, opt => opt.Ignore());
             });
         }          
 
@@ -69,6 +70,11 @@ namespace HRUpdate.Process
                         {
                             if (gcimsData.HasRows)
                             {
+                                //while (gcimsData.Read())
+                                //{
+                                //    Console.WriteLine(gcimsData[0].ToString());
+                                //}
+
                                 gcimsRecord = MapGCIMSData(gcimsData);
                             }
                         }                           
@@ -95,9 +101,8 @@ namespace HRUpdate.Process
                 employee.Emergency = Mapper.Map<IDataReader, Emergency>(gcimsData);
                 employee.Investigation = Mapper.Map<IDataReader, Investigation>(gcimsData);
                 employee.Person = Mapper.Map<IDataReader, Person>(gcimsData);
-                employee.Phone = Mapper.Map<IDataReader, Phone>(gcimsData);
-                //employee.Detail = Mapper.Map<IDataReader, Detail>(gcimsData);
-                //employee.Position = Mapper.Map<IDataReader, Position>(gcimsData); //Need to fix SupervisorID          
+                employee.Phone = Mapper.Map<IDataReader, Phone>(gcimsData);                
+                employee.Position = Mapper.Map<IDataReader, Position>(gcimsData); //Need to fix SupervisorID          
             }
 
             return employee;
