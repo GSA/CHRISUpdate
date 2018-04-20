@@ -18,7 +18,7 @@ namespace HRUpdate.Process
 
         private readonly MySqlCommand cmd = new MySqlCommand();
 
-        //Empty Contructor
+        //Empty Constructor
         public SaveData()
         {
             Mapper.Initialize(cfg =>
@@ -259,7 +259,7 @@ namespace HRUpdate.Process
             catch (Exception ex)
             {
                 log.Error("SaveSeparationInformation: " + separationData.EmployeeID + " - " + ex.Message + " - " + ex.InnerException);
-                return new Tuple<int, int, string, string>(-1, -1, "Unknown Error", "Uknown SQL Exception Warning");
+                return new Tuple<int, int, string, string>(-1, -1, "Unknown Error", "Unknown SQL Exception Warning");
             }
         }
     }

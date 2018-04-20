@@ -198,7 +198,7 @@ namespace HRUpdate.Process
 
                         successfulSeparationUsersProcessed.AddRange(separationSuccess);
 
-                        log.Info("Successfully Seperated Record: " + separationResults.Item1);
+                        log.Info("Successfully Separated Record: " + separationResults.Item1);
                     }
                     else
                     {
@@ -237,7 +237,7 @@ namespace HRUpdate.Process
                 log.Error("Process Separation Users Error:" + ex.Message + " " + ex.InnerException); 
             }
         }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -268,7 +268,7 @@ namespace HRUpdate.Process
             if (separationSuccessSummary.Count > 0)
             {
                 emailData.SeparationSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
-                log.Info("Separtion Success File: " + emailData.SeparationSuccessfulSummaryFilename);
+                log.Info("Separation Success File: " + emailData.SeparationSuccessfulSummaryFilename);
             }
 
             if (separationErrorSummary.Count > 0)
@@ -286,7 +286,7 @@ namespace HRUpdate.Process
             string body = string.Empty;
             string attahcments = string.Empty;         
 
-            subject = ConfigurationManager.AppSettings["EMAILSUBJECT"].ToString() + " - " + DateTime.Now.ToString("MMMM dd, yyyy");
+            subject = ConfigurationManager.AppSettings["EMAILSUBJECT"].ToString() + " - " + DateTime.Now.ToString("MMMM dd, yyyy HH:mm:ss");
 
             body = GenerateEMailBody();
 
@@ -323,7 +323,7 @@ namespace HRUpdate.Process
             {
                 errors.Clear();
 
-                errors.Append("<b><font color='red'>Errors were found processing the HR file</font></b><br />");
+                errors.Append("<b><font color='red'>Errors were found while processing the HR file</font></b><br />");
                 errors.Append("<br />Please see the attached file: <b><font color='red'>");
                 errors.Append(emailData.HRErrorSummaryFilename);
                 errors.Append("</font></b>");
@@ -343,7 +343,7 @@ namespace HRUpdate.Process
             {
                 errors.Clear();
 
-                errors.Append("<b><font color='red'>Errors were found processing the separation file</font></b><br />");
+                errors.Append("<b><font color='red'>Errors were found while processing the separation file</font></b><br />");
                 errors.Append("<br />Please see the attached file: <b><font color='red'>");
                 errors.Append(emailData.SeparationErrorSummaryFilename);
                 errors.Append("</font></b>");

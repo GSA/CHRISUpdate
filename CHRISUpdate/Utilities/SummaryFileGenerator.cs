@@ -12,7 +12,7 @@ namespace HRUpdate.Utilities
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        //Empty Contructor
+        //Empty Constructor
         public SummaryFileGenerator() { }
 
         internal string GenerateSummaryFile<TClass, TMap>(string fileName, List<TClass> summaryData)
