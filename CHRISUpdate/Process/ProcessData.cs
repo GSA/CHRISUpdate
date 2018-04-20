@@ -155,7 +155,7 @@ namespace HRUpdate.Process
                 log.Error("Process HR Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);                
             }
         }
-        
+
         /// <summary>
         /// Process separation file
         /// </summary>
@@ -247,13 +247,13 @@ namespace HRUpdate.Process
         {
             if (usersProcessedSuccessSummary.Count > 0)
             {
-                emailData.HRSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), usersProcessedSuccessSummary);
+                emailData.HRSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), usersProcessedSuccessSummary);
                 log.Info("HR Success File: " + emailData.HRSuccessfulSummaryFilename);
             }
 
             if (usersProcessedErrorSummary.Count > 0)
             {
-                emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMappng>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
+                emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
                 log.Info("HR Error File: " + emailData.HRErrorSummaryFilename);
             }
         }

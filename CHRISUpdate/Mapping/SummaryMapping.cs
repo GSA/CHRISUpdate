@@ -3,9 +3,9 @@ using HRUpdate.Models;
 
 namespace HRLinks.Mapping
 {
-    internal sealed class ProcessedSummaryMappng : ClassMap<ProcessedSummary>
+    internal sealed class ProcessedSummaryMapping : ClassMap<ProcessedSummary>
     {
-        public ProcessedSummaryMappng()
+        public ProcessedSummaryMapping()
         {
             Map(m => m.GCIMSID).Name("GCIMS ID");
             Map(m => m.FirstName).Name("First Name");
