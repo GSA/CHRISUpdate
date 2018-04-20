@@ -101,7 +101,7 @@
     <Compile Include="Mapping\EmployeeMapping.cs" />
     <Compile Include="Mapping\HRLinksMapper.cs" />
     <Compile Include="Mapping\SeparationMapping.cs" />
-    <Compile Include="Mapping\SummaryMappng.cs" />
+    <Compile Include="Mapping\SummaryMapping.cs" />
     <Compile Include="Mapping\TypeConversion.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Birth.cs" />
