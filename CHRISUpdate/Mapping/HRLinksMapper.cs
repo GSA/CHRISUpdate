@@ -6,8 +6,7 @@ namespace HRUpdate.Mapping
 {
     public class HRLinksMapper
     {
-        MapperConfiguration config;
-
+        private MapperConfiguration config;
 
         public void CreateMappingConfig()
         {
@@ -15,7 +14,6 @@ namespace HRUpdate.Mapping
             {
                 cfg.AddDataReaderMapping();
                 cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SocialSecurityNumber, opt => opt.Ignore());
-
             });
         }
 

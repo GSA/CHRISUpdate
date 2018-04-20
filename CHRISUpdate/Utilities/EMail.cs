@@ -3,7 +3,7 @@ using System.Net.Mail;
 
 namespace HRUpdate.Utilities
 {
-    class EMail : IDisposable
+    internal class EMail : IDisposable
     {
         protected string _strSmtpServer = string.Empty;
         protected string _strEmailFrom = string.Empty;
@@ -15,8 +15,8 @@ namespace HRUpdate.Utilities
         protected string _strEmailAttachments = string.Empty;
         protected bool _IsBodyHtml = false;
 
-        MailMessage message = new MailMessage();
-        SmtpClient SmtpMail = new SmtpClient();
+        private MailMessage message = new MailMessage();
+        private SmtpClient SmtpMail = new SmtpClient();
 
         public void Send(string strEmailFrom, string strEmailTo, string strEmailCc, string strEmailBcc, string strEmailSubject,
                          string strEmailMessageBody, string strEmailAttachments, string strSmtpServer, bool IsBodyHtml = false)
@@ -48,7 +48,7 @@ namespace HRUpdate.Utilities
                     MailAddress mail_from = new MailAddress(_strEmailFrom);
 
                     message.From = mail_from;
-                    
+
                     if (_strEmailTo.Trim().Length > 0)
 
                         message.To.Add(_strEmailTo);
@@ -64,9 +64,8 @@ namespace HRUpdate.Utilities
                     message.Subject = _strEmailSubject;
                     message.Body = _strEmailMessageBody;
                     message.IsBodyHtml = _IsBodyHtml;
-
-                    // TO-DO: Include additional validation for all parameter fields (RegEx)
-                    if (_strEmailAttachments.IndexOf(";", StringComparison.CurrentCulture) > 0)
+                                        
+                    if (_strEmailAttachments.Contains(";"))
                     {
                         // Split multiple attachments into a string array
                         Array a = _strEmailAttachments.Split(';');
@@ -76,15 +75,14 @@ namespace HRUpdate.Utilities
                         {
                             message.Attachments.Add(new Attachment(a.GetValue(i).ToString().Trim()));
                         }
-
                     }
                     else if (_strEmailAttachments.Length > 0) // Single attachment without trailing separator
                     {
                         message.Attachments.Add(new Attachment(_strEmailAttachments.ToString().Trim()));
                     }
-                    
+
                     SmtpMail = new SmtpClient(_strSmtpServer);
-                   
+
                     SmtpMail.Send(message);
 
                     SmtpMail.Dispose();
@@ -104,8 +102,8 @@ namespace HRUpdate.Utilities
                             // do nothing
                         }
                         else
-                        {
-                            smtpfailedrecipients_msg += string.Format("Failed to deliver message to {0}\n",
+                        {                            
+                            smtpfailedrecipients_msg = string.Format("Failed to deliver message to {0}\n",
                                 ex.InnerExceptions[i].FailedRecipient);
                         }
                     }

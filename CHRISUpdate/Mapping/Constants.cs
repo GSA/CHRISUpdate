@@ -1,6 +1,4 @@
-﻿//Create chris name object and use linq to query
-
-namespace HRUpdate.Mapping
+﻿namespace HRUpdate.Mapping
 {
     public static class HRConstants
     {
@@ -93,9 +91,11 @@ namespace HRUpdate.Mapping
 
     public class SeparationConstants
     {
-        private SeparationConstants() { }
-               
-        public const int EMPLOYEE_ID = 0;       
+        private SeparationConstants()
+        {
+        }
+
+        public const int EMPLOYEE_ID = 0;
         public const int SEPARATION_CODE = 1;
         public const int SEPARATION_DATE = 2;
     }

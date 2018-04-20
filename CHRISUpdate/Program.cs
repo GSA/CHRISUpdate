@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using HRUpdate.Mapping;
-using HRUpdate.Process;
+﻿using HRUpdate.Process;
 using System;
 using System.Configuration;
 using System.Diagnostics;
@@ -8,24 +6,26 @@ using System.IO;
 
 namespace HRUpdate
 {
-    static class Program
+    internal static class Program
     {
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         //File paths from config file
         private static string hrFilePath = ConfigurationManager.AppSettings["HRFILE"].ToString();
-        private static string separationFilePath = ConfigurationManager.AppSettings["SEPARATIONFILE"].ToString();        
+
+        private static string separationFilePath = ConfigurationManager.AppSettings["SEPARATIONFILE"].ToString();
 
         //Stopwatch objects
         private static Stopwatch timeForApp = new Stopwatch();
+
         private static Stopwatch timeForProcess = new Stopwatch();
-               
+
         /// <summary>
         /// Entrance into processsing the HR File
         /// </summary>
         /// <param name="args"></param>
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             //Start timer
             timeForApp.Start();
@@ -75,10 +75,10 @@ namespace HRUpdate
             {
                 log.Error("Separation File Not Found");
             }
-                
+
             log.Info("Done Processing HR Links File(s):" + DateTime.Now);
 
-            processData.SendSummaryEMail();           
+            processData.SendSummaryEMail();
 
             //Stop second timer
             timeForApp.Stop();
@@ -102,4 +102,3 @@ namespace HRUpdate
         }
     }
 }
-

@@ -1,8 +1,6 @@
-﻿using CsvHelper.TypeConversion;
-using System;
-using CsvHelper;
+﻿using CsvHelper;
 using CsvHelper.Configuration;
-using AutoMapper;
+using CsvHelper.TypeConversion;
 
 namespace HRUpdate.Mapping
 {

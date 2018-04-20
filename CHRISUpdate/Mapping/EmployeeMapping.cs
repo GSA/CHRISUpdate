@@ -28,7 +28,7 @@ namespace HRUpdate.Mapping
             Map(m => m.FirstName).Index(HRConstants.EMPLOYEE_FIRST_NAME);
             Map(m => m.MiddleName).Index(HRConstants.EMPLOYEE_MIDDLE_NAME);
             Map(m => m.CordialName).Index(HRConstants.CORDIAL_NAME);
-            Map(m => m.SocialSecurityNumber).Index(HRConstants.SOCIAL_SECURITY_NUMBER); //.TypeConverter<SocialSecurityNumberConverter>();
+            Map(m => m.SocialSecurityNumber).Index(HRConstants.SOCIAL_SECURITY_NUMBER);
             Map(m => m.Gender).Index(HRConstants.GENDER);
             Map(m => m.ServiceComputationDateLeave).Index(HRConstants.SERVICE_COMPUTATION_DATE_LEAVE);
             Map(m => m.FederalEmergencyResponseOfficial).Index(HRConstants.FEDERAL_EMERGENCY_RESPONSE_OFFICIAL).TypeConverter<FederalEmergencyResponseOfficialConverter>();
@@ -39,6 +39,7 @@ namespace HRUpdate.Mapping
             Map(m => m.HomeEmail).Index(HRConstants.PERSONAL_EMAIL_ADDRESS);
         }
     }
+
     public sealed class AddressMap : ClassMap<Address>
     {
         public AddressMap()
@@ -62,8 +63,7 @@ namespace HRUpdate.Mapping
             Map(m => m.CountryOfBirth).Index(HRConstants.BIRTH_COUNTRY);
             Map(m => m.CountryOfCitizenship).Index(HRConstants.COUNTRY_OF_CITIZENSHIP);
             Map(m => m.Citizen).Index(HRConstants.CITIZEN);
-            Map(m => m.DateOfBirth).Index(HRConstants.DATE_OF_BIRTH); //.TypeConverter<DateConversion>();
-
+            Map(m => m.DateOfBirth).Index(HRConstants.DATE_OF_BIRTH);
         }
     }
 
@@ -95,7 +95,7 @@ namespace HRUpdate.Mapping
         public PhoneMap()
         {
             Map(m => m.HomePhone).Index(HRConstants.PERSONAL_HOME_PHONE);
-            Map(m => m.HomeCell).Index(HRConstants.PERSONAL_CELL_PHONE);            
+            Map(m => m.HomeCell).Index(HRConstants.PERSONAL_CELL_PHONE);
             Map(m => m.WorkPhone).Index(HRConstants.WORK_PHONE_NUMBER);
             Map(m => m.WorkFax).Index(HRConstants.WORK_FAX_NUMBER);
             Map(m => m.WorkCell).Index(HRConstants.WORK_CELL_NUMBER);

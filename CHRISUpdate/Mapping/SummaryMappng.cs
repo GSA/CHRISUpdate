@@ -3,7 +3,7 @@ using HRUpdate.Models;
 
 namespace HRLinks.Mapping
 {
-    sealed class ProcessedSummaryMappng : ClassMap<ProcessedSummary>
+    internal sealed class ProcessedSummaryMappng : ClassMap<ProcessedSummary>
     {
         public ProcessedSummaryMappng()
         {
@@ -15,7 +15,7 @@ namespace HRLinks.Mapping
         }
     }
 
-    sealed class SeperationMapping: ClassMap<SeperationSummary>
+    internal sealed class SeperationMapping : ClassMap<SeperationSummary>
     {
         public SeperationMapping()
         {
@@ -24,6 +24,5 @@ namespace HRLinks.Mapping
             Map(m => m.SeparationCode).Name("Separation Code");
             Map(m => m.Action).Name("Action");
         }
-
     }
 }

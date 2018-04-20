@@ -32,12 +32,7 @@ namespace HRUpdate.Process
         {
             CompareLogic compareLogic = new CompareLogic();
             compareLogic.Config.MembersToIgnore.Add("Person.SocialSecurityNumber");
-            compareLogic.Config.MembersToIgnore.Add("Detail");
-            //compareLogic.Config.MembersToIgnore.Add("Birth");
-            //compareLogic.Config.MembersToIgnore.Add("Emergency");
-            //compareLogic.Config.MembersToIgnore.Add("Person");
-            //compareLogic.Config.MembersToIgnore.Add("Phone");
-            //compareLogic.Config.MembersToIgnore.Add("Position");
+            compareLogic.Config.MembersToIgnore.Add("Detail");            
 
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
@@ -160,15 +155,7 @@ namespace HRUpdate.Process
                 log.Error("Process HR Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);                
             }
         }
-
-        private bool IsDetail(Employee dData)
-        {
-            if (dData.Detail.DetailBeginDate != null || dData.Detail.DetailDutyLocationCity != null)
-                return true;
-
-            return false;
-        }
-
+        
         /// <summary>
         /// Process separation file
         /// </summary>
@@ -321,7 +308,7 @@ namespace HRUpdate.Process
             StringBuilder fileNames = new StringBuilder();
 
             string template = File.ReadAllText(ConfigurationManager.AppSettings["SUMMARYTEMPLATE"]);
-
+            
             fileNames.Append(emailData.HRFilename == null ? "No HR Links File Found" : emailData.HRFilename.ToString());
             fileNames.Append(", ");
             fileNames.Append(emailData.SEPFileName == null ? "No Separation File Found" : emailData.SEPFileName.ToString());

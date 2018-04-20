@@ -2,28 +2,28 @@
 
 namespace HRUpdate.Models
 {
-    class ProcessedSummary
+    internal class ProcessedSummary
     {
-        public Int64 GCIMSID { get; set; }       
+        public Int64 GCIMSID { get; set; }
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
         public string Action { get; set; }
     }
 
-    class SeperationSummary
-    {       
+    internal class SeperationSummary
+    {
         public Int64 GCIMSID { get; set; }
         public string EmployeeID { get; set; }
         public string SeparationCode { get; set; }
         public string Action { get; set; }
     }
 
-    class EMailData
-    {   
+    internal class EMailData
+    {
         public string HRFilename { get; set; }
         public string SEPFileName { get; set; }
-        
+
         public Int64 HRAttempted { get; set; }
         public Int64 HRSucceeded { get; set; }
         public Int64 HRFailed { get; set; }
@@ -41,6 +41,5 @@ namespace HRUpdate.Models
         public string SeparationErrorSummaryFilename { get; set; }
 
         public bool SEPHasErrors { get; set; }
-
     }
 }
