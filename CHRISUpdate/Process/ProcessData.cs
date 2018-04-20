@@ -307,11 +307,11 @@ namespace HRUpdate.Process
 
             using (email)
             {
-                //email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(),
-                //           ConfigurationManager.AppSettings["TO"].ToString(),
-                //           ConfigurationManager.AppSettings["CC"].ToString(),
-                //           ConfigurationManager.AppSettings["BCC"].ToString(),
-                //           subject, body, attahcments.TrimEnd(';'), ConfigurationManager.AppSettings["SMTPSERVER"].ToString(), true);
+                email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(),
+                           ConfigurationManager.AppSettings["TO"].ToString(),
+                           ConfigurationManager.AppSettings["CC"].ToString(),
+                           ConfigurationManager.AppSettings["BCC"].ToString(),
+                           subject, body, attahcments.TrimEnd(';'), ConfigurationManager.AppSettings["SMTPSERVER"].ToString(), true);
             }
         }
 
