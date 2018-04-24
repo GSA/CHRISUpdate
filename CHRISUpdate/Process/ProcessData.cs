@@ -1,6 +1,7 @@
-﻿using CsvHelper;
+﻿using AutoMapper;
+using CsvHelper;
 using CsvHelper.Configuration;
-using HRLinks.Mapping;
+using HRUpdate.Lookups;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Utilities;
@@ -20,13 +21,18 @@ namespace HRUpdate.Process
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
-        private readonly SaveData save = new SaveData();
+        private readonly SaveData save;
+        private readonly LoadLookupData loadLookupData;
 
         private readonly EMailData emailData = new EMailData();
         private readonly Helpers helper = new Utilities.Helpers();
 
         //Constructor
-        public ProcessData() { }        
+        public ProcessData(IMapper lookupMapper, IMapper saveMappper)
+        {
+            loadLookupData = new LoadLookupData(lookupMapper);
+            save = new SaveData(saveMappper);
+        }        
         
         private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
         {
@@ -37,6 +43,14 @@ namespace HRUpdate.Process
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
             return result.AreEqual;            
+        }
+
+        public void GetLookupData()
+        {
+            
+            Lookup lookups = new Lookup();
+
+            lookups = loadLookupData.GetLookupData();
         }
 
         /// <summary>
@@ -176,7 +190,7 @@ namespace HRUpdate.Process
 
                 foreach (Separation separationData in separationUsersToProcess)
                 {
-                    separationResults = save.SaveSeparationInformation(separationData);
+                    separationResults = save.SeparateUser(separationData);
 
                     if (separationResults.Item1 > 0)
                     {

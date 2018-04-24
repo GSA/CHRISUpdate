@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.Data;
 using HRUpdate.Models;
 using MySql.Data.MySqlClient;
 using System;
@@ -18,15 +17,11 @@ namespace HRUpdate.Process
 
         private readonly MySqlCommand cmd = new MySqlCommand();
 
-        //Empty Constructor
-        public SaveData()
+        private readonly IMapper saveMapper;
+
+        public SaveData(IMapper mapper)
         {
-            Mapper.Initialize(cfg =>
-            {
-                cfg.AddDataReaderMapping();
-                cfg.AllowNullCollections = true;
-                cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SocialSecurityNumber, opt => opt.Ignore());
-            });
+            saveMapper = mapper;            
         }
 
         public Tuple<int, int, string, string, Employee> GetGCIMSRecord(string employeeID, byte[] ssn, string lastName, string dateOfBirth)
@@ -88,13 +83,13 @@ namespace HRUpdate.Process
 
             while (gcimsData.Read())
             {
-                employee.Address = Mapper.Map<IDataReader, Address>(gcimsData);
-                employee.Birth = Mapper.Map<IDataReader, Birth>(gcimsData);
-                employee.Emergency = Mapper.Map<IDataReader, Emergency>(gcimsData);
-                employee.Investigation = Mapper.Map<IDataReader, Investigation>(gcimsData);
-                employee.Person = Mapper.Map<IDataReader, Person>(gcimsData);
-                employee.Phone = Mapper.Map<IDataReader, Phone>(gcimsData);
-                employee.Position = Mapper.Map<IDataReader, Position>(gcimsData); //Need to fix SupervisorID
+                employee.Address = saveMapper.Map<IDataReader, Address>(gcimsData);
+                employee.Birth = saveMapper.Map<IDataReader, Birth>(gcimsData);
+                employee.Emergency = saveMapper.Map<IDataReader, Emergency>(gcimsData);
+                employee.Investigation = saveMapper.Map<IDataReader, Investigation>(gcimsData);
+                employee.Person = saveMapper.Map<IDataReader, Person>(gcimsData);
+                employee.Phone = saveMapper.Map<IDataReader, Phone>(gcimsData);
+                employee.Position = saveMapper.Map<IDataReader, Position>(gcimsData); //Need to fix SupervisorID
             }
 
             return employee;
@@ -221,7 +216,7 @@ namespace HRUpdate.Process
         /// </summary>
         /// <param name="separationData"></param>
         /// <returns></returns>
-        public Tuple<int, int, string, string> SaveSeparationInformation(Separation separationData)
+        public Tuple<int, int, string, string> SeparateUser(Separation separationData)
         {
             try
             {

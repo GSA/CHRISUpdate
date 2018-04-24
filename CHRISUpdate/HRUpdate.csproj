@@ -62,8 +62,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutoMapper, Version=6.2.2.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
-      <HintPath>..\packages\AutoMapper.6.2.2\lib\net45\AutoMapper.dll</HintPath>
+    <Reference Include="AutoMapper, Version=6.2.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.6.2.1\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="AutoMapper.Data, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
@@ -109,9 +109,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Lookups\InvestigationLookup.cs" />
+    <Compile Include="Lookups\SeparationLookup.cs" />
     <Compile Include="Mapping\Constants.cs" />
     <Compile Include="Mapping\EmployeeMapping.cs" />
     <Compile Include="Mapping\HRLinksMapper.cs" />
+    <Compile Include="Mapping\HRMapper.cs" />
     <Compile Include="Mapping\SeparationMapping.cs" />
     <Compile Include="Mapping\SummaryMapping.cs" />
     <Compile Include="Mapping\TypeConversion.cs" />
@@ -121,13 +124,14 @@
     <Compile Include="Models\Emergency.cs" />
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\Investigation.cs" />
-    <Compile Include="Models\Lookup.cs" />
+    <Compile Include="Lookups\Lookup.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\Phone.cs" />
     <Compile Include="Models\Position.cs" />
-    <Compile Include="Models\Region.cs" />
+    <Compile Include="Lookups\RegionLookup.cs" />
     <Compile Include="Models\Separation.cs" />
     <Compile Include="Models\Summary.cs" />
+    <Compile Include="Process\LoadLookupData.cs" />
     <Compile Include="Process\ProcessData.cs" />
     <Compile Include="Process\SaveData.cs" />
     <Compile Include="Program.cs" />
