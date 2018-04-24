@@ -1,11 +1,10 @@
-﻿using MySql.Data.MySqlClient;
-using System.Configuration;
+﻿using AutoMapper;
 using HRUpdate.Lookups;
-using System.Collections.Generic;
-using System.Data;
+using MySql.Data.MySqlClient;
 using System;
-using AutoMapper;
-using AutoMapper.Data;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
 
 namespace HRUpdate.Process
 {
@@ -19,17 +18,11 @@ namespace HRUpdate.Process
 
         private readonly MySqlCommand cmd = new MySqlCommand();
 
-        public LoadLookupData()
-        {
-            //Mapper.Initialize(cfg =>
-            //{
-            //    cfg.AddDataReaderMapping();
-            //    cfg.AllowNullCollections = true;
+        private readonly IMapper lookupMapper;
 
-            //    //cfg.CreateMap<Investigation_Lookup, Lookup>()
-            //    //.ForMember(dest => dest.investigation_lookup, opt => opt.MapFrom(src => src.Tier))
-            //    //.ForMember(dest => dest.investigation_lookup, opt => opt.MapFrom(src => src.Code));
-            //});
+        public LoadLookupData(IMapper mapper)
+        {
+            lookupMapper = mapper;            
         }
 
         public Lookup GetLookupData()
@@ -77,7 +70,7 @@ namespace HRUpdate.Process
 
             while (lookupData.Read())
             {
-                lookup.investigation_lookup = Mapper.Map<IDataReader, List<Investigation_Lookup>>(lookupData);
+                lookup.investigation_lookup = lookupMapper.Map<IDataReader, List<Investigation_Lookup>>(lookupData);
             }
 
             return lookup;

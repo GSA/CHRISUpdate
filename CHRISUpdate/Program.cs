@@ -1,4 +1,6 @@
-﻿using HRUpdate.Process;
+﻿using AutoMapper;
+using HRUpdate.Mapping;
+using HRUpdate.Process;
 using System;
 using System.Configuration;
 using System.Diagnostics;
@@ -21,8 +23,13 @@ namespace HRUpdate
 
         private static Stopwatch timeForProcess = new Stopwatch();
 
+        private static HRMapper map = new HRMapper();
+
+        private static IMapper lookupMapper;
+        private static IMapper saveMapper;      
+
         /// <summary>
-        /// Entrance into processsing the HR File
+        /// Entrance into processing the HR File
         /// </summary>
         /// <param name="args"></param>
         private static void Main(string[] args)
@@ -36,8 +43,10 @@ namespace HRUpdate
             //Output application start
             Console.WriteLine("Application Started: " + DateTime.Now);
 
+            CreateMaps();
+
             //Instantiate object that does processing
-            ProcessData processData = new ProcessData();
+            ProcessData processData = new ProcessData(lookupMapper, saveMapper);
 
             processData.GetLookupData();
 
@@ -95,12 +104,21 @@ namespace HRUpdate
             log.Info("Application Done: " + DateTime.Now);
 
             //Output application start
-            Console.WriteLine("Applicaton Ended: " + DateTime.Now);
+            Console.WriteLine("Application Ended: " + DateTime.Now);
 
 #if DEBUG
             //Wait for key press
             Console.ReadLine();
 #endif
+        }
+
+        private static void CreateMaps()
+        {
+            map.CreateLookupConfig();
+            lookupMapper = map.CreateLookupMapping();
+
+            map.CreateSaveConfig();
+            saveMapper = map.CreateSaveMapping();
         }
     }
 }
