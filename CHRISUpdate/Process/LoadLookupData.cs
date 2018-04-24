@@ -76,7 +76,7 @@ namespace HRUpdate.Process
             lookupData.NextResult();
 
             while (lookupData.Read())
-            {
+            {   
                 lookup.separation_lookup = lookupMapper.Map<IDataReader, List<SeparationLookup>>(lookupData);
             }
 
