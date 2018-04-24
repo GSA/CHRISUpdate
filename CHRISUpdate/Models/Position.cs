@@ -12,7 +12,7 @@ namespace HRUpdate.Models
         public string JobSeries { get; set; }
         public string PayGrade { get; set; }
         public string WorkSchedule { get; set; }
-        public bool PositionTeleworkEligibility { get; set; }
+        public bool? PositionTeleworkEligibility { get; set; }
         public string PositionSensitivity { get; set; }
         public string DutyLocationCode { get; set; }
         public string DutyLocationCity { get; set; }
