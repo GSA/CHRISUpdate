@@ -39,6 +39,8 @@ namespace HRUpdate
             //Instantiate object that does processing
             ProcessData processData = new ProcessData();
 
+            processData.GetLookupData();
+
             //Log action
             log.Info("Processing HR Files:" + DateTime.Now);
 

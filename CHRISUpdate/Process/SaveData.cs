@@ -18,7 +18,6 @@ namespace HRUpdate.Process
 
         private readonly MySqlCommand cmd = new MySqlCommand();
 
-        //Empty Constructor
         public SaveData()
         {
             Mapper.Initialize(cfg =>
@@ -221,7 +220,7 @@ namespace HRUpdate.Process
         /// </summary>
         /// <param name="separationData"></param>
         /// <returns></returns>
-        public Tuple<int, int, string, string> SaveSeparationInformation(Separation separationData)
+        public Tuple<int, int, string, string> SeparateUser(Separation separationData)
         {
             try
             {

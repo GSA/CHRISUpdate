@@ -1,6 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
-using HRLinks.Mapping;
+using HRUpdate.Lookups;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Utilities;
@@ -21,6 +21,7 @@ namespace HRUpdate.Process
 
         private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
         private readonly SaveData save = new SaveData();
+        private readonly LoadLookupData loadLookupData = new LoadLookupData();
 
         private readonly EMailData emailData = new EMailData();
         private readonly Helpers helper = new Utilities.Helpers();
@@ -37,6 +38,14 @@ namespace HRUpdate.Process
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
             return result.AreEqual;            
+        }
+
+        public void GetLookupData()
+        {
+            
+            Lookup lookups = new Lookup();
+
+            lookups = loadLookupData.GetLookupData();
         }
 
         /// <summary>
@@ -176,7 +185,7 @@ namespace HRUpdate.Process
 
                 foreach (Separation separationData in separationUsersToProcess)
                 {
-                    separationResults = save.SaveSeparationInformation(separationData);
+                    separationResults = save.SeparateUser(separationData);
 
                     if (separationResults.Item1 > 0)
                     {

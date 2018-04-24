@@ -1,7 +1,7 @@
 ﻿using CsvHelper.Configuration;
 using HRUpdate.Models;
 
-namespace HRLinks.Mapping
+namespace HRUpdate.Mapping
 {
     internal sealed class ProcessedSummaryMapping : ClassMap<ProcessedSummary>
     {
