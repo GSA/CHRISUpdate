@@ -4,7 +4,8 @@ namespace HRUpdate.Lookups
 {
     internal class Lookup
     {
-        public List<Region_Lookup> region_lookup { get; set; }
-        public List<Investigation_Lookup> investigation_lookup { get; set; }
+        public List<RegionLookup> region_lookup { get; set; }
+        public List<InvestigationLookup> investigation_lookup { get; set; }
+        public List<SeparationLookup> separation_lookup { get; set; }
     }
 }

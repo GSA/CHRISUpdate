@@ -42,7 +42,7 @@ namespace HRUpdate.Process
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandText = "HR_Get_Lookups";
 
-                        MySqlDataReader lookupData;
+                        MySqlDataReader lookupData;                        
 
                         lookupData = cmd.ExecuteReader();
 
@@ -70,7 +70,14 @@ namespace HRUpdate.Process
 
             while (lookupData.Read())
             {
-                lookup.investigation_lookup = lookupMapper.Map<IDataReader, List<Investigation_Lookup>>(lookupData);
+                lookup.investigation_lookup = lookupMapper.Map<IDataReader, List<InvestigationLookup>>(lookupData);                
+            }
+
+            lookupData.NextResult();
+
+            while (lookupData.Read())
+            {
+                lookup.separation_lookup = lookupMapper.Map<IDataReader, List<SeparationLookup>>(lookupData);
             }
 
             return lookup;

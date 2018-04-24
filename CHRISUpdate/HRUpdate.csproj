@@ -105,7 +105,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Lookups\Investigation_Lookup.cs" />
+    <Compile Include="Lookups\InvestigationLookup.cs" />
+    <Compile Include="Lookups\SeparationLookup.cs" />
     <Compile Include="Mapping\Constants.cs" />
     <Compile Include="Mapping\EmployeeMapping.cs" />
     <Compile Include="Mapping\HRLinksMapper.cs" />
@@ -123,7 +124,7 @@
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\Phone.cs" />
     <Compile Include="Models\Position.cs" />
-    <Compile Include="Lookups\Region_Lookup.cs" />
+    <Compile Include="Lookups\RegionLookup.cs" />
     <Compile Include="Models\Separation.cs" />
     <Compile Include="Models\Summary.cs" />
     <Compile Include="Process\LoadLookupData.cs" />

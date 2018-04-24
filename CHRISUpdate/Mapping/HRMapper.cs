@@ -35,7 +35,7 @@ namespace HRUpdate.Mapping
                 cfg.AddDataReaderMapping();
                 cfg.AllowNullCollections = true;
                 cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SocialSecurityNumber, opt => opt.Ignore());
-            });           
+            });
         }
 
         public IMapper CreateLookupMapping()
