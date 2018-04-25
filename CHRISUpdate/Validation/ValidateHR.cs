@@ -1,38 +1,60 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using HRUpdate.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace HRUpdate.Validation
 {
-    class ValidateHR
+    internal class ValidateHR
     {
         private readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public ValidateHR()
         {
-
         }
 
-        private void ValidateEmployeeInformation(List<Employee> employeeInformation)
+        public void ValidateEmployeeInformation(Employee employeeInformation)
         {
+            ValidationResult errors = new ValidationResult();
             EmployeeValidator validator = new EmployeeValidator();
+
+            errors = validator.Validate(employeeInformation);
+
+            PrintToConsole(errors.Errors, employeeInformation.Person.EmployeeID);
+        }
+
+        private void PrintToConsole(IList<ValidationFailure> failures, string id)
+        {
+            StringBuilder errors = new StringBuilder();
+
+            errors.Append(id);
+            errors.Append(": ");
+
+            foreach (var rule in failures)
+            {
+                errors.Append(rule.ErrorMessage);
+                errors.Append(",");
+            }
+
+            Console.WriteLine(errors.ToString().TrimEnd(','));
         }
     }
 
-    class EmployeeValidator : AbstractValidator<Employee>
+    internal class EmployeeValidator : AbstractValidator<Employee>
     {
-        private string[] investigations = {"Temp", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5"}; 
-        public EmployeeValidator()
-        {
-            ValidatorOptions.CascadeMode = CascadeMode.StopOnFirstFailure;
+        private readonly string[] investigations = { "Temp", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5" };
 
+        public EmployeeValidator()
+        {           
             #region Person
+
             RuleFor(Employee => Employee.Person.EmployeeID)
                 .NotEmpty()
                 .WithMessage("Employee id is required")
-                .Length(1,11)
+                .Length(1, 11)
                 .WithMessage("Employee id length must be 1-11");
 
             RuleFor(Employee => Employee.Person.FirstName)
@@ -70,7 +92,7 @@ namespace HRUpdate.Validation
                     .Matches(@"^[mfMF]{1}$")
                     .WithMessage("Gender must be 'M' or 'F'");
             });
-            
+
             RuleFor(Employee => Employee.Person.ServiceComputationDateLeave)
                 .Must(IsValidDate)
                 .WithMessage("Service computation date leave must be a valid date");
@@ -101,9 +123,11 @@ namespace HRUpdate.Validation
                 .EmailAddress()
                 .WithMessage("Home email must be a valid email address");
             });
-            #endregion
+
+            #endregion Person
 
             #region Address
+
             RuleFor(Employee => Employee.Address.HomeAddress1)
                 .Length(0, 60)
                 .WithMessage("Home address 1 length must be 0-60");
@@ -126,20 +150,22 @@ namespace HRUpdate.Validation
                 .Matches(@"^[a-zA-Z]{2}$")
                 .WithMessage("Home state must be A thru Z and 2 characters long");
             });
-            
+
             RuleFor(Employee => Employee.Address.HomeZipCode)
                 .Length(0, 10)
                 .WithMessage("Home zip code length must be 0-10");
 
-            Unless(Employee => Employee.Address.HomeCountry.Equals(""), ()=>
+            Unless(Employee => Employee.Address.HomeCountry.Equals(""), () =>
             {
                 RuleFor(Employee => Employee.Address.HomeCountry)
                     .Matches(@"^[a-zA-Z]{2}$")
-                    .WithMessage("Home country must be A thru Z and 2 characters long");                    
+                    .WithMessage("Home country must be A thru Z and 2 characters long");
             });
-            #endregion
+
+            #endregion Address
 
             #region Birth
+
             RuleFor(Employee => Employee.Birth.CityOfBirth)
                 .Length(0, 24)
                 .WithMessage("City of birth length must be 0-24");
@@ -155,7 +181,7 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Birth.CountryOfBirth)
                     .Matches(@"^[a-zA-Z]{2}$")
-                    .WithMessage("Country of birth must be A thru Z and 2 characters long");                   
+                    .WithMessage("Country of birth must be A thru Z and 2 characters long");
             });
 
             Unless(Employee => Employee.Birth.CountryOfCitizenship.Equals(""), () =>
@@ -176,9 +202,11 @@ namespace HRUpdate.Validation
                     .Must(IsValidDate)
                     .WithMessage("Date of birth must be valid date");
             });
-            #endregion
+
+            #endregion Birth
 
             #region Investigation
+
             RuleFor(Employee => Employee.Investigation.PriorInvestigation)
                 .In(investigations)
                 .Length(0, 20)
@@ -192,14 +220,14 @@ namespace HRUpdate.Validation
                     .In(investigations)
                     .Length(1, 20)
                     .WithMessage("Type of investigation length must be 1-20");
-                    
+
                 RuleFor(Employee => Employee.Investigation.DateOfInvestigation)
                     .NotEmpty()
                     .WithMessage("Date of investigation cannot be null when Type of investigation is not null")
                     .Must(IsValidDate)
                     .WithMessage("Date of investigation must be a valid date");
             });
-            
+
             RuleFor(Employee => Employee.Investigation.TypeOfInvestigationToRequest)
                 .In(investigations)
                 .Length(0, 12)
@@ -215,7 +243,7 @@ namespace HRUpdate.Validation
                     .NotNull()
                     .WithMessage("Initial result date cannot be null when initial result is not null")
                     .Must(IsValidDate)
-                    .WithMessage("Initial result date must be a valid date");                    
+                    .WithMessage("Initial result date must be a valid date");
             });
 
             When(Employee => Employee.Investigation.FinalResult != null || Employee.Investigation.FinalResultDate != null, () =>
@@ -228,16 +256,17 @@ namespace HRUpdate.Validation
                     .NotNull()
                     .WithMessage("Final result date cannot be null when Final result is null")
                     .Must(IsValidDate)
-                    .WithMessage("Final result date must be a valid date");                    
+                    .WithMessage("Final result date must be a valid date");
             });
 
-            
             RuleFor(Employee => Employee.Investigation.AdjudicatorEmployeeID)
-                .Length(0,11)
+                .Length(0, 11)
                 .WithMessage("Adjudicators employee id length must be 0-11");
-            #endregion
+
+            #endregion Investigation
 
             #region Emergency
+
             RuleFor(Employee => Employee.Emergency.EmergencyContactName)
                 .Length(0, 40)
                 .WithMessage("Emergency contact name length must be 0-40");
@@ -249,7 +278,7 @@ namespace HRUpdate.Validation
                 .WithMessage("Emergency contact home phone length must be 0-10")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Emergency contact home phone must be a valid phone number");
-            });            
+            });
 
             Unless(Employee => Employee.Emergency.EmergencyContactWorkPhone.Equals(""), () =>
             {
@@ -258,7 +287,7 @@ namespace HRUpdate.Validation
                 .WithMessage("Emergency contact work phone length must be 0-10")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Emergency contact work phone must be a valid phone number");
-            });            
+            });
 
             Unless(Employee => Employee.Emergency.EmergencyContactCellPhone.Equals(""), () =>
             {
@@ -268,7 +297,7 @@ namespace HRUpdate.Validation
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Emergency contact cell phone must be a valid phone number");
             });
-            
+
             RuleFor(Employee => Employee.Emergency.OutOfAreaContactName)
                 .Length(0, 40)
                 .WithMessage("Ouit of area contact name length must be 0-40");
@@ -281,7 +310,7 @@ namespace HRUpdate.Validation
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Out of area contact home phone must be a valid phone number");
             });
-            
+
             Unless(Employee => Employee.Emergency.OutOfAreaContactWorkPhone.Equals(""), () =>
             {
                 RuleFor(Employee => Employee.Emergency.OutOfAreaContactWorkPhone)
@@ -290,7 +319,7 @@ namespace HRUpdate.Validation
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Out of area contact work phone must be a valid phone number");
             });
-            
+
             Unless(Employee => Employee.Emergency.OutOfAreaContactCellPhone.Equals(""), () =>
             {
                 RuleFor(Employee => Employee.Emergency.OutOfAreaContactCellPhone)
@@ -299,9 +328,11 @@ namespace HRUpdate.Validation
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Out of area contact cell phone must be a valid phone number");
             });
-            #endregion
+
+            #endregion Emergency
 
             #region Position
+
             RuleFor(Employee => Employee.Position.PositionControlNumber)
                 .Length(0, 15)
                 .WithMessage("Position control number length must be 0-15");
@@ -355,7 +386,7 @@ namespace HRUpdate.Validation
                     .Matches(@"^[a-zA-Z]{2}$")
                     .WithMessage("Duty location state must be A thru Z and 2 characters long");
             });
-            
+
             RuleFor(Employee => Employee.Position.DutyLocationCounty)
                 .Length(0, 40)
                 .WithMessage("Duty location county must be 0-40");
@@ -365,7 +396,7 @@ namespace HRUpdate.Validation
                 RuleFor(Employee => Employee.Position.PositionStartDate)
                 .Must(IsValidDate)
                 .WithMessage("Position start date must be a valid date");
-            });            
+            });
 
             RuleFor(Employee => Employee.Position.AgencyCodeSubelement)
                 .Length(0, 4)
@@ -373,9 +404,11 @@ namespace HRUpdate.Validation
             RuleFor(Employee => Employee.Position.SupervisorEmployeeID)
                 .Length(0, 11)
                 .WithMessage("Supervisor employee id length must be 0-11");
-            #endregion
+
+            #endregion Position
 
             #region Phone
+
             RuleFor(Employee => Employee.Phone.HomePhone)
                 .Length(0, 24)
                 .WithMessage("Home phone length must be 0-24")
@@ -411,7 +444,8 @@ namespace HRUpdate.Validation
                 .WithMessage("Work text telephone length must be 0-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Work text telephone must be a valid phone number");
-            #endregion
+
+            #endregion Phone
 
             //Detail - Not currently needed
         }
@@ -423,7 +457,7 @@ namespace HRUpdate.Validation
         /// <returns></returns>
         public bool IsValidPhoneNumber(string phoneNumber)
         {
-            return libphonenumber.PhoneNumberUtil.Instance.IsPossibleNumber(phoneNumber,"US");
+            return libphonenumber.PhoneNumberUtil.Instance.IsPossibleNumber(phoneNumber, "US");
         }
 
         /// <summary>
@@ -437,6 +471,7 @@ namespace HRUpdate.Validation
             return DateTime.TryParse(date.ToString(), out _date);
         }
     }
+
     public static class ValidatorExtensions
     {
         public static IRuleBuilderOptions<T, TProperty> In<T, TProperty>(this IRuleBuilder<T, TProperty> ruleBuilder, params TProperty[] validOptions)

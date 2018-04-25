@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CsvHelper;
 using CsvHelper.Configuration;
-using HRUpdate.Lookups;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Utilities;
@@ -12,6 +11,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
+using HRUpdate.Validation;
 
 namespace HRUpdate.Process
 {
@@ -60,15 +60,19 @@ namespace HRUpdate.Process
                 List<Employee> usersToProcess;
                 List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
-                
+
+                ValidateHR validate = new Validation.ValidateHR();
+
                 usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
 
                 Tuple<int, int, string, string, Employee> personResults;
                 Tuple<int, string, string> updatedResults;
-
+                
                 //Start Processing the HR Data
                 foreach (Employee employeeData in usersToProcess)
                 {
+                    validate.ValidateEmployeeInformation(employeeData);
+                    
                     personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, helper.HashSSN(employeeData.Person.SocialSecurityNumber), employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
 
                     int personID = personResults.Item1;                    
