@@ -2,44 +2,21 @@
 using FluentValidation.Results;
 using HRUpdate.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace HRUpdate.Validation
 {
     internal class ValidateHR
     {
-        private readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         public ValidateHR()
         {
         }
 
-        public void ValidateEmployeeInformation(Employee employeeInformation)
+        public ValidationResult ValidateEmployeeInformation(Employee employeeInformation)
         {
-            ValidationResult errors = new ValidationResult();
             EmployeeValidator validator = new EmployeeValidator();
-
-            errors = validator.Validate(employeeInformation);
-
-            PrintToConsole(errors.Errors, employeeInformation.Person.EmployeeID);
-        }
-
-        private void PrintToConsole(IList<ValidationFailure> failures, string id)
-        {
-            StringBuilder errors = new StringBuilder();
-
-            errors.Append(id);
-            errors.Append(": ");
-
-            foreach (var rule in failures)
-            {
-                errors.Append(rule.ErrorMessage);
-                errors.Append(",");
-            }
-
-            Console.WriteLine(errors.ToString().TrimEnd(','));
+            
+            return validator.Validate(employeeInformation);
         }
     }
 
@@ -48,7 +25,7 @@ namespace HRUpdate.Validation
         private readonly string[] investigations = { "Temp", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5" };
 
         public EmployeeValidator()
-        {           
+        {
             #region Person
 
             RuleFor(Employee => Employee.Person.EmployeeID)
@@ -99,7 +76,6 @@ namespace HRUpdate.Validation
                     .Must(IsValidDate)
                     .WithMessage("Service computation date leave must be a valid date");
             });
-
 
             //FERO is nullable bool
             //RuleFor(Employee => Employee.Person.FederalEmergencyResponseOfficial)
@@ -210,6 +186,7 @@ namespace HRUpdate.Validation
             #endregion Birth
 
             #region Investigation
+
             Unless(e => string.IsNullOrEmpty(e.Investigation.PriorInvestigation), () =>
               {
                   RuleFor(Employee => Employee.Investigation.PriorInvestigation)
@@ -217,7 +194,6 @@ namespace HRUpdate.Validation
                       .Length(1, 20)
                       .WithMessage("Prior investigation length must be 1-20");
               });
-
 
             Unless(Employee => string.IsNullOrEmpty(Employee.Investigation.TypeOfInvestigation) || Employee.Investigation.DateOfInvestigation == null, () =>
             {
@@ -242,7 +218,6 @@ namespace HRUpdate.Validation
                     .Length(0, 12)
                     .WithMessage("Type of investigation to request must be 0-12");
             });
-
 
             When(Employee => Employee.Investigation.InitialResult != null || Employee.Investigation.InitialResultDate != null, () =>
             {
@@ -420,6 +395,7 @@ namespace HRUpdate.Validation
             #endregion Position
 
             #region Phone
+
             Unless(e => string.IsNullOrEmpty(e.Phone.HomePhone), () =>
             {
                 RuleFor(Employee => Employee.Phone.HomePhone)
@@ -474,7 +450,7 @@ namespace HRUpdate.Validation
                 .WithMessage("Work text telephone must be a valid phone number");
             });
 
-            #endregion
+            #endregion Phone
 
             //Detail - Not currently needed
         }
