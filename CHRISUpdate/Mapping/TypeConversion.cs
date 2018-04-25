@@ -23,10 +23,15 @@ namespace HRUpdate.Mapping
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            if (text.Contains("Y"))
-                return true;
-
-            return false;
+            switch (text)
+            {
+                case "Y":
+                    return true;
+                case "N":
+                    return false;
+                default:
+                    return null;
+            }        
         }
     }
 
@@ -45,10 +50,15 @@ namespace HRUpdate.Mapping
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            if (text.Contains("0"))
-                return false;
-
-            return false;
+            switch (text)
+            {
+                case "1":
+                    return true;
+                case "0":
+                    return false;
+                default:
+                    return null;
+            }
         }
     }
 
@@ -56,10 +66,15 @@ namespace HRUpdate.Mapping
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            if (text.Contains("1"))
-                return true;
-
-            return false;
+            switch(text)
+            {
+                case "1":
+                    return true;
+                case "0":
+                    return false;
+                default:
+                    return null;
+            }
         }
     }    
 
