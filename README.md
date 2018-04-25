@@ -1,13 +1,18 @@
 # CHRISUpdate
 
 ## Description: 
-Imports different types of CSV files and inserts data into the database if files exist.
+Imports Employee update and separation files from HRLinks and updates database on matching records.
 
 
 ## Nuget packages and other dll's utilized
 * CsvHelper (https://www.nuget.org/packages/CsvHelper/2.16.3/)
 * log4net (https://www.nuget.org/packages/log4net/2.0.8/)
 * MySQL.Data (https://www.nuget.org/packages/MySql.Data/6.9.9/)
+* Google.libphonenumber (https://www.nuget.org/packages/libphonenumber-csharp/)
+* AutoMapper (https://www.nuget.org/packages/AutoMapper/7.0.0-alpha-0001)
+* FluentValidation (https://www.nuget.org/packages/FluentValidation/7.6.0-preview1)
+
+
 
 ## Initial Setup
 ### Default config setup
@@ -52,7 +57,7 @@ The repository may contains an app config that points to external config files. 
   ***
   
 ## Usage
-Executable file that pulls files from a file path and inserts the data into a database using the connection string.
+Executable file that uses files from HRLinks recieved by sftp and inserts the data into the database for matching records.
 
 ## Contributing
 Fork this repository, make changes in your fork, and then submit a pull-request, remembering not to upload any system specific configuration files, PII, or sensitive data of any type. 
