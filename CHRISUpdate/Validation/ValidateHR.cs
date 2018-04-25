@@ -47,7 +47,6 @@ namespace HRUpdate.Validation
     {
         private readonly string[] investigations = { "Temp", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5" };
 
-        private string[] investigations = { "Temp", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5" };
         public EmployeeValidator()
         {           
             #region Person
