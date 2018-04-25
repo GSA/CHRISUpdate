@@ -62,7 +62,8 @@ namespace HRUpdate.Process
                 List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
 
-                ValidateHR validate = new ValidateHR();                
+                ValidateHR validate = new ValidateHR();
+                ValidationResult errors;               
 
                 usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
 
@@ -72,56 +73,81 @@ namespace HRUpdate.Process
                 //Start Processing the HR Data
                 foreach (Employee employeeData in usersToProcess)
                 {
-                    if (!validate.ValidateEmployeeInformation(employeeData).IsValid)
-                        Console.WriteLine("Something Wrong");               
-                    
-                    personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, helper.HashSSN(employeeData.Person.SocialSecurityNumber), employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
+                    //Validate Record If Valid then process record
+                    errors = validate.ValidateEmployeeInformation(employeeData);
 
-                    int personID = personResults.Item1;                    
-                    
-                    if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item5, employeeData))
+                    if (errors.IsValid)
                     {
-                        log.Info("Updating Record:" + personResults.Item1);                        
+                        personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, helper.HashSSN(employeeData.Person.SocialSecurityNumber), employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
 
-                        updatedResults = save.UpdatePersonInformation(personResults.Item1, employeeData);
+                        int personID = personResults.Item1;
 
-                        if (updatedResults.Item1 > 0)
+                        if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item5, employeeData))
                         {
-                            var processedUserSuccess = usersToProcess
-                             .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
-                             .Select
-                                 (
-                                     s =>
-                                         new ProcessedSummary
-                                         {
-                                             GCIMSID = personResults.Item1,
-                                             FirstName = s.Person.FirstName,
-                                             MiddleName = s.Person.MiddleName,
-                                             LastName = s.Person.LastName,
-                                             Action = updatedResults.Item2
-                                         }
-                                 ).ToList();
+                            log.Info("Updating Record:" + personResults.Item1);
 
-                            successfulHRUsersProcessed.AddRange(processedUserSuccess);
+                            updatedResults = save.UpdatePersonInformation(personResults.Item1, employeeData);
 
-                            log.Info("Successfully Updated Record: " + personResults.Item1);
+                            if (updatedResults.Item1 > 0)
+                            {
+                                var processedUserSuccess = usersToProcess
+                                 .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                                 .Select
+                                     (
+                                         s =>
+                                             new ProcessedSummary
+                                             {
+                                                 GCIMSID = personResults.Item1,
+                                                 EmployeeID = s.Person.EmployeeID,
+                                                 FirstName = s.Person.FirstName,
+                                                 MiddleName = s.Person.MiddleName,
+                                                 LastName = s.Person.LastName,
+                                                 Action = updatedResults.Item2
+                                             }
+                                     ).ToList();
+
+                                successfulHRUsersProcessed.AddRange(processedUserSuccess);
+
+                                log.Info("Successfully Updated Record: " + personResults.Item1);
+                            }
+                            else
+                            {
+                                var proccessedUserIssue = usersToProcess
+                                .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                                .Select
+                                     (
+                                         s =>
+                                             new ProcessedSummary
+                                             {
+                                                 GCIMSID = personResults.Item1,
+                                                 EmployeeID = s.Person.EmployeeID,
+                                                 FirstName = s.Person.FirstName,
+                                                 MiddleName = s.Person.MiddleName,
+                                                 LastName = s.Person.LastName,
+                                                 Action = updatedResults.Item3
+                                             }
+                                     ).ToList();
+
+                                unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+                            }
                         }
                         else
                         {
                             var proccessedUserIssue = usersToProcess
-                            .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
-                            .Select
-                                 (
-                                     s =>
-                                         new ProcessedSummary
-                                         {
-                                             GCIMSID = personResults.Item1,
-                                             FirstName = s.Person.FirstName,
-                                             MiddleName = s.Person.MiddleName,
-                                             LastName = s.Person.LastName,
-                                             Action = updatedResults.Item3
-                                         }
-                                 ).ToList();
+                                .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                                .Select
+                                     (
+                                         s =>
+                                             new ProcessedSummary
+                                             {
+                                                 GCIMSID = personResults.Item1,
+                                                 EmployeeID = s.Person.EmployeeID,
+                                                 FirstName = s.Person.FirstName,
+                                                 MiddleName = s.Person.MiddleName,
+                                                 LastName = s.Person.LastName,
+                                                 Action = personResults.Item3
+                                             }
+                                     ).ToList();
 
                             unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
                         }
@@ -129,19 +155,20 @@ namespace HRUpdate.Process
                     else
                     {
                         var proccessedUserIssue = usersToProcess
-                            .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
-                            .Select
-                                 (
-                                     s =>
-                                         new ProcessedSummary
-                                         {
-                                             GCIMSID = personResults.Item1,
-                                             FirstName = s.Person.FirstName,
-                                             MiddleName = s.Person.MiddleName,
-                                             LastName = s.Person.LastName,
-                                             Action = personResults.Item3
-                                         }
-                                 ).ToList();
+                                .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                                .Select
+                                     (
+                                         s =>
+                                             new ProcessedSummary
+                                             {
+                                                 GCIMSID = -1,
+                                                 EmployeeID = s.Person.EmployeeID,
+                                                 FirstName = s.Person.FirstName,
+                                                 MiddleName = s.Person.MiddleName,
+                                                 LastName = s.Person.LastName,
+                                                 Action = GetErrors(errors.Errors).TrimEnd(',')
+                                             }
+                                     ).ToList();
 
                         unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
                     }
@@ -397,6 +424,19 @@ namespace HRUpdate.Process
             addAttachment.Append(";");
 
             return addAttachment.ToString();
+        }
+
+        private string GetErrors(IList<ValidationFailure> failures)
+        {
+            StringBuilder errors = new StringBuilder();
+
+            foreach(var rule in failures)
+            {
+                errors.Append(rule.ErrorMessage);
+                errors.Append(",");
+            }
+
+            return errors.ToString();
         }
 
         /// <summary>

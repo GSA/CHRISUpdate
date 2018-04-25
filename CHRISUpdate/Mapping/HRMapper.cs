@@ -16,16 +16,6 @@ namespace HRUpdate.Mapping
                 cfg.AddDataReaderMapping();
                 cfg.AllowNullCollections = true;
             });
-
-            //Mapper.Initialize(cfg =>
-            //{
-            //    cfg.AddDataReaderMapping();
-            //    cfg.AllowNullCollections = true;
-
-            //    //cfg.CreateMap<Investigation_Lookup, Lookup>()
-            //    //.ForMember(dest => dest.investigation_lookup, opt => opt.MapFrom(src => src.Tier))
-            //    //.ForMember(dest => dest.investigation_lookup, opt => opt.MapFrom(src => src.Code));
-            //});
         }
 
         public void CreateSaveConfig()

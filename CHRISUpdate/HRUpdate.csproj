@@ -113,7 +113,6 @@
     <Compile Include="Lookups\SeparationLookup.cs" />
     <Compile Include="Mapping\Constants.cs" />
     <Compile Include="Mapping\EmployeeMapping.cs" />
-    <Compile Include="Mapping\HRLinksMapper.cs" />
     <Compile Include="Mapping\HRMapper.cs" />
     <Compile Include="Mapping\SeparationMapping.cs" />
     <Compile Include="Mapping\SummaryMapping.cs" />
