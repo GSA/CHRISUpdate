@@ -1,6 +1,6 @@
 ﻿namespace HRUpdate.Lookups
 {
-    internal class RegionLookup
+    public class RegionLookup
     {
     }
 }

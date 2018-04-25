@@ -22,15 +22,14 @@ namespace HRUpdate.Process
 
         private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
         private readonly SaveData save;
-        private readonly LoadLookupData loadLookupData;
-
+        
         private readonly EMailData emailData = new EMailData();
         private readonly Helpers helper = new Utilities.Helpers();
 
         //Constructor
-        public ProcessData(IMapper lookupMapper, IMapper saveMappper)
+        public ProcessData(IMapper saveMappper)
         {
-            loadLookupData = new LoadLookupData(lookupMapper);
+            
             save = new SaveData(saveMappper);
         }        
         
@@ -43,15 +42,7 @@ namespace HRUpdate.Process
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
             return result.AreEqual;            
-        }
-
-        public void GetLookupData()
-        {
-            
-            Lookup lookups = new Lookup();
-
-            lookups = loadLookupData.GetLookupData();
-        }
+        }        
 
         /// <summary>
         /// Get HR Data
