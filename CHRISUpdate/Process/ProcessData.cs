@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using CsvHelper;
 using CsvHelper.Configuration;
-using HRUpdate.Lookups;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Utilities;
+using HRUpdate.Validation;
 using KellermanSoftware.CompareNetObjects;
 using System;
 using System.Collections.Generic;
@@ -22,15 +22,14 @@ namespace HRUpdate.Process
 
         private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
         private readonly SaveData save;
-        private readonly LoadLookupData loadLookupData;
-
+        
         private readonly EMailData emailData = new EMailData();
         private readonly Helpers helper = new Utilities.Helpers();
 
         //Constructor
-        public ProcessData(IMapper lookupMapper, IMapper saveMappper)
+        public ProcessData(IMapper saveMappper)
         {
-            loadLookupData = new LoadLookupData(lookupMapper);
+            
             save = new SaveData(saveMappper);
         }        
         
@@ -43,15 +42,7 @@ namespace HRUpdate.Process
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
             return result.AreEqual;            
-        }
-
-        public void GetLookupData()
-        {
-            
-            Lookup lookups = new Lookup();
-
-            lookups = loadLookupData.GetLookupData();
-        }
+        }        
 
         /// <summary>
         /// Get HR Data
@@ -69,15 +60,19 @@ namespace HRUpdate.Process
                 List<Employee> usersToProcess;
                 List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
-                
+
+                ValidateHR validate = new Validation.ValidateHR();
+
                 usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
 
                 Tuple<int, int, string, string, Employee> personResults;
                 Tuple<int, string, string> updatedResults;
-
+                
                 //Start Processing the HR Data
                 foreach (Employee employeeData in usersToProcess)
                 {
+                    validate.ValidateEmployeeInformation(employeeData);
+                    
                     personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, helper.HashSSN(employeeData.Person.SocialSecurityNumber), employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
 
                     int personID = personResults.Item1;                    

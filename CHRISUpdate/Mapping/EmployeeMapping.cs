@@ -1,19 +1,37 @@
-﻿using CsvHelper.Configuration;
+﻿using AutoMapper;
+using CsvHelper.Configuration;
+using HRUpdate.Lookups;
 using HRUpdate.Models;
+using HRUpdate.Process;
+using System.Collections.Generic;
 
 namespace HRUpdate.Mapping
 {
     public sealed class EmployeeMapping : ClassMap<Employee>
     {
+        private readonly Lookup lookups = new Lookup();
+
+        private readonly HRMapper map = new HRMapper();
+
+        private readonly IMapper lookupMapper;
+
         public EmployeeMapping()
         {
+            map.CreateLookupConfig();
+            lookupMapper = map.CreateLookupMapping();
+
+            LoadLookupData loadLookupData = new LoadLookupData(lookupMapper);
+            lookups = loadLookupData.GetLookupData();
+
+            //var investigationMap = new InvestigationMap()
+
             References<PersonMap>(r => r.Person);
             References<AddressMap>(r => r.Address);
             References<BirthMap>(r => r.Birth);
             References<PositionMap>(r => r.Position);
             References<PhoneMap>(r => r.Phone);
             References<EmergencyMap>(r => r.Emergency);
-            References<InvestigationMap>(r => r.Investigation);
+            References<InvestigationMap>(r => r.Investigation, lookups.investigationLookup);
             References<DetailMap>(r => r.Detail);
         }
     }
@@ -119,13 +137,15 @@ namespace HRUpdate.Mapping
     }
 
     public sealed class InvestigationMap : ClassMap<Investigation>
-    {
-        public InvestigationMap()
+    {        
+        public InvestigationMap(List<InvestigationLookup> investigationLookup)
         {
-            Map(m => m.PriorInvestigation).Index(HRConstants.PRIOR_INVESTIGATION);
-            Map(m => m.TypeOfInvestigation).Index(HRConstants.INVESTIGATION_TYPE);
+            var investigationConverter = new InvestigationConverter(investigationLookup);
+
+            Map(m => m.PriorInvestigation).Index(HRConstants.PRIOR_INVESTIGATION).TypeConverter(investigationConverter);
+            Map(m => m.TypeOfInvestigation).Index(HRConstants.INVESTIGATION_TYPE).TypeConverter(investigationConverter);
             Map(m => m.DateOfInvestigation).Index(HRConstants.DATE_OF_INVESTIGATION);
-            Map(m => m.TypeOfInvestigationToRequest).Index(HRConstants.INVESTIGATION_TYPE_REQUESTED);
+            Map(m => m.TypeOfInvestigationToRequest).Index(HRConstants.INVESTIGATION_TYPE_REQUESTED).TypeConverter(investigationConverter);
             Map(m => m.InitialResult).Index(HRConstants.INITIAL_RESULT_FINAL_OFFER).TypeConverter<InvistigationResultConverter>();
             Map(m => m.InitialResultDate).Index(HRConstants.INITIAL_RESULT_FINAL_DATE);
             Map(m => m.FinalResult).Index(HRConstants.FINAL_RESULT_OFFER).TypeConverter<InvistigationResultConverter>();

@@ -70,14 +70,14 @@ namespace HRUpdate.Process
 
             while (lookupData.Read())
             {
-                lookup.investigation_lookup = lookupMapper.Map<IDataReader, List<InvestigationLookup>>(lookupData);                
+                lookup.investigationLookup = lookupMapper.Map<IDataReader, List<InvestigationLookup>>(lookupData);                
             }
 
             lookupData.NextResult();
 
             while (lookupData.Read())
             {   
-                lookup.separation_lookup = lookupMapper.Map<IDataReader, List<SeparationLookup>>(lookupData);
+                lookup.separationLookup = lookupMapper.Map<IDataReader, List<SeparationLookup>>(lookupData);
             }
 
             return lookup;

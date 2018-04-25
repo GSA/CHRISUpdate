@@ -25,7 +25,6 @@ namespace HRUpdate
 
         private static HRMapper map = new HRMapper();
 
-        private static IMapper lookupMapper;
         private static IMapper saveMapper;      
 
         /// <summary>
@@ -46,9 +45,7 @@ namespace HRUpdate
             CreateMaps();
 
             //Instantiate object that does processing
-            ProcessData processData = new ProcessData(lookupMapper, saveMapper);
-
-            processData.GetLookupData();
+            ProcessData processData = new ProcessData(saveMapper);            
 
             //Log action
             log.Info("Processing HR Files:" + DateTime.Now);
@@ -113,10 +110,7 @@ namespace HRUpdate
         }
 
         private static void CreateMaps()
-        {
-            map.CreateLookupConfig();
-            lookupMapper = map.CreateLookupMapping();
-
+        {            
             map.CreateSaveConfig();
             saveMapper = map.CreateSaveMapping();
         }

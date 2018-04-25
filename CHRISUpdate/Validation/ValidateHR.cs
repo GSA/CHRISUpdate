@@ -1,34 +1,57 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 using HRUpdate.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace HRUpdate.Validation
 {
-    class ValidateHR
+    internal class ValidateHR
     {
         private readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public ValidateHR()
         {
-
         }
 
-        private void ValidateEmployeeInformation(List<Employee> employeeInformation)
+        public void ValidateEmployeeInformation(Employee employeeInformation)
         {
+            ValidationResult errors = new ValidationResult();
             EmployeeValidator validator = new EmployeeValidator();
+
+            errors = validator.Validate(employeeInformation);
+
+            PrintToConsole(errors.Errors, employeeInformation.Person.EmployeeID);
+        }
+
+        private void PrintToConsole(IList<ValidationFailure> failures, string id)
+        {
+            StringBuilder errors = new StringBuilder();
+
+            errors.Append(id);
+            errors.Append(": ");
+
+            foreach (var rule in failures)
+            {
+                errors.Append(rule.ErrorMessage);
+                errors.Append(",");
+            }
+
+            Console.WriteLine(errors.ToString().TrimEnd(','));
         }
     }
 
-    class EmployeeValidator : AbstractValidator<Employee>
+    internal class EmployeeValidator : AbstractValidator<Employee>
     {
+        private readonly string[] investigations = { "Temp", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5" };
+
         private string[] investigations = { "Temp", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5" };
         public EmployeeValidator()
-        {
-            ValidatorOptions.CascadeMode = CascadeMode.StopOnFirstFailure;
-
+        {           
             #region Person
+
             RuleFor(Employee => Employee.Person.EmployeeID)
                 .NotEmpty()
                 .WithMessage("Employee id is required")
@@ -105,9 +128,11 @@ namespace HRUpdate.Validation
                 .EmailAddress()
                 .WithMessage("Home email must be a valid email address");
             });
-            #endregion
+
+            #endregion Person
 
             #region Address
+
             RuleFor(Employee => Employee.Address.HomeAddress1)
                 .Length(0, 60)
                 .WithMessage("Home address 1 length must be 0-60");
@@ -141,9 +166,11 @@ namespace HRUpdate.Validation
                     .Matches(@"^[a-zA-Z]{2}$")
                     .WithMessage("Home country must be A thru Z and 2 characters long");
             });
-            #endregion
+
+            #endregion Address
 
             #region Birth
+
             RuleFor(Employee => Employee.Birth.CityOfBirth)
                 .Length(0, 24)
                 .WithMessage("City of birth length must be 0-24");
@@ -180,7 +207,8 @@ namespace HRUpdate.Validation
                     .Must(IsValidDate)
                     .WithMessage("Date of birth must be valid date");
             });
-            #endregion
+
+            #endregion Birth
 
             #region Investigation
             Unless(e => string.IsNullOrEmpty(e.Investigation.PriorInvestigation), () =>
@@ -243,13 +271,14 @@ namespace HRUpdate.Validation
                     .WithMessage("Final result date must be a valid date");
             });
 
-
             RuleFor(Employee => Employee.Investigation.AdjudicatorEmployeeID)
                 .Length(0, 11)
                 .WithMessage("Adjudicators employee id length must be 0-11");
-            #endregion
+
+            #endregion Investigation
 
             #region Emergency
+
             RuleFor(Employee => Employee.Emergency.EmergencyContactName)
                 .Length(0, 40)
                 .WithMessage("Emergency contact name length must be 0-40");
@@ -311,9 +340,11 @@ namespace HRUpdate.Validation
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Out of area contact cell phone must be a valid phone number");
             });
-            #endregion
+
+            #endregion Emergency
 
             #region Position
+
             RuleFor(Employee => Employee.Position.PositionControlNumber)
                 .Length(0, 15)
                 .WithMessage("Position control number length must be 0-15");
@@ -386,7 +417,8 @@ namespace HRUpdate.Validation
             RuleFor(Employee => Employee.Position.SupervisorEmployeeID)
                 .Length(0, 11)
                 .WithMessage("Supervisor employee id length must be 0-11");
-            #endregion
+
+            #endregion Position
 
             #region Phone
             Unless(e => string.IsNullOrEmpty(e.Phone.HomePhone), () =>
@@ -469,6 +501,7 @@ namespace HRUpdate.Validation
             return DateTime.TryParse(date.ToString(), out _date);
         }
     }
+
     public static class ValidatorExtensions
     {
         public static IRuleBuilderOptions<T, TProperty> In<T, TProperty>(this IRuleBuilder<T, TProperty> ruleBuilder, params TProperty[] validOptions)
