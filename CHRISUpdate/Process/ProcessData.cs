@@ -4,6 +4,7 @@ using CsvHelper.Configuration;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Utilities;
+using HRUpdate.Validation;
 using KellermanSoftware.CompareNetObjects;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,6 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
-using HRUpdate.Validation;
 
 namespace HRUpdate.Process
 {

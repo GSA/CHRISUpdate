@@ -1,9 +1,7 @@
-﻿using AutoMapper;
-using CsvHelper;
+﻿using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
 using HRUpdate.Lookups;
-using HRUpdate.Process;
 using System.Collections.Generic;
 using System.Linq;
 
