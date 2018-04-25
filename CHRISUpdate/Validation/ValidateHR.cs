@@ -124,18 +124,18 @@ namespace HRUpdate.Validation
                 .Length(0, 50)
                 .WithMessage("Home city length must be 0-50");
 
-            Unless(E => E.Address.HomeState.Equals(""), () =>
+            Unless(E => string.IsNullOrEmpty(E.Address.HomeState), () =>
             {
                 RuleFor(Employee => Employee.Address.HomeState)
-                .Matches(@"^[a-zA-Z]{2}$")
-                .WithMessage("Home state must be A thru Z and 2 characters long");
+                    .Matches(@"^[a-zA-Z]{2}$")
+                    .WithMessage("Home state must be A thru Z and 2 characters long");
             });
 
             RuleFor(Employee => Employee.Address.HomeZipCode)
                 .Length(0, 10)
                 .WithMessage("Home zip code length must be 0-10");
 
-            Unless(Employee => Employee.Address.HomeCountry.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Address.HomeCountry), () =>
             {
                 RuleFor(Employee => Employee.Address.HomeCountry)
                     .Matches(@"^[a-zA-Z]{2}$")
