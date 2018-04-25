@@ -240,7 +240,7 @@ namespace HRUpdate.Validation
 
                 RuleFor(Employee => Employee.Investigation.FinalResultDate)
                     .NotNull()
-                    .WithMessage("Final result date cannot be null when Final result is null")
+                    .WithMessage("Final result date cannot be null when Final result is not null")
                     .Must(IsValidDate)
                     .WithMessage("Final result date must be a valid date");
             });
@@ -261,7 +261,7 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Emergency.EmergencyContactHomePhone)
                 .Length(1, 24)
-                .WithMessage("Emergency contact home phone length must be 0-10")
+                .WithMessage("Emergency contact home phone length must be 1-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Emergency contact home phone must be a valid phone number");
             });
@@ -477,7 +477,7 @@ namespace HRUpdate.Validation
         }
     }
 
-    public static class ValidatorExtensions
+    public static class EmployeeValidatorExtensions
     {
         public static IRuleBuilderOptions<T, TProperty> In<T, TProperty>(this IRuleBuilder<T, TProperty> ruleBuilder, params TProperty[] validOptions)
         {
