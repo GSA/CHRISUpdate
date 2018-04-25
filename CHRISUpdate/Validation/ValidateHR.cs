@@ -47,6 +47,7 @@ namespace HRUpdate.Validation
     {
         private readonly string[] investigations = { "Temp", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5" };
 
+        private string[] investigations = { "Temp", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5" };
         public EmployeeValidator()
         {           
             #region Person
@@ -86,16 +87,20 @@ namespace HRUpdate.Validation
                 .Length(9)
                 .WithMessage("SSN length must be 9");
 
-            Unless(Employee => Employee.Person.Gender.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Person.Gender), () =>
             {
                 RuleFor(Employee => Employee.Person.Gender)
                     .Matches(@"^[mfMF]{1}$")
                     .WithMessage("Gender must be 'M' or 'F'");
             });
 
-            RuleFor(Employee => Employee.Person.ServiceComputationDateLeave)
-                .Must(IsValidDate)
-                .WithMessage("Service computation date leave must be a valid date");
+            Unless(e => e.Person.ServiceComputationDateLeave.Equals(null), () =>
+            {
+                RuleFor(Employee => Employee.Person.ServiceComputationDateLeave)
+                    .Must(IsValidDate)
+                    .WithMessage("Service computation date leave must be a valid date");
+            });
+
 
             //FERO is nullable bool
             //RuleFor(Employee => Employee.Person.FederalEmergencyResponseOfficial)
@@ -115,7 +120,7 @@ namespace HRUpdate.Validation
                 .Length(0, 70)
                 .WithMessage("Job title length must be 0-70");
 
-            Unless(Employee => Employee.Person.HomeEmail.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Person.HomeEmail), () =>
             {
                 RuleFor(Employee => Employee.Person.HomeEmail)
                 .Length(1, 64)
@@ -170,21 +175,21 @@ namespace HRUpdate.Validation
                 .Length(0, 24)
                 .WithMessage("City of birth length must be 0-24");
 
-            Unless(Employee => Employee.Birth.StateOfBirth.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Birth.StateOfBirth), () =>
             {
                 RuleFor(Employee => Employee.Birth.StateOfBirth)
                     .Matches(@"^[a-zA-Z]{2}$")
                     .WithMessage("State of birth must be A thru Z and 2 characters long");
             });
 
-            Unless(Employee => Employee.Birth.CountryOfBirth.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Birth.CountryOfBirth), () =>
             {
                 RuleFor(Employee => Employee.Birth.CountryOfBirth)
                     .Matches(@"^[a-zA-Z]{2}$")
                     .WithMessage("Country of birth must be A thru Z and 2 characters long");
             });
 
-            Unless(Employee => Employee.Birth.CountryOfCitizenship.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Birth.CountryOfCitizenship), () =>
             {
                 RuleFor(Employee => Employee.Birth.CountryOfCitizenship)
                     .Matches(@"^[a-zA-Z]{2}$")
@@ -206,13 +211,16 @@ namespace HRUpdate.Validation
             #endregion Birth
 
             #region Investigation
+            Unless(e => string.IsNullOrEmpty(e.Investigation.PriorInvestigation), () =>
+              {
+                  RuleFor(Employee => Employee.Investigation.PriorInvestigation)
+                      .In(investigations)
+                      .Length(1, 20)
+                      .WithMessage("Prior investigation length must be 1-20");
+              });
 
-            RuleFor(Employee => Employee.Investigation.PriorInvestigation)
-                .In(investigations)
-                .Length(0, 20)
-                .WithMessage("Prior investigation length must be 0-20");
 
-            When(Employee => string.IsNullOrEmpty(Employee.Investigation.TypeOfInvestigation) || Employee.Investigation.DateOfInvestigation != null, () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Investigation.TypeOfInvestigation) || Employee.Investigation.DateOfInvestigation == null, () =>
             {
                 RuleFor(Employee => Employee.Investigation.TypeOfInvestigation)
                     .NotEmpty()
@@ -228,10 +236,14 @@ namespace HRUpdate.Validation
                     .WithMessage("Date of investigation must be a valid date");
             });
 
-            RuleFor(Employee => Employee.Investigation.TypeOfInvestigationToRequest)
-                .In(investigations)
-                .Length(0, 12)
-                .WithMessage("Type of investigation to request must be 0-12");
+            Unless(e => string.IsNullOrEmpty(e.Investigation.TypeOfInvestigationToRequest), () =>
+            {
+                RuleFor(Employee => Employee.Investigation.TypeOfInvestigationToRequest)
+                    .In(investigations)
+                    .Length(0, 12)
+                    .WithMessage("Type of investigation to request must be 0-12");
+            });
+
 
             When(Employee => Employee.Investigation.InitialResult != null || Employee.Investigation.InitialResultDate != null, () =>
             {
@@ -271,7 +283,7 @@ namespace HRUpdate.Validation
                 .Length(0, 40)
                 .WithMessage("Emergency contact name length must be 0-40");
 
-            Unless(Employee => Employee.Emergency.EmergencyContactHomePhone.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.EmergencyContactHomePhone), () =>
             {
                 RuleFor(Employee => Employee.Emergency.EmergencyContactHomePhone)
                 .Length(1, 24)
@@ -280,7 +292,7 @@ namespace HRUpdate.Validation
                 .WithMessage("Emergency contact home phone must be a valid phone number");
             });
 
-            Unless(Employee => Employee.Emergency.EmergencyContactWorkPhone.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.EmergencyContactWorkPhone), () =>
             {
                 RuleFor(Employee => Employee.Emergency.EmergencyContactWorkPhone)
                 .Length(1, 24)
@@ -289,7 +301,7 @@ namespace HRUpdate.Validation
                 .WithMessage("Emergency contact work phone must be a valid phone number");
             });
 
-            Unless(Employee => Employee.Emergency.EmergencyContactCellPhone.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.EmergencyContactCellPhone), () =>
             {
                 RuleFor(Employee => Employee.Emergency.EmergencyContactCellPhone)
                 .Length(1, 24)
@@ -302,7 +314,7 @@ namespace HRUpdate.Validation
                 .Length(0, 40)
                 .WithMessage("Ouit of area contact name length must be 0-40");
 
-            Unless(Employee => Employee.Emergency.OutOfAreaContactHomePhone.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.OutOfAreaContactHomePhone), () =>
             {
                 RuleFor(Employee => Employee.Emergency.OutOfAreaContactHomePhone)
                 .Length(1, 24)
@@ -311,7 +323,7 @@ namespace HRUpdate.Validation
                 .WithMessage("Out of area contact home phone must be a valid phone number");
             });
 
-            Unless(Employee => Employee.Emergency.OutOfAreaContactWorkPhone.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.OutOfAreaContactWorkPhone), () =>
             {
                 RuleFor(Employee => Employee.Emergency.OutOfAreaContactWorkPhone)
                 .Length(1, 24)
@@ -320,7 +332,7 @@ namespace HRUpdate.Validation
                 .WithMessage("Out of area contact work phone must be a valid phone number");
             });
 
-            Unless(Employee => Employee.Emergency.OutOfAreaContactCellPhone.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.OutOfAreaContactCellPhone), () =>
             {
                 RuleFor(Employee => Employee.Emergency.OutOfAreaContactCellPhone)
                 .Length(1, 24)
@@ -380,7 +392,7 @@ namespace HRUpdate.Validation
                 .Length(0, 40)
                 .WithMessage("Duty location city length must be 0-40");
 
-            Unless(Employee => Employee.Position.DutyLocationState.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Position.DutyLocationState), () =>
             {
                 RuleFor(Employee => Employee.Position.DutyLocationState)
                     .Matches(@"^[a-zA-Z]{2}$")
@@ -401,6 +413,7 @@ namespace HRUpdate.Validation
             RuleFor(Employee => Employee.Position.AgencyCodeSubelement)
                 .Length(0, 4)
                 .WithMessage("Agency code subelement");
+
             RuleFor(Employee => Employee.Position.SupervisorEmployeeID)
                 .Length(0, 11)
                 .WithMessage("Supervisor employee id length must be 0-11");
@@ -408,44 +421,61 @@ namespace HRUpdate.Validation
             #endregion Position
 
             #region Phone
-
-            RuleFor(Employee => Employee.Phone.HomePhone)
+            Unless(e => string.IsNullOrEmpty(e.Phone.HomePhone), () =>
+            {
+                RuleFor(Employee => Employee.Phone.HomePhone)
                 .Length(0, 24)
                 .WithMessage("Home phone length must be 0-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Home phone must be a valid phone number");
+            });
 
-            RuleFor(Employee => Employee.Phone.HomeCell)
+            Unless(e => string.IsNullOrEmpty(e.Phone.HomeCell), () =>
+            {
+                RuleFor(Employee => Employee.Phone.HomeCell)
                 .Length(0, 24)
                 .WithMessage("Home cell length must be 0-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Home cell must be a valid phone number");
+            });
 
-            RuleFor(Employee => Employee.Phone.WorkPhone)
+            Unless(e => string.IsNullOrEmpty(e.Phone.WorkPhone), () =>
+            {
+                RuleFor(Employee => Employee.Phone.WorkPhone)
                 .Length(0, 24)
                 .WithMessage("Work phone length must be 0-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Work phone must be a valid phone number");
+            });
 
-            RuleFor(Employee => Employee.Phone.WorkFax)
+            Unless(e => string.IsNullOrEmpty(e.Phone.WorkFax), () =>
+            {
+                RuleFor(Employee => Employee.Phone.WorkFax)
                 .Length(0, 24)
                 .WithMessage("Work fax length must be 0-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Work fax must be a valid phone number");
+            });
 
-            RuleFor(Employee => Employee.Phone.WorkCell)
+            Unless(e => string.IsNullOrEmpty(e.Phone.WorkCell), () =>
+            {
+                RuleFor(Employee => Employee.Phone.WorkCell)
                 .Length(0, 24)
                 .WithMessage("Work cell length must be 0-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Work cell must be a valid phone number");
+            });
 
-            RuleFor(Employee => Employee.Phone.WorkTextTelephone)
+            Unless(e => string.IsNullOrEmpty(e.Phone.WorkTextTelephone), () =>
+            {
+                RuleFor(Employee => Employee.Phone.WorkTextTelephone)
                 .Length(0, 24)
                 .WithMessage("Work text telephone length must be 0-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Work text telephone must be a valid phone number");
+            });
 
-            #endregion Phone
+            #endregion
 
             //Detail - Not currently needed
         }
