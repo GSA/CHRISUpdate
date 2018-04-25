@@ -124,18 +124,18 @@ namespace HRUpdate.Validation
                 .Length(0, 50)
                 .WithMessage("Home city length must be 0-50");
 
-            Unless(E => E.Address.HomeState.Equals(""), () =>
+            Unless(E => string.IsNullOrEmpty(E.Address.HomeState), () =>
             {
                 RuleFor(Employee => Employee.Address.HomeState)
-                .Matches(@"^[a-zA-Z]{2}$")
-                .WithMessage("Home state must be A thru Z and 2 characters long");
+                    .Matches(@"^[a-zA-Z]{2}$")
+                    .WithMessage("Home state must be A thru Z and 2 characters long");
             });
 
             RuleFor(Employee => Employee.Address.HomeZipCode)
                 .Length(0, 10)
                 .WithMessage("Home zip code length must be 0-10");
 
-            Unless(Employee => Employee.Address.HomeCountry.Equals(""), () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Address.HomeCountry), () =>
             {
                 RuleFor(Employee => Employee.Address.HomeCountry)
                     .Matches(@"^[a-zA-Z]{2}$")
@@ -270,7 +270,7 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Emergency.EmergencyContactWorkPhone)
                 .Length(1, 24)
-                .WithMessage("Emergency contact work phone length must be 0-10")
+                .WithMessage("Emergency contact work phone length must be 1-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Emergency contact work phone must be a valid phone number");
             });
@@ -279,7 +279,7 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Emergency.EmergencyContactCellPhone)
                 .Length(1, 24)
-                .WithMessage("Emergency contact cell phone length must be 0-10")
+                .WithMessage("Emergency contact cell phone length must be 1-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Emergency contact cell phone must be a valid phone number");
             });
@@ -292,7 +292,7 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Emergency.OutOfAreaContactHomePhone)
                 .Length(1, 24)
-                .WithMessage("Out of area contact home phone length must be 0-10")
+                .WithMessage("Out of area contact home phone length must be 1-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Out of area contact home phone must be a valid phone number");
             });
@@ -301,7 +301,7 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Emergency.OutOfAreaContactWorkPhone)
                 .Length(1, 24)
-                .WithMessage("Out of area contact work phone length must be 0-10")
+                .WithMessage("Out of area contact work phone length must be 1-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Out of area contact work phone must be a valid phone number");
             });
@@ -310,7 +310,7 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Emergency.OutOfAreaContactCellPhone)
                 .Length(1, 24)
-                .WithMessage("Out of area contact cell phone length must be 0-10")
+                .WithMessage("Out of area contact cell phone length must be 1-24")
                 .Must(IsValidPhoneNumber)
                 .WithMessage("Out of area contact cell phone must be a valid phone number");
             });
@@ -386,7 +386,7 @@ namespace HRUpdate.Validation
 
             RuleFor(Employee => Employee.Position.AgencyCodeSubelement)
                 .Length(0, 4)
-                .WithMessage("Agency code subelement");
+                .WithMessage("Agency code subelement length must be 0-4");
 
             RuleFor(Employee => Employee.Position.SupervisorEmployeeID)
                 .Length(0, 11)
