@@ -208,54 +208,83 @@ namespace HRUpdate.Process
                 List<SeperationSummary> successfulSeparationUsersProcessed = new List<SeperationSummary>();
                 List<SeperationSummary> unsuccessfulSeparationUsersProcessed = new List<SeperationSummary>();
 
+                ValidateSeparation validate = new ValidateSeparation();
+                ValidationResult errors;
+
                 separationUsersToProcess = GetFileData<Separation, CustomSeparationMap>(SEPFile);
 
                 Tuple<int, int, string, string> separationResults;
 
                 foreach (Separation separationData in separationUsersToProcess)
                 {
-                    separationResults = save.SeparateUser(separationData);
+                    //Validate Record If Valid then process record
+                    errors = validate.ValidateSeparationInformation(separationData);
 
-                    if (separationResults.Item1 > 0)
+                    if (errors.IsValid)
                     {
-                        log.Info("Separating User: " + separationResults.Item1);
+                        separationResults = save.SeparateUser(separationData);
 
-                        var separationSuccess = separationUsersToProcess
-                             .Where(w => w.EmployeeID == separationData.EmployeeID)
-                             .Select
-                                 (
-                                     s =>
-                                         new SeperationSummary
-                                         {
-                                             GCIMSID = separationResults.Item1,
-                                             EmployeeID = s.EmployeeID,
-                                             SeparationCode = s.SeparationCode,
-                                             Action = separationResults.Item3
-                                         }
-                                 ).ToList();
+                        if (separationResults.Item1 > 0)
+                        {
+                            log.Info("Separating User: " + separationResults.Item1);
 
-                        successfulSeparationUsersProcessed.AddRange(separationSuccess);
+                            var separationSuccess = separationUsersToProcess
+                                 .Where(w => w.EmployeeID == separationData.EmployeeID)
+                                 .Select
+                                     (
+                                         s =>
+                                             new SeperationSummary
+                                             {
+                                                 GCIMSID = separationResults.Item1,
+                                                 EmployeeID = s.EmployeeID,
+                                                 SeparationCode = s.SeparationCode,
+                                                 Action = separationResults.Item3
+                                             }
+                                     ).ToList();
 
-                        log.Info("Successfully Separated Record: " + separationResults.Item1);
+                            successfulSeparationUsersProcessed.AddRange(separationSuccess);
+
+                            log.Info("Successfully Separated Record: " + separationResults.Item1);
+                        }
+                        else
+                        {
+                            var separationIssue = separationUsersToProcess
+                                .Where(w => w.EmployeeID == separationData.EmployeeID)
+                                .Select
+                                    (
+                                        s =>
+                                            new SeperationSummary
+                                            {
+                                                GCIMSID = separationResults.Item1,
+                                                EmployeeID = s.EmployeeID,
+                                                SeparationCode = s.SeparationCode,
+                                                Action = separationResults.Item3
+                                            }
+                                    ).ToList();
+
+                            unsuccessfulSeparationUsersProcessed.AddRange(separationIssue);
+                        }
                     }
                     else
                     {
                         var separationIssue = separationUsersToProcess
-                            .Where(w => w.EmployeeID == separationData.EmployeeID)
-                            .Select
-                                (
-                                    s =>
-                                        new SeperationSummary
-                                        {
-                                            GCIMSID = separationResults.Item1,
-                                            EmployeeID = s.EmployeeID,
-                                            SeparationCode = s.SeparationCode,
-                                            Action = separationResults.Item3
-                                        }
-                                ).ToList();
+                                .Where(w => w.EmployeeID == separationData.EmployeeID)
+                                .Select
+                                    (
+                                        s =>
+                                            new SeperationSummary
+                                            {
+                                                GCIMSID = -1,
+                                                EmployeeID = s.EmployeeID,
+                                                SeparationCode = s.SeparationCode,
+                                                Action = GetErrors(errors.Errors).TrimEnd(',')
+                                            }
+                                    ).ToList();
 
                         unsuccessfulSeparationUsersProcessed.AddRange(separationIssue);
-                    }             
+                    }
+
+                                     
                 }
 
                 emailData.SEPFileName = Path.GetFileName(SEPFile);
