@@ -8,22 +8,19 @@ using System.Collections.Generic;
 namespace HRUpdate.Mapping
 {
     public sealed class EmployeeMapping : ClassMap<Employee>
-    {
-        private readonly Lookup lookups = new Lookup();
-
+    {   
         private readonly HRMapper map = new HRMapper();
-
-        private readonly IMapper lookupMapper;
 
         public EmployeeMapping()
         {
+            Lookup lookups;
+            IMapper lookupMapper;
+
             map.CreateLookupConfig();
             lookupMapper = map.CreateLookupMapping();
 
             LoadLookupData loadLookupData = new LoadLookupData(lookupMapper);
             lookups = loadLookupData.GetLookupData();
-
-            //var investigationMap = new InvestigationMap()
 
             References<PersonMap>(r => r.Person);
             References<AddressMap>(r => r.Address);
