@@ -40,7 +40,7 @@ namespace HRUpdate.Process
                     {
                         cmd.Connection = conn;
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.CommandText = "HR_Get_Lookups";
+                        cmd.CommandText = "HR_Get_Employee_Lookups";
 
                         MySqlDataReader lookupData;
 
@@ -79,7 +79,7 @@ namespace HRUpdate.Process
                     {
                         cmd.Connection = conn;
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.CommandText = "HR_Get_Separation_Lookups";
+                        cmd.CommandText = "HR_Get_Separation_Lookup";
 
                         MySqlDataReader lookupData;
 
