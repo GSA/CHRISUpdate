@@ -1,18 +1,18 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
-using HRUpdate.Models;
-using System;
-using System.Linq;
 using HRUpdate.Lookups;
 using HRUpdate.Mapping;
+using HRUpdate.Models;
 using HRUpdate.Process;
+using System;
+using System.Linq;
 
 namespace HRUpdate.Validation
 {
     internal class ValidateHR
     {
-        Lookup lookups;
-        HRMapper map;       
+        private readonly Lookup lookups;
+        private HRMapper map;
 
         public ValidateHR()
         {
@@ -23,7 +23,7 @@ namespace HRUpdate.Validation
         public ValidationResult ValidateEmployeeInformation(Employee employeeInformation)
         {
             EmployeeValidator validator = new EmployeeValidator(lookups);
-            
+
             return validator.Validate(employeeInformation);
         }
     }
@@ -33,7 +33,7 @@ namespace HRUpdate.Validation
         public EmployeeValidator(Lookup lookups)
         {
             string[] investigationTypes = lookups.investigationLookup.Select(e => e.Tier).ToArray();
-            
+
             #region Person
 
             RuleFor(Employee => Employee.Person.EmployeeID)

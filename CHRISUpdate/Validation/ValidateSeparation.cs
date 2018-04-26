@@ -1,24 +1,25 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
-using HRUpdate.Models;
-using System;
 using HRUpdate.Lookups;
 using HRUpdate.Mapping;
+using HRUpdate.Models;
 using HRUpdate.Process;
+using System;
 using System.Linq;
 
 namespace HRUpdate.Validation
 {
     internal class ValidateSeparation
     {
-        Lookup lookups;
-        HRMapper map;
+        private readonly Lookup lookups;
+        private HRMapper map;
 
         public ValidateSeparation()
         {
             map.CreateLookupConfig();
             lookups = new LoadLookupData(map.CreateLookupMapping()).GetSeparationLookupData();
         }
+
         public ValidationResult ValidateSeparationInformation(Separation separationInformation)
         {
             SeparationValidator validator = new SeparationValidator(lookups);
@@ -28,8 +29,6 @@ namespace HRUpdate.Validation
 
     internal class SeparationValidator : AbstractValidator<Separation>
     {
-        
-
         public SeparationValidator(Lookup lookups)
         {
             string[] separationTypes = lookups.separationLookup.Select(e => e.Code).ToArray();
@@ -49,7 +48,7 @@ namespace HRUpdate.Validation
                 .NotNull()
                 .WithMessage($"{{PropertyName}} is not null")
                 .ValidDate();
-        }  
+        }
     }
 
     public static class SeparationValidatorExtensions
@@ -61,5 +60,5 @@ namespace HRUpdate.Validation
                 .Must(e => DateTime.TryParse(e.ToString(), out date))
                 .WithMessage($"{{PropertyName}} must be a valid date");
         }
-    }    
+    }
 }
