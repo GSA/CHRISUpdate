@@ -37,7 +37,7 @@ namespace HRUpdate.Utilities
             catch (Exception ex)
             {
                 log.Error("Error Writing Summary File: " + fileName + " - " + ex.Message + " - " + ex.InnerException);
-                return "";
+                return string.Empty;
             }
         }
     }

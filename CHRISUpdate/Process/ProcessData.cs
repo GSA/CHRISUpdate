@@ -356,13 +356,24 @@ namespace HRUpdate.Process
 
             attahcments = SummaryAttachments();
 
-            using (email)
+            try
             {
-                email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(),
-                           ConfigurationManager.AppSettings["TO"].ToString(),
-                           ConfigurationManager.AppSettings["CC"].ToString(),
-                           ConfigurationManager.AppSettings["BCC"].ToString(),
-                           subject, body, attahcments.TrimEnd(';'), ConfigurationManager.AppSettings["SMTPSERVER"].ToString(), true);
+                using (email)
+                {
+                    email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(),
+                               ConfigurationManager.AppSettings["TO"].ToString(),
+                               ConfigurationManager.AppSettings["CC"].ToString(),
+                               ConfigurationManager.AppSettings["BCC"].ToString(),
+                               subject, body, attahcments.TrimEnd(';'), ConfigurationManager.AppSettings["SMTPSERVER"].ToString(), true);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error Sending HR Links Summary E-Mail: " + ex.Message + " - " + ex.InnerException);                
+            }
+            finally
+            {
+                log.Info("HR Links Summary E-Mail Sent");
             }
         }
 
