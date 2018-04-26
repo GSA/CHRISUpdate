@@ -3,18 +3,26 @@ using FluentValidation.Results;
 using HRUpdate.Models;
 using System;
 using System.Linq;
+using HRUpdate.Lookups;
+using HRUpdate.Mapping;
+using HRUpdate.Process;
 
 namespace HRUpdate.Validation
 {
     internal class ValidateHR
     {
+        Lookup lookups;
+        HRMapper map;       
+
         public ValidateHR()
         {
+            map.CreateLookupConfig();
+            lookups = new LoadLookupData(map.CreateLookupMapping()).GetEmployeeLookupData();
         }
 
         public ValidationResult ValidateEmployeeInformation(Employee employeeInformation)
         {
-            EmployeeValidator validator = new EmployeeValidator();
+            EmployeeValidator validator = new EmployeeValidator(lookups);
             
             return validator.Validate(employeeInformation);
         }
@@ -22,10 +30,10 @@ namespace HRUpdate.Validation
 
     internal class EmployeeValidator : AbstractValidator<Employee>
     {
-        private readonly string[] investigations = { "Temp", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5" };
-
-        public EmployeeValidator()
+        public EmployeeValidator(Lookup lookups)
         {
+            string[] investigationTypes = lookups.investigationLookup.Select(e => e.Tier).ToArray();
+            
             #region Person
 
             RuleFor(Employee => Employee.Person.EmployeeID)
@@ -190,7 +198,7 @@ namespace HRUpdate.Validation
             Unless(e => string.IsNullOrEmpty(e.Investigation.PriorInvestigation), () =>
               {
                   RuleFor(Employee => Employee.Investigation.PriorInvestigation)
-                      .In(investigations)
+                      .In(investigationTypes)
                       .Length(1, 20)
                       .WithMessage($"{{PropertyName}} length must be 1-20");
               });
@@ -200,7 +208,7 @@ namespace HRUpdate.Validation
                 RuleFor(Employee => Employee.Investigation.TypeOfInvestigation)
                     .NotEmpty()
                     .WithMessage($"{{PropertyName}} cannot be null when Date of investigation is not null")
-                    .In(investigations)
+                    .In(investigationTypes)
                     .Length(1, 20)
                     .WithMessage($"{{PropertyName}} length must be 1-20");
 
@@ -214,7 +222,7 @@ namespace HRUpdate.Validation
             Unless(e => string.IsNullOrEmpty(e.Investigation.TypeOfInvestigationToRequest), () =>
             {
                 RuleFor(Employee => Employee.Investigation.TypeOfInvestigationToRequest)
-                    .In(investigations)
+                    .In(investigationTypes)
                     .Length(0, 12)
                     .WithMessage($"{{PropertyName}} length must be 0-12");
             });
