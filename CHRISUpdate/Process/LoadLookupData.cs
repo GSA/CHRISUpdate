@@ -22,7 +22,7 @@ namespace HRUpdate.Process
 
         public LoadLookupData(IMapper mapper)
         {
-            lookupMapper = mapper;            
+            lookupMapper = mapper;
         }
 
         public Lookup GetEmployeeLookupData()
@@ -42,7 +42,7 @@ namespace HRUpdate.Process
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandText = "HR_Get_Lookups";
 
-                        MySqlDataReader lookupData;                        
+                        MySqlDataReader lookupData;
 
                         lookupData = cmd.ExecuteReader();
 
@@ -109,13 +109,13 @@ namespace HRUpdate.Process
 
             while (lookupData.Read())
             {
-                lookup.investigationLookup = lookupMapper.Map<IDataReader, List<InvestigationLookup>>(lookupData);                
+                lookup.investigationLookup = lookupMapper.Map<IDataReader, List<InvestigationLookup>>(lookupData);
             }
 
             lookupData.NextResult();
 
             while (lookupData.Read())
-            {   
+            {
                 lookup.separationLookup = lookupMapper.Map<IDataReader, List<SeparationLookup>>(lookupData);
             }
 
@@ -129,7 +129,7 @@ namespace HRUpdate.Process
             while (lookupData.Read())
             {
                 lookup.separationLookup = lookupMapper.Map<IDataReader, List<SeparationLookup>>(lookupData);
-            }           
+            }
 
             return lookup;
         }

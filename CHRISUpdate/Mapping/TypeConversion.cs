@@ -1,9 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
-using HRUpdate.Lookups;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace HRUpdate.Mapping
 {
@@ -25,11 +22,13 @@ namespace HRUpdate.Mapping
             {
                 case "Y":
                     return true;
+
                 case "N":
                     return false;
+
                 default:
                     return null;
-            }        
+            }
         }
     }
 
@@ -52,8 +51,10 @@ namespace HRUpdate.Mapping
             {
                 case "1":
                     return true;
+
                 case "0":
                     return false;
+
                 default:
                     return null;
             }
@@ -64,15 +65,17 @@ namespace HRUpdate.Mapping
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            switch(text)
+            switch (text)
             {
                 case "1":
                     return true;
+
                 case "0":
                     return false;
+
                 default:
                     return null;
             }
         }
-    }  
+    }
 }

@@ -1,14 +1,10 @@
-﻿using AutoMapper;
-using CsvHelper.Configuration;
-using HRUpdate.Lookups;
+﻿using CsvHelper.Configuration;
 using HRUpdate.Models;
-using HRUpdate.Process;
-using System.Collections.Generic;
 
 namespace HRUpdate.Mapping
 {
     public sealed class EmployeeMapping : ClassMap<Employee>
-    {   
+    {
         public EmployeeMapping()
         {
             References<PersonMap>(r => r.Person);
@@ -123,9 +119,9 @@ namespace HRUpdate.Mapping
     }
 
     public sealed class InvestigationMap : ClassMap<Investigation>
-    {        
+    {
         public InvestigationMap()
-        {            
+        {
             Map(m => m.PriorInvestigation).Index(HRConstants.PRIOR_INVESTIGATION);
             Map(m => m.TypeOfInvestigation).Index(HRConstants.INVESTIGATION_TYPE);
             Map(m => m.DateOfInvestigation).Index(HRConstants.DATE_OF_INVESTIGATION);

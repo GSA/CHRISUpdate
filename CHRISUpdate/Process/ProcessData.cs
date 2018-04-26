@@ -23,27 +23,26 @@ namespace HRUpdate.Process
 
         private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
         private readonly SaveData save;
-        
+
         private readonly EMailData emailData = new EMailData();
         private readonly Helpers helper = new Utilities.Helpers();
 
         //Constructor
         public ProcessData(IMapper saveMappper)
         {
-            
             save = new SaveData(saveMappper);
-        }        
-        
+        }
+
         private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
         {
             CompareLogic compareLogic = new CompareLogic();
             compareLogic.Config.MembersToIgnore.Add("Person.SocialSecurityNumber");
-            compareLogic.Config.MembersToIgnore.Add("Detail");            
+            compareLogic.Config.MembersToIgnore.Add("Detail");
 
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
-            return result.AreEqual;            
-        }        
+            return result.AreEqual;
+        }
 
         /// <summary>
         /// Get HR Data
@@ -63,13 +62,13 @@ namespace HRUpdate.Process
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
 
                 ValidateHR validate = new ValidateHR();
-                ValidationResult errors;               
+                ValidationResult errors;
 
                 usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
 
                 Tuple<int, int, string, string, Employee> personResults;
                 Tuple<int, string, string> updatedResults;
-                
+
                 //Start Processing the HR Data
                 foreach (Employee employeeData in usersToProcess)
                 {
@@ -190,7 +189,7 @@ namespace HRUpdate.Process
             //Catch all errors
             catch (Exception ex)
             {
-                log.Error("Process HR Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);                
+                log.Error("Process HR Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);
             }
         }
 
@@ -201,7 +200,7 @@ namespace HRUpdate.Process
         public void ProcessSeparationFile(string SEPFile)
         {
             log.Info("Processing Separation Users");
-                        
+
             try
             {
                 List<Separation> separationUsersToProcess;
@@ -283,8 +282,6 @@ namespace HRUpdate.Process
 
                         unsuccessfulSeparationUsersProcessed.AddRange(separationIssue);
                     }
-
-                                     
                 }
 
                 emailData.SEPFileName = Path.GetFileName(SEPFile);
@@ -300,13 +297,13 @@ namespace HRUpdate.Process
                 GenerateSeparationSummaryFiles(successfulSeparationUsersProcessed, unsuccessfulSeparationUsersProcessed);
             }
             catch (Exception ex)
-            {   
-                log.Error("Process Separation Users Error:" + ex.Message + " " + ex.InnerException); 
+            {
+                log.Error("Process Separation Users Error:" + ex.Message + " " + ex.InnerException);
             }
         }
-        
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="processedSuccessSummary"></param>
         /// <param name="processedErrorSummary"></param>
@@ -326,7 +323,7 @@ namespace HRUpdate.Process
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="separationSuccessSummary"></param>
         /// <param name="separationErrorSummary"></param>
@@ -348,10 +345,10 @@ namespace HRUpdate.Process
         internal void SendSummaryEMail()
         {
             EMail email = new EMail();
-            
+
             string subject = string.Empty;
             string body = string.Empty;
-            string attahcments = string.Empty;         
+            string attahcments = string.Empty;
 
             subject = ConfigurationManager.AppSettings["EMAILSUBJECT"].ToString() + " - " + DateTime.Now.ToString("MMMM dd, yyyy HH:mm:ss");
 
@@ -375,11 +372,11 @@ namespace HRUpdate.Process
             StringBuilder fileNames = new StringBuilder();
 
             string template = File.ReadAllText(ConfigurationManager.AppSettings["SUMMARYTEMPLATE"]);
-            
+
             fileNames.Append(emailData.HRFilename == null ? "No HR Links File Found" : emailData.HRFilename.ToString());
             fileNames.Append(", ");
             fileNames.Append(emailData.SEPFileName == null ? "No Separation File Found" : emailData.SEPFileName.ToString());
-            
+
             template = template.Replace("[FILENAMES]", fileNames.ToString());
 
             template = template.Replace("[HRATTEMPTED]", emailData.HRAttempted.ToString());
@@ -459,7 +456,7 @@ namespace HRUpdate.Process
         {
             StringBuilder errors = new StringBuilder();
 
-            foreach(var rule in failures)
+            foreach (var rule in failures)
             {
                 errors.Append(rule.ErrorMessage);
                 errors.Append(",");

@@ -64,7 +64,7 @@ namespace HRUpdate.Utilities
                     message.Subject = _strEmailSubject;
                     message.Body = _strEmailMessageBody;
                     message.IsBodyHtml = _IsBodyHtml;
-                                        
+
                     if (_strEmailAttachments.Contains(";"))
                     {
                         // Split multiple attachments into a string array
@@ -102,7 +102,7 @@ namespace HRUpdate.Utilities
                             // do nothing
                         }
                         else
-                        {                            
+                        {
                             smtpfailedrecipients_msg = string.Format("Failed to deliver message to {0}\n",
                                 ex.InnerExceptions[i].FailedRecipient);
                         }

@@ -21,7 +21,7 @@ namespace HRUpdate.Process
 
         public SaveData(IMapper mapper)
         {
-            saveMapper = mapper;            
+            saveMapper = mapper;
         }
 
         public Tuple<int, int, string, string, Employee> GetGCIMSRecord(string employeeID, byte[] ssn, string lastName, string dateOfBirth)
