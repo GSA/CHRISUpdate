@@ -32,7 +32,7 @@ namespace HRUpdate.Validation
     {
         public EmployeeValidator(Lookup lookups)
         {
-            string[] investigationTypes = lookups.investigationLookup.Select(e => e.Tier).ToArray();
+            string[] investigationTypes = lookups.investigationLookup.Select(e => e.Tier).Distinct().ToArray();
 
             #region Person
 

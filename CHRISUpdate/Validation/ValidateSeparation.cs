@@ -31,7 +31,7 @@ namespace HRUpdate.Validation
     {
         public SeparationValidator(Lookup lookups)
         {
-            string[] separationTypes = lookups.separationLookup.Select(e => e.Code).ToArray();
+            string[] separationTypes = lookups.separationLookup.Select(e => e.Code).Distinct().ToArray();
 
             RuleFor(s => s.EmployeeID)
                 .NotEmpty()
