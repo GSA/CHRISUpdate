@@ -124,7 +124,7 @@ namespace HRUpdate.Mapping
 
     public sealed class InvestigationMap : ClassMap<Investigation>
     {        
-        public InvestigationMap(List<InvestigationLookup> investigationLookup)
+        public InvestigationMap()
         {            
             Map(m => m.PriorInvestigation).Index(HRConstants.PRIOR_INVESTIGATION);
             Map(m => m.TypeOfInvestigation).Index(HRConstants.INVESTIGATION_TYPE);
