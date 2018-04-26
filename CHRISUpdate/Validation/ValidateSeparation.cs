@@ -12,7 +12,7 @@ namespace HRUpdate.Validation
     internal class ValidateSeparation
     {
         private readonly Lookup lookups;
-        private HRMapper map;
+        private HRMapper map = new HRMapper();
 
         public ValidateSeparation()
         {
