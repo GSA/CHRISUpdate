@@ -182,7 +182,7 @@ namespace HRUpdate.Process
                 //Add log entries
                 log.Info("HR Records Updated: " + String.Format("{0:#,###0}", successfulHRUsersProcessed.Count));
                 log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
-                log.Info("HR Records Processed: " + String.Format("{0:#,###0}", usersToProcess.Count));
+                log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
 
                 GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed);
             }
@@ -292,7 +292,7 @@ namespace HRUpdate.Process
 
                 log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", successfulSeparationUsersProcessed.Count));
                 log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulSeparationUsersProcessed.Count));
-                log.Info("Separation Processed Records: " + String.Format("{0:#,###0}", separationUsersToProcess.Count));
+                log.Info("Separation Total Records: " + String.Format("{0:#,###0}", separationUsersToProcess.Count));
 
                 GenerateSeparationSummaryFiles(successfulSeparationUsersProcessed, unsuccessfulSeparationUsersProcessed);
             }
