@@ -176,9 +176,7 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Birth.CountryOfCitizenship)
                     .Matches(@"^[a-zA-Z]{2}$")
-                    .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long")
-                    .Length(0, 2)
-                    .WithMessage($"{{PropertyName}} length must be 0-2");
+                    .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");                   
             });
 
             //nullable bool
