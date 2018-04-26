@@ -1,11 +1,14 @@
-﻿using CsvHelper.Configuration;
+﻿using AutoMapper;
+using CsvHelper.Configuration;
+using HRUpdate.Lookups;
 using HRUpdate.Models;
+using HRUpdate.Process;
 
 namespace HRUpdate.Mapping
 {
-    internal sealed class CustomSeparationMap : ClassMap<Separation>
+    internal sealed class SeparationMapping : ClassMap<Separation>
     {
-        public CustomSeparationMap()
+        public SeparationMapping()
         {
             Map(m => m.EmployeeID).Index(SeparationConstants.EMPLOYEE_ID);
             Map(m => m.SeparationCode).Index(SeparationConstants.SEPARATION_CODE);

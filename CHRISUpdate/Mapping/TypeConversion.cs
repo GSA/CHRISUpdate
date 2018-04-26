@@ -74,20 +74,5 @@ namespace HRUpdate.Mapping
                     return null;
             }
         }
-    }    
-
-    internal sealed class InvestigationConverter : StringConverter
-    {
-        private readonly List<InvestigationLookup> investigationLookup;
-
-        public InvestigationConverter(List<InvestigationLookup> investigationLookup)
-        {
-            this.investigationLookup = investigationLookup;   
-        }
-
-        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
-        {
-            return investigationLookup.Where(w => w.Code == text).Select(s => s.Tier).SingleOrDefault();
-        }
-    }
+    }  
 }

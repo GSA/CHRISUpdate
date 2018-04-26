@@ -25,7 +25,7 @@ namespace HRUpdate.Process
             lookupMapper = mapper;            
         }
 
-        public Lookup GetLookupData()
+        public Lookup GetEmployeeLookupData()
         {
             Lookup lookups = new Lookup();
 
@@ -49,7 +49,7 @@ namespace HRUpdate.Process
                         using (lookupData)
                         {
                             if (lookupData.HasRows)
-                                lookups = MapLookupData(lookupData);
+                                lookups = MapEmployeeLookupData(lookupData);
                         }
                     }
                 }
@@ -64,7 +64,46 @@ namespace HRUpdate.Process
             }
         }
 
-        private Lookup MapLookupData(MySqlDataReader lookupData)
+        public Lookup GetSeparationLookupData()
+        {
+            Lookup lookups = new Lookup();
+
+            try
+            {
+                using (conn)
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    using (cmd)
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = "HR_Get_Separation_Lookups";
+
+                        MySqlDataReader lookupData;
+
+                        lookupData = cmd.ExecuteReader();
+
+                        using (lookupData)
+                        {
+                            if (lookupData.HasRows)
+                                lookups = MapSeparationLookupData(lookupData);
+                        }
+                    }
+                }
+
+                return lookups;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Something went wrong" + " - " + ex.Message + " - " + ex.InnerException);
+
+                return lookups;
+            }
+        }
+
+        private Lookup MapEmployeeLookupData(MySqlDataReader lookupData)
         {
             Lookup lookup = new Lookup();
 
@@ -79,6 +118,18 @@ namespace HRUpdate.Process
             {   
                 lookup.separationLookup = lookupMapper.Map<IDataReader, List<SeparationLookup>>(lookupData);
             }
+
+            return lookup;
+        }
+
+        private Lookup MapSeparationLookupData(MySqlDataReader lookupData)
+        {
+            Lookup lookup = new Lookup();
+
+            while (lookupData.Read())
+            {
+                lookup.separationLookup = lookupMapper.Map<IDataReader, List<SeparationLookup>>(lookupData);
+            }           
 
             return lookup;
         }
