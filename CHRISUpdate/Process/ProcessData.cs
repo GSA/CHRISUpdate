@@ -211,7 +211,7 @@ namespace HRUpdate.Process
                 ValidateSeparation validate = new ValidateSeparation();
                 ValidationResult errors;
 
-                separationUsersToProcess = GetFileData<Separation, CustomSeparationMap>(SEPFile);
+                separationUsersToProcess = GetFileData<Separation, SeparationMapping>(SEPFile);
 
                 Tuple<int, int, string, string> separationResults;
 
@@ -334,13 +334,13 @@ namespace HRUpdate.Process
         {
             if (separationSuccessSummary.Count > 0)
             {
-                emailData.SeparationSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
+                emailData.SeparationSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
                 log.Info("Separation Success File: " + emailData.SeparationSuccessfulSummaryFilename);
             }
 
             if (separationErrorSummary.Count > 0)
             {
-                emailData.SeparationErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
+                emailData.SeparationErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
                 log.Info("Separation Error File: " + emailData.SeparationErrorSummaryFilename);
             }
         }

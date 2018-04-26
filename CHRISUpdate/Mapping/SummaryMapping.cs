@@ -16,9 +16,9 @@ namespace HRUpdate.Mapping
         }
     }
 
-    internal sealed class SeperationMapping : ClassMap<SeperationSummary>
+    internal sealed class SeperationSummaryMapping : ClassMap<SeperationSummary>
     {
-        public SeperationMapping()
+        public SeperationSummaryMapping()
         {
             Map(m => m.GCIMSID).Name("GCIMS ID");
             Map(m => m.EmployeeID).Name("Employee ID");
