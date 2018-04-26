@@ -12,7 +12,7 @@ namespace HRUpdate.Validation
     internal class ValidateHR
     {
         private readonly Lookup lookups;
-        private HRMapper map;
+        private readonly HRMapper map = new HRMapper();
 
         public ValidateHR()
         {
