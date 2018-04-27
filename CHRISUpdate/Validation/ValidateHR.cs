@@ -43,8 +43,10 @@ namespace HRUpdate.Validation
                 .WithMessage($"{{PropertyName}} length must be 1-11");
 
             RuleFor(Employee => Employee.Person.FirstName)
-                .Length(0, 60)
-                .WithMessage($"{{PropertyName}} length must be 0-60");
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Length(1, 60)
+                .WithMessage($"{{PropertyName}} length must be 1-60");
 
             RuleFor(Employee => Employee.Person.LastName)
                 .NotEmpty()
@@ -71,12 +73,13 @@ namespace HRUpdate.Validation
                 .Length(9)
                 .WithMessage($"{{PropertyName}} length must be 9");
 
-            Unless(Employee => string.IsNullOrEmpty(Employee.Person.Gender), () =>
-            {
-                RuleFor(Employee => Employee.Person.Gender)
-                    .Matches(@"^[mfMF]{1}$")
-                    .WithMessage($"{{PropertyName}} must be 'M' or 'F'");
-            });
+            
+            RuleFor(Employee => Employee.Person.Gender)
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Matches(@"^[mfMF]{1}$")
+                .WithMessage($"{{PropertyName}} must be one of these values: 'M', 'm', 'F', 'f'");
+            
 
             Unless(e => e.Person.ServiceComputationDateLeave.Equals(null), () =>
             {
@@ -85,40 +88,47 @@ namespace HRUpdate.Validation
                     .WithMessage($"{{PropertyName}} must be a valid date");
             });
 
-            //FERO is nullable bool
-            //RuleFor(Employee => Employee.Person.FederalEmergencyResponseOfficial)
+            RuleFor(Employee => Employee.Person.FederalEmergencyResponseOfficial)
+                .NotNull()
+                .WithMessage($"{{PropertyName}} is required");
 
-            //LEO is nullable bool
-            //RuleFor(Employee => Employee.Person.LawEnforcementOfficer)
+            RuleFor(Employee => Employee.Person.LawEnforcementOfficer)
+                .NotNull()
+                .WithMessage($"{{PropertyName}} is required");
 
             RuleFor(Employee => Employee.Person.Region)
-                .Length(0, 3)
-                .WithMessage($"{{PropertyName}} length must be 0-3");
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Length(1, 3)
+                .WithMessage($"{{PropertyName}} length must be 1-3");
 
             RuleFor(Employee => Employee.Person.OrganizationCode)
-                .Length(0, 4)
-                .WithMessage($"{{PropertyName}} length must be between 0-4");
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Length(1, 4)
+                .WithMessage($"{{PropertyName}} length must be between 1-4");
 
             RuleFor(Employee => Employee.Person.JobTitle)
                 .Length(0, 70)
                 .WithMessage($"{{PropertyName}} length must be 0-70");
-
-            Unless(Employee => string.IsNullOrEmpty(Employee.Person.HomeEmail), () =>
-            {
-                RuleFor(Employee => Employee.Person.HomeEmail)
+            
+            RuleFor(Employee => Employee.Person.HomeEmail)
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
                 .Length(1, 64)
                 .WithMessage($"{{PropertyName}}l must be between 1-64")
                 .EmailAddress()
                 .WithMessage($"{{PropertyName}} must be a valid email address");
-            });
 
             #endregion Person
 
             #region Address
 
             RuleFor(Employee => Employee.Address.HomeAddress1)
-                .Length(0, 60)
-                .WithMessage($"{{PropertyName}} length must be 0-60");
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Length(1, 60)
+                .WithMessage($"{{PropertyName}} length must be 1-60");
 
             RuleFor(Employee => Employee.Address.HomeAddress2)
                 .Length(0, 60)
@@ -129,65 +139,70 @@ namespace HRUpdate.Validation
                 .WithMessage($"{{PropertyName}} length must be 0-60");
 
             RuleFor(Employee => Employee.Address.HomeCity)
-                .Length(0, 50)
-                .WithMessage($"{{PropertyName}} length must be 0-50");
-
-            Unless(E => string.IsNullOrEmpty(E.Address.HomeState), () =>
-            {
-                RuleFor(Employee => Employee.Address.HomeState)
-                    .Matches(@"^[a-zA-Z]{2}$")
-                    .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");
-            });
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Length(1, 50)
+                .WithMessage($"{{PropertyName}} length must be 1-50");
+            
+            RuleFor(Employee => Employee.Address.HomeState)
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Matches(@"^[a-zA-Z]{2}$")
+                .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");
 
             RuleFor(Employee => Employee.Address.HomeZipCode)
-                .Length(0, 10)
-                .WithMessage($"{{PropertyName}} length must be 0-10");
-
-            Unless(Employee => string.IsNullOrEmpty(Employee.Address.HomeCountry), () =>
-            {
-                RuleFor(Employee => Employee.Address.HomeCountry)
-                    .Matches(@"^[a-zA-Z]{2}$")
-                    .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");
-            });
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Length(1, 10)
+                .WithMessage($"{{PropertyName}} length must be 1-10");
+                        
+            RuleFor(Employee => Employee.Address.HomeCountry)
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Matches(@"^[a-zA-Z]{2}$")
+                .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");
 
             #endregion Address
 
             #region Birth
 
             RuleFor(Employee => Employee.Birth.CityOfBirth)
-                .Length(0, 24)
-                .WithMessage($"{{PropertyName}} length must be 0-24");
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Length(1, 24)
+                .WithMessage($"{{PropertyName}} length must be 1-24");
 
-            Unless(Employee => string.IsNullOrEmpty(Employee.Birth.StateOfBirth), () =>
-            {
-                RuleFor(Employee => Employee.Birth.StateOfBirth)
-                    .Matches(@"^[a-zA-Z]{2}$")
-                    .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");
-            });
+            
+            RuleFor(Employee => Employee.Birth.StateOfBirth)
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Matches(@"^[a-zA-Z]{2}$")
+                .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");
 
-            Unless(Employee => string.IsNullOrEmpty(Employee.Birth.CountryOfBirth), () =>
-            {
-                RuleFor(Employee => Employee.Birth.CountryOfBirth)
-                    .Matches(@"^[a-zA-Z]{2}$")
-                    .WithMessage($"{{PropertyName}}h must be A though Z and 2 characters long");
-            });
+            
+            RuleFor(Employee => Employee.Birth.CountryOfBirth)
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Matches(@"^[a-zA-Z]{2}$")
+                .WithMessage($"{{PropertyName}}h must be A though Z and 2 characters long");
 
-            Unless(Employee => string.IsNullOrEmpty(Employee.Birth.CountryOfCitizenship), () =>
-            {
-                RuleFor(Employee => Employee.Birth.CountryOfCitizenship)
-                    .Matches(@"^[a-zA-Z]{2}$")
-                    .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");                   
-            });
+           
+            RuleFor(Employee => Employee.Birth.CountryOfCitizenship)
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
+                .Matches(@"^[a-zA-Z]{2}$")
+                .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");
 
-            //nullable bool
-            //RuleFor(Employee => Employee.Birth.Citizen)
 
-            Unless(Employee => Employee.Birth.DateOfBirth.Equals(null), () =>
-            {
-                RuleFor(Employee => Employee.Birth.DateOfBirth)
-                    .Must(IsValidDate)
-                    .WithMessage($"{{PropertyName}} must be valid date");
-            });
+            RuleFor(Employee => Employee.Birth.Citizen)
+                .NotNull()
+                .WithMessage($"{{PropertyName}} is required");
+
+            RuleFor(Employee => Employee.Birth.DateOfBirth)
+                .NotNull()
+                .WithMessage($"{{PropertyName}} is required")
+                .Must(IsValidDate)
+                .WithMessage($"{{PropertyName}} must be valid date");
 
             #endregion Birth
 
