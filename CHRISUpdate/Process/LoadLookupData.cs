@@ -49,7 +49,7 @@ namespace HRUpdate.Process
                         using (lookupData)
                         {
                             if (lookupData.HasRows)
-                                lookups = MapEmployeeLookupData(lookupData);
+                                lookups = MapEmployeeLookupData(lookupData);                 
                         }
                     }
                 }
@@ -107,10 +107,28 @@ namespace HRUpdate.Process
         {
             Lookup lookup = new Lookup();
 
+            //lookup_investigation
             while (lookupData.Read())
             {
                 lookup.investigationLookup = lookupMapper.Map<IDataReader, List<InvestigationLookup>>(lookupData);
             }
+
+            //lookup_country
+            lookupData.NextResult();
+
+            while (lookupData.Read())
+            {
+                lookup.countryLookup = lookupMapper.Map<IDataReader, List<CountryLookup>>(lookupData);
+            }
+
+            //lookup_state
+            lookupData.NextResult();
+
+            while (lookupData.Read())
+            {
+                lookup.stateLookup = lookupMapper.Map<IDataReader, List<StateLookup>>(lookupData);
+            }
+
 
             lookupData.NextResult();
 

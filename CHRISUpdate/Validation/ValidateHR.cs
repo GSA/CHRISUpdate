@@ -6,6 +6,7 @@ using HRUpdate.Models;
 using HRUpdate.Process;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace HRUpdate.Validation
 {
@@ -33,6 +34,8 @@ namespace HRUpdate.Validation
         public EmployeeValidator(Lookup lookups)
         {
             string[] investigationTypes = lookups.investigationLookup.Select(e => e.Tier).Distinct().ToArray();
+            string[] stateCodes = lookups.stateLookup.Select(s => s.Code).Distinct().ToArray();
+            string[] countryCodes = lookups.countryLookup.Select(c => c.Code).Distinct().ToArray();
 
             #region Person
 
@@ -143,24 +146,28 @@ namespace HRUpdate.Validation
                 .WithMessage($"{{PropertyName}} is required")
                 .Length(1, 50)
                 .WithMessage($"{{PropertyName}} length must be 1-50");
-            
-            RuleFor(Employee => Employee.Address.HomeState)
-                .NotEmpty()
-                .WithMessage($"{{PropertyName}} is required")
-                .Matches(@"^[a-zA-Z]{2}$")
-                .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");
 
-            RuleFor(Employee => Employee.Address.HomeZipCode)
-                .NotEmpty()
-                .WithMessage($"{{PropertyName}} is required")
-                .Length(1, 10)
-                .WithMessage($"{{PropertyName}} length must be 1-10");
-                        
+            Unless(e => string.IsNullOrEmpty(e.Address.HomeCountry), () =>
+            {
+                When(e => e.Address.HomeCountry.ToLower().Equals("us") ||
+                    e.Address.HomeCountry.ToLower().Equals("ca") ||
+                    e.Address.HomeCountry.ToLower().Equals("mx"), () =>
+                    {
+                        RuleFor(Employee => Employee.Address.HomeState)
+                        .NotEmpty()
+                        .WithMessage($"{{PropertyName}} is required")
+                        .In(stateCodes);
+                    });                
+            });    
+
+            RuleFor(Employee => Employee.Address.HomeZipCode)               
+                .Length(0, 10)
+                .WithMessage($"{{PropertyName}} length must be 0-10");
+
             RuleFor(Employee => Employee.Address.HomeCountry)
                 .NotEmpty()
                 .WithMessage($"{{PropertyName}} is required")
-                .Matches(@"^[a-zA-Z]{2}$")
-                .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");
+                .In(countryCodes);
 
             #endregion Address
 
@@ -172,27 +179,28 @@ namespace HRUpdate.Validation
                 .Length(1, 24)
                 .WithMessage($"{{PropertyName}} length must be 1-24");
 
-            
-            RuleFor(Employee => Employee.Birth.StateOfBirth)
-                .NotEmpty()
-                .WithMessage($"{{PropertyName}} is required")
-                .Matches(@"^[a-zA-Z]{2}$")
-                .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");
+            Unless(e => string.IsNullOrEmpty(e.Birth.CountryOfBirth), () =>
+            {
+                When(e => e.Birth.CountryOfBirth.ToLower().Equals("us") ||
+                    e.Address.HomeCountry.ToLower().Equals("ca") ||
+                    e.Address.HomeCountry.ToLower().Equals("mx"), () =>
+                    {
+                        RuleFor(Employee => Employee.Birth.StateOfBirth)
+                            .NotEmpty()
+                            .WithMessage($"{{PropertyName}} is required")
+                            .In(stateCodes);
+                    });
+            });
 
-            
             RuleFor(Employee => Employee.Birth.CountryOfBirth)
                 .NotEmpty()
                 .WithMessage($"{{PropertyName}} is required")
-                .Matches(@"^[a-zA-Z]{2}$")
-                .WithMessage($"{{PropertyName}}h must be A though Z and 2 characters long");
+                .In(countryCodes);
 
-           
             RuleFor(Employee => Employee.Birth.CountryOfCitizenship)
                 .NotEmpty()
                 .WithMessage($"{{PropertyName}} is required")
-                .Matches(@"^[a-zA-Z]{2}$")
-                .WithMessage($"{{PropertyName}} must be A though Z and 2 characters long");
-
+                .In(countryCodes);
 
             RuleFor(Employee => Employee.Birth.Citizen)
                 .NotNull()
@@ -216,7 +224,8 @@ namespace HRUpdate.Validation
                       .WithMessage($"{{PropertyName}} length must be 1-20");
               });
 
-            Unless(Employee => string.IsNullOrEmpty(Employee.Investigation.TypeOfInvestigation) || Employee.Investigation.DateOfInvestigation == null, () =>
+            Unless(Employee => string.IsNullOrEmpty(Employee.Investigation.TypeOfInvestigation) || 
+                        Employee.Investigation.DateOfInvestigation == null, () =>
             {
                 RuleFor(Employee => Employee.Investigation.TypeOfInvestigation)
                     .NotEmpty()
@@ -486,6 +495,17 @@ namespace HRUpdate.Validation
             return libphonenumber.PhoneNumberUtil.Instance.IsPossibleNumber(phoneNumber, "US");
         }
 
+        public bool IsValidPhoneNumber_Alt(string phoneNumber)
+        {
+            bool valid = Regex.IsMatch(phoneNumber, @"^[0-9]{3}[ /]{1}[0-9]{3}[-]{0,1}[0-9]{4}$");
+
+            if (!valid)
+            {
+                valid = libphonenumber.PhoneNumberUtil.Instance.IsPossibleNumber(phoneNumber, "US");
+            }
+            return valid;
+        }
+
         /// <summary>
         /// Checks if date given can be parsed into datetime
         /// </summary>
@@ -521,5 +541,8 @@ namespace HRUpdate.Validation
                 .Must(validOptions.Contains)
                 .WithMessage($"{{PropertyName}} must be one of these values: {formatted}");
         }
+
+        
+
     }
 }

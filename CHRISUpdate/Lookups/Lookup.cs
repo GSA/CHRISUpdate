@@ -9,5 +9,9 @@ namespace HRUpdate.Lookups
         public List<InvestigationLookup> investigationLookup { get; set; }
 
         public List<SeparationLookup> separationLookup { get; set; }
+
+        public List<CountryLookup> countryLookup { get; set; }
+
+        public List<StateLookup> stateLookup { get; set; }
     }
 }
