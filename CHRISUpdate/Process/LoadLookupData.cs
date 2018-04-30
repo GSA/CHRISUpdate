@@ -127,15 +127,7 @@ namespace HRUpdate.Process
             while (lookupData.Read())
             {
                 lookup.stateLookup = lookupMapper.Map<IDataReader, List<StateLookup>>(lookupData);
-            }
-
-
-            lookupData.NextResult();
-
-            while (lookupData.Read())
-            {
-                lookup.separationLookup = lookupMapper.Map<IDataReader, List<SeparationLookup>>(lookupData);
-            }
+            }           
 
             return lookup;
         }

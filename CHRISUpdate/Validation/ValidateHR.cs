@@ -541,8 +541,5 @@ namespace HRUpdate.Validation
                 .Must(validOptions.Contains)
                 .WithMessage($"{{PropertyName}} must be one of these values: {formatted}");
         }
-
-        
-
     }
 }
