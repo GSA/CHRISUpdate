@@ -33,7 +33,7 @@ namespace HRUpdate.Validation
     {
         public EmployeeValidator(Lookup lookups)
         {
-            string[] investigationTypes = lookups.investigationLookup.Select(e => e.Tier).Distinct().ToArray();
+            string[] investigationTypes = lookups.investigationLookup.Select(e => e.Code).Distinct().ToArray();
             string[] stateCodes = lookups.stateLookup.Select(s => s.Code).Distinct().ToArray();
             string[] countryCodes = lookups.countryLookup.Select(c => c.Code).Distinct().ToArray();
 

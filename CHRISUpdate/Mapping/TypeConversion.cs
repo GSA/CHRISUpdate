@@ -27,7 +27,7 @@ namespace HRUpdate.Mapping
                     return false;
 
                 default:
-                    return null;
+                    return false;
             }
         }
     }
@@ -54,9 +54,8 @@ namespace HRUpdate.Mapping
 
                 case "0":
                     return false;
-
                 default:
-                    return null;
+                    return false;
             }
         }
     }
@@ -72,9 +71,8 @@ namespace HRUpdate.Mapping
 
                 case "0":
                     return false;
-
                 default:
-                    return null;
+                    return false;
             }
         }
     }
