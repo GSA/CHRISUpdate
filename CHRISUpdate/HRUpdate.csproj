@@ -109,8 +109,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Lookups\CountryLookup.cs" />
     <Compile Include="Lookups\InvestigationLookup.cs" />
     <Compile Include="Lookups\SeparationLookup.cs" />
+    <Compile Include="Lookups\StateLookup.cs" />
     <Compile Include="Mapping\Constants.cs" />
     <Compile Include="Mapping\EmployeeMapping.cs" />
     <Compile Include="Mapping\HRMapper.cs" />
