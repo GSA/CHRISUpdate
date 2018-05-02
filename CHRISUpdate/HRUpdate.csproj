@@ -143,6 +143,7 @@
     <Compile Include="Utilities\Helpers.cs" />
     <Compile Include="Validation\ValidateSeparation.cs" />
     <Compile Include="Validation\ValidateHR.cs" />
+    <Compile Include="Validation\ValidatorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
