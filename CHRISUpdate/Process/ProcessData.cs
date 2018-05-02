@@ -492,8 +492,7 @@ namespace HRUpdate.Process
             CsvReader csvReader = new CsvReader(csvParser);
 
             csvReader.Configuration.Delimiter = "~";
-            csvReader.Configuration.HasHeaderRecord = false;
-            //csvReader.Configuration.TypeConverterOptionsCache.GetOptions<DateTime>().Formats = new[] { "yyyy-MM-dd" };
+            csvReader.Configuration.HasHeaderRecord = false;            
 
             csvReader.Configuration.RegisterClassMap<TMap>();
 
