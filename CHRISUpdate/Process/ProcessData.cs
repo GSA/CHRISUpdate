@@ -469,7 +469,7 @@ namespace HRUpdate.Process
 
             foreach (var rule in failures)
             {
-                errors.Append(rule.ErrorMessage);
+                errors.Append(rule.ErrorMessage.Remove(0,rule.ErrorMessage.IndexOf('.')+2));
                 errors.Append(",");
             }
 

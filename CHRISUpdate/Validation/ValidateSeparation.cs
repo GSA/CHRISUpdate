@@ -49,16 +49,5 @@ namespace HRUpdate.Validation
                 .WithMessage($"{{PropertyName}} is not null")
                 .ValidDate();
         }
-    }
-
-    public static class SeparationValidatorExtensions
-    {
-        public static IRuleBuilderOptions<T, TProperty> ValidDate<T, TProperty>(this IRuleBuilder<T, TProperty> ruleBuilder)
-        {
-            DateTime date;
-            return ruleBuilder
-                .Must(e => DateTime.TryParse(e.ToString(), out date))
-                .WithMessage($"{{PropertyName}} must be a valid date");
-        }
-    }
+    }    
 }
