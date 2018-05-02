@@ -9,7 +9,7 @@ namespace HRUpdate.Mapping
         {
             Map(m => m.EmployeeID).Index(SeparationConstants.EMPLOYEE_ID);
             Map(m => m.SeparationCode).Index(SeparationConstants.SEPARATION_CODE);
-            Map(m => m.SeparationDate).Index(SeparationConstants.SEPARATION_DATE);
+            Map(m => m.SeparationDate).Index(SeparationConstants.SEPARATION_DATE).TypeConverter<DateConverter>();
         }
     }
 }

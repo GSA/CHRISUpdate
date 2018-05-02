@@ -63,7 +63,7 @@ namespace HRUpdate.Mapping
             Map(m => m.CountryOfBirth).Index(HRConstants.BIRTH_COUNTRY);
             Map(m => m.CountryOfCitizenship).Index(HRConstants.COUNTRY_OF_CITIZENSHIP);
             Map(m => m.Citizen).Index(HRConstants.CITIZEN);
-            Map(m => m.DateOfBirth).Index(HRConstants.DATE_OF_BIRTH);
+            Map(m => m.DateOfBirth).Index(HRConstants.DATE_OF_BIRTH).TypeConverter<DateConverter>();
         }
     }
 
@@ -80,7 +80,7 @@ namespace HRUpdate.Mapping
             Map(m => m.PayGrade).Index(HRConstants.LEVEL_GRADE);
             Map(m => m.WorkSchedule).Index(HRConstants.WORK_SCHEDULE);
             Map(m => m.PositionTeleworkEligibility).Index(HRConstants.POSITION_TELEWORK_ELIGIBLE).TypeConverter<PositionTeleworkEligibilityConverter>();
-            Map(m => m.PositionStartDate).Index(HRConstants.POSITION_START_DATE);
+            Map(m => m.PositionStartDate).Index(HRConstants.POSITION_START_DATE).TypeConverter<DateConverter>();
             Map(m => m.DutyLocationCode).Index(HRConstants.DUTY_LOCATION_CODE);
             Map(m => m.DutyLocationCity).Index(HRConstants.DUTY_LOCATION_CITY);
             Map(m => m.DutyLocationState).Index(HRConstants.DUTY_LOCATION_STATE);
@@ -124,12 +124,12 @@ namespace HRUpdate.Mapping
         {
             Map(m => m.PriorInvestigation).Index(HRConstants.PRIOR_INVESTIGATION);
             Map(m => m.TypeOfInvestigation).Index(HRConstants.INVESTIGATION_TYPE);
-            Map(m => m.DateOfInvestigation).Index(HRConstants.DATE_OF_INVESTIGATION);
+            Map(m => m.DateOfInvestigation).Index(HRConstants.DATE_OF_INVESTIGATION).TypeConverter<DateConverter>();
             Map(m => m.TypeOfInvestigationToRequest).Index(HRConstants.INVESTIGATION_TYPE_REQUESTED);
             Map(m => m.InitialResult).Index(HRConstants.INITIAL_RESULT_FINAL_OFFER).TypeConverter<InvistigationResultConverter>();
-            Map(m => m.InitialResultDate).Index(HRConstants.INITIAL_RESULT_FINAL_DATE);
+            Map(m => m.InitialResultDate).Index(HRConstants.INITIAL_RESULT_FINAL_DATE).TypeConverter<DateConverter>();
             Map(m => m.FinalResult).Index(HRConstants.FINAL_RESULT_OFFER).TypeConverter<InvistigationResultConverter>();
-            Map(m => m.FinalResultDate).Index(HRConstants.FINAL_RESULT_DATE);
+            Map(m => m.FinalResultDate).Index(HRConstants.FINAL_RESULT_DATE).TypeConverter<DateConverter>();
             Map(m => m.AdjudicatorEmployeeID).Index(HRConstants.ADJUDICATION_EMPLOYEE_ID);
         }
     }
@@ -138,8 +138,8 @@ namespace HRUpdate.Mapping
     {
         public DetailMap()
         {
-            Map(m => m.DetailBeginDate).Index(HRConstants.DETAIL_BEGIN_DATE);
-            Map(m => m.DetialEndDate).Index(HRConstants.DETAIL_END_DATE);
+            Map(m => m.DetailBeginDate).Index(HRConstants.DETAIL_BEGIN_DATE).TypeConverter<DateConverter>();
+            Map(m => m.DetialEndDate).Index(HRConstants.DETAIL_END_DATE).TypeConverter<DateConverter>();
             Map(m => m.DetailPositionControlNumber).Index(HRConstants.DETAIL_POSITION_CONTROL_NUMBER);
             Map(m => m.DetailPositionTitle).Index(HRConstants.DETAIL_POSITION_TITLE);
             Map(m => m.DetailOrganizationCode).Index(HRConstants.DETAIL_ORGANIZATION_CODE);

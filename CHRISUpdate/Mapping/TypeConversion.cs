@@ -1,6 +1,8 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
+using System;
+using System.Globalization;
 
 namespace HRUpdate.Mapping
 {
@@ -74,6 +76,19 @@ namespace HRUpdate.Mapping
                 default:
                     return false;
             }
+        }
+    }
+
+    internal sealed class DateConverter : DateTimeConverter
+    {
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        {
+            DateTime dt;
+
+            if (DateTime.TryParse(text, out dt))            
+                return dt;
+            else
+                return null;
         }
     }
 }
