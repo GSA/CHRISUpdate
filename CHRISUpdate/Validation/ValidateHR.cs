@@ -566,7 +566,7 @@ namespace HRUpdate.Validation
             return ruleBuilder
                 .Must(validOptions.Contains)
                 //.WithMessage($"{{PropertyName}} must be one of these values: {formatted}");
-                .WithMessage("{PropertyValue} is not valid for {PropertyName}");
+                .WithMessage($"{{PropertyValue}}");
         }
     }
 }
