@@ -26,4 +26,14 @@ namespace HRUpdate.Mapping
             Map(m => m.Action).Name("Action");
         }
     }
+
+    internal sealed class NameChangeSummaryMapping: ClassMap<NameChangeSummary>
+    {
+        public NameChangeSummaryMapping()
+        {
+            Map(m => m.GCIMSID).Name("GCIMS ID");
+            Map(m => m.FirstName).Name("First Name");
+            Map(m => m.LastName).Name("Last Name");
+        }
+    }
 }

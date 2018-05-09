@@ -20,6 +20,13 @@ namespace HRUpdate.Models
         public string Action { get; set; }
     }
 
+    internal class NameChangeSummary
+    {
+        public Int64 GCIMSID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+
     internal class EMailData
     {
         public string HRFilename { get; set; }
