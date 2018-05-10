@@ -25,7 +25,6 @@ namespace HRUpdate.Process
         private readonly SaveData save;
 
         private readonly EMailData emailData = new EMailData();
-        private readonly Helpers helper = new Utilities.Helpers();
 
         //Constructor
         public ProcessData(IMapper saveMappper)
@@ -60,6 +59,7 @@ namespace HRUpdate.Process
                 List<Employee> usersToProcess;
                 List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
+                List<SocialSecurityNumberChangeSummary> socialSecurityNumberChange = new List<SocialSecurityNumberChangeSummary>();
 
                 ValidateHR validate = new ValidateHR();
                 ValidationResult errors;
@@ -75,15 +75,15 @@ namespace HRUpdate.Process
                     //Validate Record If Valid then process record
                     errors = validate.ValidateEmployeeInformation(employeeData);
 
-                    if (errors.IsValid)
+                    if (!errors.IsValid)
                     {
-                        personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, helper.HashSSN(employeeData.Person.SocialSecurityNumber), employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
+                        personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, employeeData.Person.SocialSecurityNumber, employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
 
                         int personID = personResults.Item1;
-
+                        
                         if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item5, employeeData))
                         {
-                            log.Info("Updating Record:" + personResults.Item1);
+                            log.Info("Trying To Update Record:" + personResults.Item1);
 
                             updatedResults = save.UpdatePersonInformation(personResults.Item1, employeeData);
 
@@ -184,7 +184,7 @@ namespace HRUpdate.Process
                 log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
                 log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
 
-                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed);
+                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed, socialSecurityNumberChange);
             }
             //Catch all errors
             catch (Exception ex)
@@ -307,7 +307,7 @@ namespace HRUpdate.Process
         /// </summary>
         /// <param name="processedSuccessSummary"></param>
         /// <param name="processedErrorSummary"></param>
-        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary)
+        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary, List<SocialSecurityNumberChangeSummary> socialSecurityNumberChangeSummary)
         {
             if (usersProcessedSuccessSummary.Count > 0)
             {
@@ -319,6 +319,12 @@ namespace HRUpdate.Process
             {
                 emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
                 log.Info("HR Error File: " + emailData.HRErrorSummaryFilename);
+            }
+
+            if (socialSecurityNumberChangeSummary.Count > 0)
+            {
+                emailData.HRSocialSecurityNumberChangeSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SocialSecurityNumberChangeSummary, SocialSecurityNumberChangeSummaryMapping>(ConfigurationManager.AppSettings["SOCIALSECURITYNUMBERCHANGEFILENAME"].ToString(), socialSecurityNumberChangeSummary);
+                log.Info("HR Social Security Number Change File: " + emailData.HRSocialSecurityNumberChangeSummaryFilename);
             }
         }
 

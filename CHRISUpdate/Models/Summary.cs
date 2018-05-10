@@ -47,6 +47,7 @@ namespace HRUpdate.Models
 
         public string HRSuccessfulSummaryFilename { get; set; }
         public string HRErrorSummaryFilename { get; set; }
+        public string HRSocialSecurityNumberChangeSummaryFilename { get; set; }
 
         public bool HRHasErrors { get; set; }
 

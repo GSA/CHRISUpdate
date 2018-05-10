@@ -24,7 +24,7 @@ namespace HRUpdate.Process
             saveMapper = mapper;
         }
 
-        public Tuple<int, int, string, string, Employee> GetGCIMSRecord(string employeeID, byte[] ssn, string lastName, string dateOfBirth)
+        public Tuple<int, int, string, string, Employee> GetGCIMSRecord(string employeeID, string ssn, string lastName, string dateOfBirth)
         {
             try
             {
@@ -42,7 +42,7 @@ namespace HRUpdate.Process
                         cmd.Parameters.Clear();
                         MySqlParameter[] personParameters = new MySqlParameter[]
                         {
-                            new MySqlParameter { ParameterName = "ssn", Value = ssn, MySqlDbType = MySqlDbType.VarBinary, Size = 32},
+                            new MySqlParameter { ParameterName = "ssn", Value = ssn, MySqlDbType = MySqlDbType.VarChar, Size = 9},
                             new MySqlParameter { ParameterName = "lastName", Value = lastName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
                             new MySqlParameter { ParameterName = "dateOfBirth", Value = dateOfBirth, MySqlDbType = MySqlDbType.VarChar, Size = 10},
                             new MySqlParameter { ParameterName = "emplID", Value = employeeID, MySqlDbType = MySqlDbType.VarChar, Size = 12 },
