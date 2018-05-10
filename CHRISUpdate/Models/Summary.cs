@@ -23,6 +23,15 @@ namespace HRUpdate.Models
     internal class NameChangeSummary
     {
         public Int64 GCIMSID { get; set; }
+        public string EmployeeID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+    }
+
+    internal class SocialSecurityNumberChangeSummary
+    {
+        public Int64 GCIMSID { get; set; }
+        public string EmployeeID { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
     }

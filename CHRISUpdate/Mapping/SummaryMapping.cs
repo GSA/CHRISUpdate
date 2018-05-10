@@ -32,6 +32,18 @@ namespace HRUpdate.Mapping
         public NameChangeSummaryMapping()
         {
             Map(m => m.GCIMSID).Name("GCIMS ID");
+            Map(m => m.EmployeeID).Name("Employee ID");
+            Map(m => m.FirstName).Name("First Name");
+            Map(m => m.LastName).Name("Last Name");
+        }
+    }
+
+    internal sealed class SocialSecurityNumberChangeSummaryMapping: ClassMap<SocialSecurityNumberChangeSummary>
+    {
+        public SocialSecurityNumberChangeSummaryMapping()
+        {
+            Map(m => m.GCIMSID).Name("GCIMS ID");
+            Map(m => m.EmployeeID).Name("Employee ID");
             Map(m => m.FirstName).Name("First Name");
             Map(m => m.LastName).Name("Last Name");
         }
