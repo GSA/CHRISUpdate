@@ -9,6 +9,7 @@ namespace HRUpdate.Models
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
+        public string Status { get; set; }
         public string Action { get; set; }
     }
 
@@ -27,6 +28,7 @@ namespace HRUpdate.Models
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
+        public string Status { get; set; }
     }
 
     internal class SocialSecurityNumberChangeSummary
@@ -36,6 +38,7 @@ namespace HRUpdate.Models
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
+        public string Status { get; set; }
     }
 
     internal class InactiveSummary
@@ -45,6 +48,7 @@ namespace HRUpdate.Models
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
+        public string Status { get; set; }
     }
 
     internal class EMailData

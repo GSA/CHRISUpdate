@@ -82,7 +82,21 @@ namespace HRUpdate.Process
 
                         int personID = personResults.Item1;
 
-                        if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item5, employeeData))
+                        Employee gcimsData = personResults.Item5;
+
+                        if (gcimsData.Person.Status == "Inactive")
+                        {
+                            inactive.Add(new InactiveSummary
+                            {
+                                GCIMSID = personID,
+                                EmployeeID = employeeData.Person.EmployeeID,
+                                FirstName = gcimsData.Person.FirstName,
+                                MiddleName = gcimsData.Person.MiddleName,
+                                LastName = gcimsData.Person.LastName
+                            });
+                        }
+
+                        if (personID > 0 && !AreEqualGCIMSToHR(gcimsData, employeeData))
                         {
                             log.Info("Trying To Update Record:" + personResults.Item1);
 
@@ -97,7 +111,7 @@ namespace HRUpdate.Process
                                          s =>
                                              new ProcessedSummary
                                              {
-                                                 GCIMSID = personResults.Item1,
+                                                 GCIMSID = personID,
                                                  EmployeeID = s.Person.EmployeeID,
                                                  FirstName = s.Person.FirstName,
                                                  MiddleName = s.Person.MiddleName,
@@ -119,7 +133,7 @@ namespace HRUpdate.Process
                                          s =>
                                              new ProcessedSummary
                                              {
-                                                 GCIMSID = personResults.Item1,
+                                                 GCIMSID = personID,
                                                  EmployeeID = s.Person.EmployeeID,
                                                  FirstName = s.Person.FirstName,
                                                  MiddleName = s.Person.MiddleName,
@@ -140,7 +154,7 @@ namespace HRUpdate.Process
                                          s =>
                                              new ProcessedSummary
                                              {
-                                                 GCIMSID = personResults.Item1,
+                                                 GCIMSID = personID,
                                                  EmployeeID = s.Person.EmployeeID,
                                                  FirstName = s.Person.FirstName,
                                                  MiddleName = s.Person.MiddleName,
