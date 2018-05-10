@@ -26,6 +26,8 @@ namespace HRUpdate.Process
 
         private readonly EMailData emailData = new EMailData();
 
+        private readonly Helpers helper = new Helpers();
+
         //Constructor
         public ProcessData(IMapper saveMappper)
         {
@@ -95,6 +97,8 @@ namespace HRUpdate.Process
                                 LastName = gcimsData.Person.LastName
                             });
                         }
+
+                        helper.CopyValues<Employee>(employeeData, gcimsData);
 
                         if (personID > 0 && !AreEqualGCIMSToHR(gcimsData, employeeData))
                         {
@@ -502,6 +506,8 @@ namespace HRUpdate.Process
 
             return errors.ToString();
         }
+
+        
 
         /// <summary>
         /// Takes a file and loads the data into the object type specified using the mapping
