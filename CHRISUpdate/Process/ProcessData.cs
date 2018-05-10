@@ -73,7 +73,7 @@ namespace HRUpdate.Process
                 foreach (Employee employeeData in usersToProcess)
                 {
                     //Validate Record If Valid then process record
-                    errors = validate.ValidateEmployeeInformation(employeeData);
+                    errors = validate.ValidateEmployeeCriticalInfo(employeeData);
 
                     if (errors.IsValid)
                     {

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace HRUpdate.Validation
@@ -39,5 +40,34 @@ namespace HRUpdate.Validation
                 .Must(e => DateTime.TryParse(e.ToString(), out date))
                 .WithMessage("{PropertyName} must be a valid date");
         }        
+
+        public static IRuleBuilderOptions<T, TProperty> ValidPhone<T, TProperty>(this IRuleBuilder<T, TProperty> rulebuilder)
+        {
+            return rulebuilder
+                 .Must(e => IsValidPhoneNumber_Alt(e.ToString()))
+                 .WithMessage("{PropertyName} submitted is not valid");
+        }
+
+        private static bool IsValidPhoneNumber_Alt(string phoneNumber)
+        {
+            bool valid = Regex.IsMatch(phoneNumber, @"^[0-9]{3}[/]{1}[0-9]{3}[-]{1}[0-9]{4}$");
+
+            if (!valid)
+            {
+                valid = libphonenumber.PhoneNumberUtil.Instance.IsPossibleNumber(phoneNumber, "US");
+            }
+            return valid;
+        }
+
+        /// <summary>
+        /// Uses google libphonenumber api to validate phone number
+        /// </summary>
+        /// <param name="phoneNumber"></param>
+        /// <returns></returns>
+        private static  bool IsValidPhoneNumber(string phoneNumber)
+        {
+            return libphonenumber.PhoneNumberUtil.Instance.IsPossibleNumber(phoneNumber, "US");
+        }       
+
     }
 }

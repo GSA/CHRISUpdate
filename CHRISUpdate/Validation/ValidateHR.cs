@@ -21,17 +21,178 @@ namespace HRUpdate.Validation
             lookups = new LoadLookupData(map.CreateLookupMapping()).GetEmployeeLookupData();
         }
 
-        public ValidationResult ValidateEmployeeInformation(Employee employeeInformation)
+        public ValidationResult ValidateEmployeeCriticalInfo(Employee employeeInformation)
         {
-            EmployeeValidator validator = new EmployeeValidator(lookups);
+            EmployeeCriticalErrorValidator validator = new EmployeeCriticalErrorValidator(lookups);
+
+            return validator.Validate(employeeInformation);
+        }
+
+        public ValidationResult validateEmployeeNonCriticalInfo(Employee employeeInformation)
+        {
+            EmployeeNonCriticalErrorValidator validator = new EmployeeNonCriticalErrorValidator(lookups);
 
             return validator.Validate(employeeInformation);
         }
     }
 
-    internal class EmployeeValidator : AbstractValidator<Employee>
+    internal class EmployeeNonCriticalErrorValidator : AbstractValidator<Employee>
     {
-        public EmployeeValidator(Lookup lookups)
+        public EmployeeNonCriticalErrorValidator(Lookup lookups)
+        {
+            CascadeMode = CascadeMode.StopOnFirstFailure;
+
+            string[] investigationTypes = lookups.investigationLookup.Select(e => e.Code).Distinct().ToArray();
+            string[] stateCodes = lookups.stateLookup.Select(s => s.Code).Distinct().ToArray();
+            string[] countryCodes = lookups.countryLookup.Select(c => c.Code).Distinct().ToArray();
+
+            Unless(e => string.IsNullOrEmpty(e.Person.Gender), () =>
+            {
+                RuleFor(Employee => Employee.Person.Gender)               
+                    .Matches(@"^[mfMF]{1}$")
+                    .WithMessage($"{{PropertyName}} must be one of these values: 'M', 'm', 'F', 'f'");
+            });
+
+            RuleFor(Employee => Employee.Person.HomeEmail)               
+               .EmailAddress()
+               .WithMessage($"{{PropertyName}} must be a valid email address");
+
+            Unless(Employee => string.IsNullOrEmpty(Employee.Investigation.TypeOfInvestigation) &&
+                        Employee.Investigation.DateOfInvestigation == null, () =>
+                        {
+                            RuleFor(Employee => Employee.Investigation.TypeOfInvestigation)
+                                .NotEmpty()
+                                .WithMessage($"{{PropertyName}} cannot be null when Date of investigation is not null")
+                                .In(investigationTypes)
+                                .MaximumLength(20)
+                                .WithMessage($"{{PropertyName}} length must be 0-20");
+
+                            RuleFor(Employee => Employee.Investigation.DateOfInvestigation)
+                                .NotEmpty()
+                                .WithMessage($"{{PropertyName}}n cannot be null when Type of investigation is not null")
+                                .ValidDate()
+                                .WithMessage($"{{PropertyName}} must be a valid date");
+                        });
+
+            When(Employee => Employee.Investigation.InitialResult != null && Employee.Investigation.InitialResultDate != null, () =>
+            {
+                RuleFor(Employee => Employee.Investigation.InitialResult)
+                    .NotNull()
+                    .WithMessage($"{{PropertyName}} cannot be null when Initial result date is not null");
+
+                RuleFor(Employee => Employee.Investigation.InitialResultDate)
+                    .NotNull()
+                    .WithMessage($"{{PropertyName}} cannot be null when initial result is not null")
+                    .ValidDate()
+                    .WithMessage($"{{PropertyName}} must be a valid date");
+            });
+
+            When(Employee => Employee.Investigation.FinalResult != null && Employee.Investigation.FinalResultDate != null, () =>
+            {
+                RuleFor(Employee => Employee.Investigation.FinalResult)
+                    .NotNull()
+                    .WithMessage($"{{PropertyName}} cannot be null when Final result date is not null");
+
+                RuleFor(Employee => Employee.Investigation.FinalResultDate)
+                    .NotNull()
+                    .WithMessage($"{{PropertyName}} cannot be null when Final result is not null")
+                    .ValidDate()
+                    .WithMessage($"{{PropertyName}} must be a valid date");
+            });
+
+            Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.EmergencyContactHomePhone), () =>
+            {
+                RuleFor(Employee => Employee.Emergency.EmergencyContactHomePhone)                
+                .ValidPhone()
+                .WithMessage($"{{PropertyName}} must be a valid phone number");
+            });
+
+            Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.EmergencyContactWorkPhone), () =>
+            {
+                RuleFor(Employee => Employee.Emergency.EmergencyContactWorkPhone)              
+                .ValidPhone()
+                .WithMessage($"{{PropertyName}} must be a valid phone number");
+            });
+
+            Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.EmergencyContactCellPhone), () =>
+            {
+                RuleFor(Employee => Employee.Emergency.EmergencyContactCellPhone)
+               .ValidPhone()
+                .WithMessage($"{{PropertyName}} must be a valid phone number");
+            });         
+
+            Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.OutOfAreaContactHomePhone), () =>
+            {
+                RuleFor(Employee => Employee.Emergency.OutOfAreaContactHomePhone)
+                .ValidPhone()
+                .WithMessage($"{{PropertyName}} must be a valid phone number");
+            });
+
+            Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.OutOfAreaContactWorkPhone), () =>
+            {
+                RuleFor(Employee => Employee.Emergency.OutOfAreaContactWorkPhone)
+               .ValidPhone()
+                .WithMessage($"{{PropertyName}} must be a valid phone number");
+            });
+
+            Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.OutOfAreaContactCellPhone), () =>
+            {
+                RuleFor(Employee => Employee.Emergency.OutOfAreaContactCellPhone)
+               .ValidPhone()
+                .WithMessage($"{{PropertyName}} must be a valid phone number");
+            });
+
+            Unless(e => string.IsNullOrEmpty(e.Phone.HomePhone), () =>
+            {
+                RuleFor(Employee => Employee.Phone.HomePhone)
+             .ValidPhone()
+                .WithMessage($"{{PropertyName}} must be a valid phone number");
+            });
+
+            Unless(e => string.IsNullOrEmpty(e.Phone.HomeCell), () =>
+            {
+                RuleFor(Employee => Employee.Phone.HomeCell)
+              .ValidPhone()
+                .WithMessage($"{{PropertyName}} must be a valid phone number");
+            });
+
+            Unless(e => string.IsNullOrEmpty(e.Phone.WorkPhone), () =>
+            {
+                RuleFor(Employee => Employee.Phone.WorkPhone)
+                 .ValidPhone()
+                .WithMessage($"{{PropertyName}} must be a valid phone number");
+            });
+
+            Unless(e => string.IsNullOrEmpty(e.Phone.WorkFax), () =>
+            {
+                RuleFor(Employee => Employee.Phone.WorkFax)
+                .ValidPhone()
+                .WithMessage($"{{PropertyName}} must be a valid phone number");
+            });
+
+            Unless(e => string.IsNullOrEmpty(e.Phone.WorkCell), () =>
+            {
+                RuleFor(Employee => Employee.Phone.WorkCell)
+              .ValidPhone()
+                .WithMessage($"{{PropertyName}} must be a valid phone number");
+            });
+
+            Unless(e => string.IsNullOrEmpty(e.Phone.WorkTextTelephone), () =>
+            {
+                RuleFor(Employee => Employee.Phone.WorkTextTelephone)
+              .ValidPhone()
+                .WithMessage($"{{PropertyName}} must be a valid phone number");
+            });
+
+            RuleFor(Employee => Employee.Position.SupervisorEmployeeID)
+                .NotNull()
+                .WithMessage($"{{PropertyName}} should be set to 0's if it is null");
+        }
+    }
+
+    internal class EmployeeCriticalErrorValidator : AbstractValidator<Employee>
+    {
+        public EmployeeCriticalErrorValidator(Lookup lookups)
         {
             CascadeMode = CascadeMode.StopOnFirstFailure;
 
@@ -80,20 +241,12 @@ namespace HRUpdate.Validation
                 .Length(9)
                 .WithMessage($"{{PropertyName}} length must be 9");
 
-            Unless(e => string.IsNullOrEmpty(e.Person.Gender), ()=> 
-            {
-                RuleFor(Employee => Employee.Person.Gender)
-                //.NotEmpty()
-                //.WithMessage($"{{PropertyName}} is required")
-                .Matches(@"^[mfMF]{1}$")
-                .WithMessage($"{{PropertyName}} must be one of these values: 'M', 'm', 'F', 'f'");
-            });
+           
                         
             Unless(e => e.Person.ServiceComputationDateLeave.Equals(null), () =>
             {
                 RuleFor(Employee => Employee.Person.ServiceComputationDateLeave)
-                    .Must(IsValidDate)
-                    .WithMessage($"{{PropertyName}} must be a valid date");
+                    .ValidDate();
             });
 
             //RuleFor(Employee => Employee.Person.FederalEmergencyResponseOfficial)
@@ -169,7 +322,7 @@ namespace HRUpdate.Validation
 
             RuleFor(Employee => Employee.Address.HomeZipCode)               
                 .MaximumLength(10)
-                .WithMessage($"{{PropertyName}} length must be 0-10");0
+                .WithMessage($"{{PropertyName}} length must be 0-10");
 
             Unless(e => string.IsNullOrEmpty(e.Address.HomeCountry), () =>
             {
@@ -232,7 +385,7 @@ namespace HRUpdate.Validation
                 RuleFor(Employee => Employee.Birth.DateOfBirth)
                 //.NotNull()
                 //.WithMessage($"{{PropertyName}} is required")
-                .Must(IsValidDate)
+                .ValidDate()
                 .WithMessage($"{{PropertyName}} must be valid date");
             });
             
@@ -250,22 +403,7 @@ namespace HRUpdate.Validation
                       .WithMessage($"{{PropertyName}} length must be 0-20");
               });
 
-            Unless(Employee => string.IsNullOrEmpty(Employee.Investigation.TypeOfInvestigation) && 
-                        Employee.Investigation.DateOfInvestigation == null, () =>
-            {
-                RuleFor(Employee => Employee.Investigation.TypeOfInvestigation)
-                    .NotEmpty()
-                    .WithMessage($"{{PropertyName}} cannot be null when Date of investigation is not null")
-                    .In(investigationTypes)
-                    .MaximumLength(20)
-                    .WithMessage($"{{PropertyName}} length must be 0-20");
-
-                RuleFor(Employee => Employee.Investigation.DateOfInvestigation)
-                    .NotEmpty()
-                    .WithMessage($"{{PropertyName}}n cannot be null when Type of investigation is not null")
-                    .Must(IsValidDate)
-                    .WithMessage($"{{PropertyName}} must be a valid date");
-            });
+            
 
             Unless(e => string.IsNullOrEmpty(e.Investigation.TypeOfInvestigationToRequest), () =>
             {
@@ -275,31 +413,7 @@ namespace HRUpdate.Validation
                     .WithMessage($"{{PropertyName}} length must be 0-12");
             });
 
-            When(Employee => Employee.Investigation.InitialResult != null && Employee.Investigation.InitialResultDate != null, () =>
-            {
-                RuleFor(Employee => Employee.Investigation.InitialResult)
-                    .NotNull()
-                    .WithMessage($"{{PropertyName}} cannot be null when Initial result date is not null");
-
-                RuleFor(Employee => Employee.Investigation.InitialResultDate)
-                    .NotNull()
-                    .WithMessage($"{{PropertyName}} cannot be null when initial result is not null")
-                    .Must(IsValidDate)
-                    .WithMessage($"{{PropertyName}} must be a valid date");
-            });
-
-            When(Employee => Employee.Investigation.FinalResult != null && Employee.Investigation.FinalResultDate != null, () =>
-            {
-                RuleFor(Employee => Employee.Investigation.FinalResult)
-                    .NotNull()
-                    .WithMessage($"{{PropertyName}} cannot be null when Final result date is not null");
-
-                RuleFor(Employee => Employee.Investigation.FinalResultDate)
-                    .NotNull()
-                    .WithMessage($"{{PropertyName}} cannot be null when Final result is not null")
-                    .Must(IsValidDate)
-                    .WithMessage($"{{PropertyName}} must be a valid date");
-            });
+           
 
             RuleFor(Employee => Employee.Investigation.AdjudicatorEmployeeID)
                 .MaximumLength(11)
@@ -318,27 +432,21 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Emergency.EmergencyContactHomePhone)
                 .MaximumLength(24)
-                .WithMessage($"{{PropertyName}} length must be 0-24")
-                .Must(IsValidPhoneNumber)
-                .WithMessage($"{{PropertyName}} must be a valid phone number");
+                .WithMessage($"{{PropertyName}} length must be 0-24");               
             });
 
             Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.EmergencyContactWorkPhone), () =>
             {
                 RuleFor(Employee => Employee.Emergency.EmergencyContactWorkPhone)
                 .MaximumLength(24)
-                .WithMessage($"{{PropertyName}} length must be 0-24")
-                .Must(IsValidPhoneNumber)
-                .WithMessage($"{{PropertyName}} must be a valid phone number");
+                .WithMessage($"{{PropertyName}} length must be 0-24");               
             });
 
             Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.EmergencyContactCellPhone), () =>
             {
                 RuleFor(Employee => Employee.Emergency.EmergencyContactCellPhone)
                 .MaximumLength(24)
-                .WithMessage($"{{PropertyName}} length must be 0-24")
-                .Must(IsValidPhoneNumber)
-                .WithMessage($"{{PropertyName}} must be a valid phone number");
+                .WithMessage($"{{PropertyName}} length must be 0-24");             
             });
 
             RuleFor(Employee => Employee.Emergency.OutOfAreaContactName)
@@ -349,27 +457,21 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Emergency.OutOfAreaContactHomePhone)
                 .MaximumLength(24)
-                .WithMessage($"{{PropertyName}} length must be 0-24")
-                .Must(IsValidPhoneNumber)
-                .WithMessage($"{{PropertyName}} must be a valid phone number");
+                .WithMessage($"{{PropertyName}} length must be 0-24");              
             });
 
             Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.OutOfAreaContactWorkPhone), () =>
             {
                 RuleFor(Employee => Employee.Emergency.OutOfAreaContactWorkPhone)
                 .MaximumLength(24)
-                .WithMessage($"{{PropertyName}} length must be 0-24")
-                .Must(IsValidPhoneNumber)
-                .WithMessage($"{{PropertyName}} must be a valid phone number");
+                .WithMessage($"{{PropertyName}} length must be 0-24");             
             });
 
             Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.OutOfAreaContactCellPhone), () =>
             {
                 RuleFor(Employee => Employee.Emergency.OutOfAreaContactCellPhone)
                 .MaximumLength(24)
-                .WithMessage($"{{PropertyName}} length must be 0-24")
-                .Must(IsValidPhoneNumber)
-                .WithMessage($"{{PropertyName}} must be a valid phone number");
+                .WithMessage($"{{PropertyName}} length must be 0-24");             
             });
 
             #endregion Emergency
@@ -436,8 +538,8 @@ namespace HRUpdate.Validation
             Unless(Employee => Employee.Position.PositionStartDate.Equals(null), () =>
             {
                 RuleFor(Employee => Employee.Position.PositionStartDate)
-                .Must(IsValidDate)
-                .WithMessage($"{{PropertyName}} must be a valid date");
+                .ValidDate();
+                
             });
 
             RuleFor(Employee => Employee.Position.AgencyCodeSubelement)
@@ -456,93 +558,53 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Phone.HomePhone)
                 .MaximumLength(24)
-                .WithMessage($"{{PropertyName}} length must be 0-24")
-                .Must(IsValidPhoneNumber)
-                .WithMessage($"{{PropertyName}} must be a valid phone number");
+                .WithMessage($"{{PropertyName}} length must be 0-24");
             });
 
             Unless(e => string.IsNullOrEmpty(e.Phone.HomeCell), () =>
             {
                 RuleFor(Employee => Employee.Phone.HomeCell)
                 .MaximumLength(24)
-                .WithMessage($"{{PropertyName}} length must be 0-24")
-                .Must(IsValidPhoneNumber)
-                .WithMessage($"{{PropertyName}} must be a valid phone number");
+                .WithMessage($"{{PropertyName}} length must be 0-24");
             });
 
             Unless(e => string.IsNullOrEmpty(e.Phone.WorkPhone), () =>
             {
                 RuleFor(Employee => Employee.Phone.WorkPhone)
                 .MaximumLength(24)
-                .WithMessage($"{{PropertyName}} length must be 0-24")
-                .Must(IsValidPhoneNumber)
-                .WithMessage($"{{PropertyName}} must be a valid phone number");
+                .WithMessage($"{{PropertyName}} length must be 0-24");
+              
             });
 
             Unless(e => string.IsNullOrEmpty(e.Phone.WorkFax), () =>
             {
                 RuleFor(Employee => Employee.Phone.WorkFax)
                 .MaximumLength(24)
-                .WithMessage($"{{PropertyName}} length must be 0-24")
-                .Must(IsValidPhoneNumber)
-                .WithMessage($"{{PropertyName}} must be a valid phone number");
+                .WithMessage($"{{PropertyName}} length must be 0-24");
+               
             });
 
             Unless(e => string.IsNullOrEmpty(e.Phone.WorkCell), () =>
             {
                 RuleFor(Employee => Employee.Phone.WorkCell)
                 .MaximumLength(24)
-                .WithMessage($"{{PropertyName}} length must be 0-24")
-                .Must(IsValidPhoneNumber)
-                .WithMessage($"{{PropertyName}} must be a valid phone number");
+                .WithMessage($"{{PropertyName}} length must be 0-24");
+           
             });
 
             Unless(e => string.IsNullOrEmpty(e.Phone.WorkTextTelephone), () =>
             {
                 RuleFor(Employee => Employee.Phone.WorkTextTelephone)
                 .MaximumLength(24)
-                .WithMessage($"{{PropertyName}} length must be 0-24")
-                .Must(IsValidPhoneNumber)
-                .WithMessage($"{{PropertyName}} must be a valid phone number");
+                .WithMessage($"{{PropertyName}} length must be 0-24");
+             
             });
 
             #endregion Phone
 
             //Detail - Not currently needed
         }
-
-        /// <summary>
-        /// Uses google libphonenumber api to validate phone number
-        /// </summary>
-        /// <param name="phoneNumber"></param>
-        /// <returns></returns>
-        public bool IsValidPhoneNumber(string phoneNumber)
-        {
-            return libphonenumber.PhoneNumberUtil.Instance.IsPossibleNumber(phoneNumber, "US");
-        }
-
-        public bool IsValidPhoneNumber_Alt(string phoneNumber)
-        {
-            bool valid = Regex.IsMatch(phoneNumber, @"^[0-9]{3}[ /]{1}[0-9]{3}[-]{0,1}[0-9]{4}$");
-
-            if (!valid)
-            {
-                valid = libphonenumber.PhoneNumberUtil.Instance.IsPossibleNumber(phoneNumber, "US");
-            }
-            return valid;
-        }
-
-        /// <summary>
-        /// Checks if date given can be parsed into datetime
-        /// </summary>
-        /// <param name="date"></param>
-        /// <returns>Bool</returns>
-        public bool IsValidDate(DateTime? date)
-        {
-            DateTime _date;
-            return DateTime.TryParse(date.ToString(), out _date);
-        }
+       
     }
-
    
 }
