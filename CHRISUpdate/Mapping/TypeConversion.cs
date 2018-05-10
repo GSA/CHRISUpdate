@@ -1,8 +1,10 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
+using HRUpdate.Lookups;
 using System;
-using System.Globalization;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HRUpdate.Mapping
 {
@@ -56,6 +58,7 @@ namespace HRUpdate.Mapping
 
                 case "0":
                     return false;
+
                 default:
                     return false;
             }
@@ -73,6 +76,7 @@ namespace HRUpdate.Mapping
 
                 case "0":
                     return false;
+
                 default:
                     return false;
             }
@@ -85,10 +89,76 @@ namespace HRUpdate.Mapping
         {
             DateTime dt;
 
-            if (DateTime.TryParse(text, out dt))            
+            if (DateTime.TryParse(text, out dt))
                 return dt;
             else
                 return null;
+        }
+    }
+
+    internal sealed class InvestigationConverter : StringConverter
+    {
+        private readonly List<InvestigationLookup> investigationLookup;
+
+        public InvestigationConverter(List<InvestigationLookup> investigationLookup)
+        {
+            this.investigationLookup = investigationLookup;
+        }
+
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        {
+            string investigation = string.Empty;
+
+            investigation = investigationLookup.Where(w => w.Code == text).Select(s => s.Tier).SingleOrDefault();
+
+            if (string.IsNullOrEmpty(investigation))
+                return text;
+
+            return investigation;
+        }
+    }
+
+    internal sealed class StateCodeConverter : StringConverter
+    {
+        private readonly List<StateLookup> stateLookup;
+
+        public StateCodeConverter(List<StateLookup> stateLookup)
+        {
+            this.stateLookup = stateLookup;
+        }
+
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        {
+            string state = string.Empty;
+
+            state = stateLookup.Where(w => w.Code == text).Select(s => s.Code).SingleOrDefault();
+
+            if (string.IsNullOrEmpty(state))
+                return text;
+
+            return state;
+        }
+    }
+
+    internal sealed class CountryCodeConverter : StringConverter
+    {
+        private readonly List<CountryLookup> countryLookup;
+
+        public CountryCodeConverter(List<CountryLookup> countryLookup)
+        {
+            this.countryLookup = countryLookup;
+        }
+
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        {
+            string country = string.Empty;
+
+            country = countryLookup.Where(w => w.Code == text).Select(s => s.Code).SingleOrDefault();
+
+            if (string.IsNullOrEmpty(country))
+                return text;
+
+            return country;
         }
     }
 }

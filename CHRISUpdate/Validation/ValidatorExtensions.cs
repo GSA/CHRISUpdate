@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,7 +9,7 @@ namespace HRUpdate.Validation
 {
     public static class ValidatorExtensions
     {
-        public static IRuleBuilderOptions<T, TProperty> In<T, TProperty>(this IRuleBuilder<T, TProperty> ruleBuilder,  params TProperty[] validOptions)
+        public static IRuleBuilderOptions<T, TProperty> In<T, TProperty>(this IRuleBuilder<T, TProperty> ruleBuilder, params TProperty[] validOptions)
         {
             string formatted;
             if (validOptions == null || validOptions.Length == 0)
@@ -32,7 +31,7 @@ namespace HRUpdate.Validation
                 //.WithMessage($"{{PropertyName}} must be one of these values: {formatted}");
                 .WithMessage("{PropertyName} submitted is not valid");
         }
-        
+
         public static IRuleBuilderOptions<T, TProperty> ValidDate<T, TProperty>(this IRuleBuilder<T, TProperty> ruleBuilder)
         {
             DateTime date;

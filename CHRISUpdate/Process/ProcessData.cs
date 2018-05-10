@@ -25,7 +25,8 @@ namespace HRUpdate.Process
         private readonly SaveData save;
 
         private readonly EMailData emailData = new EMailData();
-        private readonly Helpers helper = new Utilities.Helpers();
+
+        private readonly Helpers helper = new Helpers();
 
         //Constructor
         public ProcessData(IMapper saveMappper)
@@ -60,6 +61,8 @@ namespace HRUpdate.Process
                 List<Employee> usersToProcess;
                 List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
+                List<SocialSecurityNumberChangeSummary> socialSecurityNumberChange = new List<SocialSecurityNumberChangeSummary>();
+                List<InactiveSummary> inactive = new List<InactiveSummary>();
 
                 ValidateHR validate = new ValidateHR();
                 ValidationResult errors;
@@ -75,15 +78,31 @@ namespace HRUpdate.Process
                     //Validate Record If Valid then process record
                     errors = validate.ValidateEmployeeCriticalInfo(employeeData);
 
-                    if (errors.IsValid)
+                    if (!errors.IsValid)
                     {
-                        personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, helper.HashSSN(employeeData.Person.SocialSecurityNumber), employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
+                        personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, employeeData.Person.SocialSecurityNumber, employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
 
                         int personID = personResults.Item1;
 
-                        if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item5, employeeData))
+                        Employee gcimsData = personResults.Item5;
+
+                        if (gcimsData.Person.Status == "Inactive")
                         {
-                            log.Info("Updating Record:" + personResults.Item1);
+                            inactive.Add(new InactiveSummary
+                            {
+                                GCIMSID = personID,
+                                EmployeeID = employeeData.Person.EmployeeID,
+                                FirstName = gcimsData.Person.FirstName,
+                                MiddleName = gcimsData.Person.MiddleName,
+                                LastName = gcimsData.Person.LastName
+                            });
+                        }
+
+                        helper.CopyValues<Employee>(employeeData, gcimsData);
+
+                        if (personID > 0 && !AreEqualGCIMSToHR(gcimsData, employeeData))
+                        {
+                            log.Info("Trying To Update Record:" + personResults.Item1);
 
                             updatedResults = save.UpdatePersonInformation(personResults.Item1, employeeData);
 
@@ -96,7 +115,7 @@ namespace HRUpdate.Process
                                          s =>
                                              new ProcessedSummary
                                              {
-                                                 GCIMSID = personResults.Item1,
+                                                 GCIMSID = personID,
                                                  EmployeeID = s.Person.EmployeeID,
                                                  FirstName = s.Person.FirstName,
                                                  MiddleName = s.Person.MiddleName,
@@ -118,7 +137,7 @@ namespace HRUpdate.Process
                                          s =>
                                              new ProcessedSummary
                                              {
-                                                 GCIMSID = personResults.Item1,
+                                                 GCIMSID = personID,
                                                  EmployeeID = s.Person.EmployeeID,
                                                  FirstName = s.Person.FirstName,
                                                  MiddleName = s.Person.MiddleName,
@@ -139,7 +158,7 @@ namespace HRUpdate.Process
                                          s =>
                                              new ProcessedSummary
                                              {
-                                                 GCIMSID = personResults.Item1,
+                                                 GCIMSID = personID,
                                                  EmployeeID = s.Person.EmployeeID,
                                                  FirstName = s.Person.FirstName,
                                                  MiddleName = s.Person.MiddleName,
@@ -184,7 +203,7 @@ namespace HRUpdate.Process
                 log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
                 log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
 
-                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed);
+                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed, socialSecurityNumberChange, inactive);
             }
             //Catch all errors
             catch (Exception ex)
@@ -307,7 +326,7 @@ namespace HRUpdate.Process
         /// </summary>
         /// <param name="processedSuccessSummary"></param>
         /// <param name="processedErrorSummary"></param>
-        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary)
+        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary, List<SocialSecurityNumberChangeSummary> socialSecurityNumberChangeSummary, List<InactiveSummary> inactiveSummary)
         {
             if (usersProcessedSuccessSummary.Count > 0)
             {
@@ -319,6 +338,18 @@ namespace HRUpdate.Process
             {
                 emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
                 log.Info("HR Error File: " + emailData.HRErrorSummaryFilename);
+            }
+
+            if (socialSecurityNumberChangeSummary.Count > 0)
+            {
+                emailData.HRSocialSecurityNumberChangeSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SocialSecurityNumberChangeSummary, SocialSecurityNumberChangeSummaryMapping>(ConfigurationManager.AppSettings["SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME"].ToString(), socialSecurityNumberChangeSummary);
+                log.Info("HR Social Security Number Change File: " + emailData.HRSocialSecurityNumberChangeSummaryFilename);
+            }
+
+            if (inactiveSummary.Count > 0)
+            {
+                emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<InactiveSummary, InactiveSummaryMapping>(ConfigurationManager.AppSettings["INACTIVESUMMARYFILENAME"].ToString(), inactiveSummary);
+                log.Info("HR Inactive File: " + emailData.HRInactiveSummaryFilename);
             }
         }
 
@@ -369,7 +400,7 @@ namespace HRUpdate.Process
             }
             catch (Exception ex)
             {
-                log.Error("Error Sending HR Links Summary E-Mail: " + ex.Message + " - " + ex.InnerException);                
+                log.Error("Error Sending HR Links Summary E-Mail: " + ex.Message + " - " + ex.InnerException);
             }
             finally
             {
@@ -478,6 +509,8 @@ namespace HRUpdate.Process
             return errors.ToString();
         }
 
+        
+
         /// <summary>
         /// Takes a file and loads the data into the object type specified using the mapping
         /// </summary>
@@ -495,7 +528,6 @@ namespace HRUpdate.Process
 
             csvReader.Configuration.Delimiter = "~";
             csvReader.Configuration.HasHeaderRecord = false;
-            //csvReader.Configuration.TypeConverterOptionsCache.GetOptions<DateTime>().Formats = new[] { "yyyy-MM-dd" };
 
             csvReader.Configuration.RegisterClassMap<TMap>();
 

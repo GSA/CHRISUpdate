@@ -9,6 +9,7 @@ namespace HRUpdate.Models
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
+        public string Status { get; set; }
         public string Action { get; set; }
     }
 
@@ -18,6 +19,36 @@ namespace HRUpdate.Models
         public string EmployeeID { get; set; }
         public string SeparationCode { get; set; }
         public string Action { get; set; }
+    }
+
+    internal class NameChangeSummary
+    {
+        public Int64 GCIMSID { get; set; }
+        public string EmployeeID { get; set; }
+        public string FirstName { get; set; }
+        public string MiddleName { get; set; }
+        public string LastName { get; set; }
+        public string Status { get; set; }
+    }
+
+    internal class SocialSecurityNumberChangeSummary
+    {
+        public Int64 GCIMSID { get; set; }
+        public string EmployeeID { get; set; }
+        public string FirstName { get; set; }
+        public string MiddleName { get; set; }
+        public string LastName { get; set; }
+        public string Status { get; set; }
+    }
+
+    internal class InactiveSummary
+    {
+        public Int64 GCIMSID { get; set; }
+        public string EmployeeID { get; set; }
+        public string FirstName { get; set; }
+        public string MiddleName { get; set; }
+        public string LastName { get; set; }
+        public string Status { get; set; }
     }
 
     internal class EMailData
@@ -31,6 +62,8 @@ namespace HRUpdate.Models
 
         public string HRSuccessfulSummaryFilename { get; set; }
         public string HRErrorSummaryFilename { get; set; }
+        public string HRSocialSecurityNumberChangeSummaryFilename { get; set; }
+        public string HRInactiveSummaryFilename { get; set; }
 
         public bool HRHasErrors { get; set; }
 

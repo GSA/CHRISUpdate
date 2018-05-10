@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace HRUpdate.Utilities
@@ -25,6 +27,41 @@ namespace HRUpdate.Utilities
             }
 
             return hashedFullSSN;
+        }
+
+        public void CopyValues<T>(T target, T source)
+        {
+            Type t = typeof(T);
+
+            var properties = t.GetProperties().Where(prop => prop.CanRead && prop.CanWrite);
+
+            foreach (var prop in properties)
+            {
+                var sourcevalue = prop.GetValue(source, null);
+                var targetValue = prop.GetValue(target, null);
+
+                if (falsy(targetValue))
+                {
+                    prop.SetValue(target, sourcevalue, null);
+                }
+            }
+        }
+
+        private bool falsy(object val)
+        {
+            string t;
+            if (val != null)
+                t = val.GetType().ToString();
+            else
+                t = null;
+            Console.WriteLine(t);
+            switch (t)
+            {
+                case "System.String": return string.IsNullOrEmpty((string)val);
+                case "System.DateTime": return (DateTime)val == null || (DateTime)val == DateTime.MinValue;
+                case "System.Boolean": return (bool?)val == null;
+                default: return true;
+            }
         }
     }
 }

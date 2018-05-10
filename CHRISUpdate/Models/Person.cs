@@ -19,5 +19,6 @@ namespace HRUpdate.Models
         public string OrganizationCode { get; set; }
         public string JobTitle { get; set; }
         public string HomeEmail { get; set; }
+        public string Status { get; set; }
     }
 }
