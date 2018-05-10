@@ -25,6 +25,7 @@ namespace HRUpdate.Models
         public Int64 GCIMSID { get; set; }
         public string EmployeeID { get; set; }
         public string FirstName { get; set; }
+        public string MiddleName { get; set; }
         public string LastName { get; set; }
     }
 
@@ -33,6 +34,16 @@ namespace HRUpdate.Models
         public Int64 GCIMSID { get; set; }
         public string EmployeeID { get; set; }
         public string FirstName { get; set; }
+        public string MiddleName { get; set; }
+        public string LastName { get; set; }
+    }
+
+    internal class InactiveSummary
+    {
+        public Int64 GCIMSID { get; set; }
+        public string EmployeeID { get; set; }
+        public string FirstName { get; set; }
+        public string MiddleName { get; set; }
         public string LastName { get; set; }
     }
 
@@ -48,6 +59,7 @@ namespace HRUpdate.Models
         public string HRSuccessfulSummaryFilename { get; set; }
         public string HRErrorSummaryFilename { get; set; }
         public string HRSocialSecurityNumberChangeSummaryFilename { get; set; }
+        public string HRInactiveSummaryFilename { get; set; }
 
         public bool HRHasErrors { get; set; }
 

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace HRUpdate.Mapping
 {
     public sealed class EmployeeMapping : ClassMap<Employee>
-    {        
+    {
         public EmployeeMapping()
         {
             Lookup lookups;

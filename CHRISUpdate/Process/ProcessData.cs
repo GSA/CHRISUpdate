@@ -60,6 +60,7 @@ namespace HRUpdate.Process
                 List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<SocialSecurityNumberChangeSummary> socialSecurityNumberChange = new List<SocialSecurityNumberChangeSummary>();
+                List<InactiveSummary> inactive = new List<InactiveSummary>();
 
                 ValidateHR validate = new ValidateHR();
                 ValidationResult errors;
@@ -80,7 +81,7 @@ namespace HRUpdate.Process
                         personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, employeeData.Person.SocialSecurityNumber, employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
 
                         int personID = personResults.Item1;
-                        
+
                         if (personID > 0 && !AreEqualGCIMSToHR(personResults.Item5, employeeData))
                         {
                             log.Info("Trying To Update Record:" + personResults.Item1);
@@ -184,7 +185,7 @@ namespace HRUpdate.Process
                 log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
                 log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
 
-                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed, socialSecurityNumberChange);
+                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed, socialSecurityNumberChange, inactive);
             }
             //Catch all errors
             catch (Exception ex)
@@ -307,7 +308,7 @@ namespace HRUpdate.Process
         /// </summary>
         /// <param name="processedSuccessSummary"></param>
         /// <param name="processedErrorSummary"></param>
-        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary, List<SocialSecurityNumberChangeSummary> socialSecurityNumberChangeSummary)
+        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary, List<SocialSecurityNumberChangeSummary> socialSecurityNumberChangeSummary, List<InactiveSummary> inactiveSummary)
         {
             if (usersProcessedSuccessSummary.Count > 0)
             {
@@ -323,8 +324,14 @@ namespace HRUpdate.Process
 
             if (socialSecurityNumberChangeSummary.Count > 0)
             {
-                emailData.HRSocialSecurityNumberChangeSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SocialSecurityNumberChangeSummary, SocialSecurityNumberChangeSummaryMapping>(ConfigurationManager.AppSettings["SOCIALSECURITYNUMBERCHANGEFILENAME"].ToString(), socialSecurityNumberChangeSummary);
+                emailData.HRSocialSecurityNumberChangeSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SocialSecurityNumberChangeSummary, SocialSecurityNumberChangeSummaryMapping>(ConfigurationManager.AppSettings["SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME"].ToString(), socialSecurityNumberChangeSummary);
                 log.Info("HR Social Security Number Change File: " + emailData.HRSocialSecurityNumberChangeSummaryFilename);
+            }
+
+            if (inactiveSummary.Count > 0)
+            {
+                emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<InactiveSummary, InactiveSummaryMapping>(ConfigurationManager.AppSettings["INACTIVESUMMARYFILENAME"].ToString(), inactiveSummary);
+                log.Info("HR Inactive File: " + emailData.HRInactiveSummaryFilename);
             }
         }
 
@@ -375,7 +382,7 @@ namespace HRUpdate.Process
             }
             catch (Exception ex)
             {
-                log.Error("Error Sending HR Links Summary E-Mail: " + ex.Message + " - " + ex.InnerException);                
+                log.Error("Error Sending HR Links Summary E-Mail: " + ex.Message + " - " + ex.InnerException);
             }
             finally
             {
@@ -475,7 +482,7 @@ namespace HRUpdate.Process
 
             foreach (var rule in failures)
             {
-                errors.Append(rule.ErrorMessage.Remove(0,rule.ErrorMessage.IndexOf('.')+2));
+                errors.Append(rule.ErrorMessage.Remove(0, rule.ErrorMessage.IndexOf('.') + 2));
                 errors.Append(",");
             }
 
@@ -498,7 +505,7 @@ namespace HRUpdate.Process
             CsvReader csvReader = new CsvReader(csvParser);
 
             csvReader.Configuration.Delimiter = "~";
-            csvReader.Configuration.HasHeaderRecord = false;            
+            csvReader.Configuration.HasHeaderRecord = false;
 
             csvReader.Configuration.RegisterClassMap<TMap>();
 

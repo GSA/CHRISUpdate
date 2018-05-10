@@ -58,6 +58,7 @@ namespace HRUpdate.Mapping
 
                 case "0":
                     return false;
+
                 default:
                     return false;
             }
@@ -75,6 +76,7 @@ namespace HRUpdate.Mapping
 
                 case "0":
                     return false;
+
                 default:
                     return false;
             }
@@ -87,7 +89,7 @@ namespace HRUpdate.Mapping
         {
             DateTime dt;
 
-            if (DateTime.TryParse(text, out dt))            
+            if (DateTime.TryParse(text, out dt))
                 return dt;
             else
                 return null;
