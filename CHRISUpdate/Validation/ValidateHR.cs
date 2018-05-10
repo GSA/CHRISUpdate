@@ -75,8 +75,8 @@ namespace HRUpdate.Validation
                 .WithMessage($"{{PropertyName}} length must be 0-24");
 
             RuleFor(Employee => Employee.Person.SocialSecurityNumber)
-                //.NotEmpty()
-                //.WithMessage($"{{PropertyName}} is required")
+                .NotEmpty()
+                .WithMessage($"{{PropertyName}} is required")
                 .Length(9)
                 .WithMessage($"{{PropertyName}} length must be 9");
 
@@ -114,7 +114,7 @@ namespace HRUpdate.Validation
                 //.NotEmpty()
                 //.WithMessage($"{{PropertyName}} is required")
                 .MaximumLength(4)
-                .WithMessage($"{{PropertyName}} length must be between 0-4");
+                .WithMessage($"{{PropertyName}} length must be 0-4");
 
             RuleFor(Employee => Employee.Person.JobTitle)
                 .MaximumLength(70)
@@ -169,7 +169,7 @@ namespace HRUpdate.Validation
 
             RuleFor(Employee => Employee.Address.HomeZipCode)               
                 .MaximumLength(10)
-                .WithMessage($"{{PropertyName}} length must be 0-10");
+                .WithMessage($"{{PropertyName}} length must be 0-10");0
 
             Unless(e => string.IsNullOrEmpty(e.Address.HomeCountry), () =>
             {
@@ -250,7 +250,7 @@ namespace HRUpdate.Validation
                       .WithMessage($"{{PropertyName}} length must be 0-20");
               });
 
-            Unless(Employee => string.IsNullOrEmpty(Employee.Investigation.TypeOfInvestigation) || 
+            Unless(Employee => string.IsNullOrEmpty(Employee.Investigation.TypeOfInvestigation) && 
                         Employee.Investigation.DateOfInvestigation == null, () =>
             {
                 RuleFor(Employee => Employee.Investigation.TypeOfInvestigation)
@@ -275,7 +275,7 @@ namespace HRUpdate.Validation
                     .WithMessage($"{{PropertyName}} length must be 0-12");
             });
 
-            When(Employee => Employee.Investigation.InitialResult != null || Employee.Investigation.InitialResultDate != null, () =>
+            When(Employee => Employee.Investigation.InitialResult != null && Employee.Investigation.InitialResultDate != null, () =>
             {
                 RuleFor(Employee => Employee.Investigation.InitialResult)
                     .NotNull()
@@ -288,7 +288,7 @@ namespace HRUpdate.Validation
                     .WithMessage($"{{PropertyName}} must be a valid date");
             });
 
-            When(Employee => Employee.Investigation.FinalResult != null || Employee.Investigation.FinalResultDate != null, () =>
+            When(Employee => Employee.Investigation.FinalResult != null && Employee.Investigation.FinalResultDate != null, () =>
             {
                 RuleFor(Employee => Employee.Investigation.FinalResult)
                     .NotNull()
