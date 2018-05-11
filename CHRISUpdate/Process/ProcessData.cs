@@ -78,11 +78,35 @@ namespace HRUpdate.Process
                     //Validate Record If Valid then process record
                     errors = validate.ValidateEmployeeCriticalInfo(employeeData);
 
-                    if (!errors.IsValid)
+                    if (errors.IsValid)
                     {
                         personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, employeeData.Person.SocialSecurityNumber, employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
 
                         int personID = personResults.Item1;
+
+                        //If user is not found or other issue add to the error summary file
+                        if (personID == -1)
+                        {
+                            var proccessedUserIssue = usersToProcess
+                                .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                                .Select
+                                     (
+                                         s =>
+                                             new ProcessedSummary
+                                             {
+                                                 GCIMSID = personID,
+                                                 EmployeeID = s.Person.EmployeeID,
+                                                 FirstName = s.Person.FirstName,
+                                                 MiddleName = s.Person.MiddleName,
+                                                 LastName = s.Person.LastName,
+                                                 Action = personResults.Item3
+                                             }
+                                     ).ToList();
+
+                            unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+
+                            continue;
+                        }
 
                         Employee gcimsData = personResults.Item5;
 
@@ -151,23 +175,7 @@ namespace HRUpdate.Process
                         }
                         else
                         {
-                            var proccessedUserIssue = usersToProcess
-                                .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
-                                .Select
-                                     (
-                                         s =>
-                                             new ProcessedSummary
-                                             {
-                                                 GCIMSID = personID,
-                                                 EmployeeID = s.Person.EmployeeID,
-                                                 FirstName = s.Person.FirstName,
-                                                 MiddleName = s.Person.MiddleName,
-                                                 LastName = s.Person.LastName,
-                                                 Action = personResults.Item3
-                                             }
-                                     ).ToList();
-
-                            unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+                            
                         }
                     }
                     else
