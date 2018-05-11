@@ -42,7 +42,7 @@ namespace HRUpdate.Validation
         {
             CascadeMode = CascadeMode.StopOnFirstFailure;
 
-            string[] investigationTypes = lookups.investigationLookup.Select(e => e.Code).Distinct().ToArray();
+            string[] investigationTypes = lookups.investigationLookup.Select(e => e.Tier).Distinct().ToArray();
             string[] stateCodes = lookups.stateLookup.Select(s => s.Code).Distinct().ToArray();
             string[] countryCodes = lookups.countryLookup.Select(c => c.Code).Distinct().ToArray();
 
@@ -53,9 +53,13 @@ namespace HRUpdate.Validation
                     .WithMessage($"{{PropertyName}} must be one of these values: 'M', 'm', 'F', 'f'");
             });
 
-            RuleFor(Employee => Employee.Person.HomeEmail)               
-               .EmailAddress()
-               .WithMessage($"{{PropertyName}} must be a valid email address");
+            Unless(e => string.IsNullOrEmpty(e.Person.HomeEmail), () =>
+            {
+                RuleFor(Employee => Employee.Person.HomeEmail)
+                   .EmailAddress()
+                   .WithMessage($"{{PropertyName}} must be a valid email address");
+            });
+            
 
             Unless(Employee => string.IsNullOrEmpty(Employee.Investigation.TypeOfInvestigation) &&
                         Employee.Investigation.DateOfInvestigation == null, () =>
@@ -353,10 +357,14 @@ namespace HRUpdate.Validation
                     e.Address.HomeCountry.ToLower().Equals("ca") ||
                     e.Address.HomeCountry.ToLower().Equals("mx"), () =>
                     {
-                        RuleFor(Employee => Employee.Birth.StateOfBirth)
-                            //.NotEmpty()
-                            //.WithMessage($"{{PropertyName}} is required")
-                            .In(stateCodes);
+                        Unless(e => string.IsNullOrEmpty(e.Birth.StateOfBirth), () =>
+                        {
+                            RuleFor(Employee => Employee.Birth.StateOfBirth)
+                                //.NotEmpty()
+                                //.WithMessage($"{{PropertyName}} is required")
+                                .In(stateCodes);
+                        });
+                        
                     });
             });
 
