@@ -1,87 +1,118 @@
-﻿using System;
+﻿using AutoMapper;
+using HRUpdate.Mapping;
+using HRUpdate.Process;
+using System;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
-using CHRISUpdate.Process;
 
-namespace CHRISUpdate
+namespace HRUpdate
 {
-    class Program
+    internal static class Program
     {
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         //File paths from config file
-        private static string chrisFilePath = ConfigurationManager.AppSettings["CHRISFILENAME"].ToString(); //AppDomain.CurrentDomain.BaseDirectory +
-        private static string separationFilePath = ConfigurationManager.AppSettings["SEPARATIONFILENAME"].ToString(); //AppDomain.CurrentDomain.BaseDirectory +
-        private static string organizationFilePath = ConfigurationManager.AppSettings["ORGFILENAME"].ToString(); //AppDomain.CurrentDomain.BaseDirectory +
+        private static string hrFilePath = ConfigurationManager.AppSettings["HRFILE"].ToString();
+
+        private static string separationFilePath = ConfigurationManager.AppSettings["SEPARATIONFILE"].ToString();
 
         //Stopwatch objects
-        private static Stopwatch stopWatch = new Stopwatch();
-        private static Stopwatch timeForProcesses = new Stopwatch();
+        private static Stopwatch timeForApp = new Stopwatch();
+
+        private static Stopwatch timeForProcess = new Stopwatch();
+
+        private static HRMapper map = new HRMapper();
+
+        private static IMapper saveMapper;
 
         /// <summary>
-        /// Main
+        /// Entrance into processing the HR File
         /// </summary>
         /// <param name="args"></param>
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             //Start timer
-            stopWatch.Start();
+            timeForApp.Start();
 
             //Log start of application
-            log.Info("Application Started");
+            log.Info("Application Started: " + DateTime.Now);
 
             //Output application start
             Console.WriteLine("Application Started: " + DateTime.Now);
 
+            CreateMaps();
+
             //Instantiate object that does processing
-            ProcessData processData = new ProcessData();
+            ProcessData processData = new ProcessData(saveMapper);
 
             //Log action
-            log.Info("Processing CHRIS File");
+            log.Info("Processing HR Files:" + DateTime.Now);
 
-            //Start timer
-            timeForProcesses.Start();
+            //HR File
+            if (File.Exists(hrFilePath))
+            {
+                log.Info("Starting Processing HR File: " + DateTime.Now);
 
-            //Only process if the file is there
-            if (File.Exists(chrisFilePath))
-                processData.ProcessCHRISFile(chrisFilePath);
+                timeForProcess.Start();
+                processData.ProcessHRFile(hrFilePath);
+                timeForProcess.Stop();
 
-            //Only process if the file is there
+                log.Info("Done Processing HR File: " + DateTime.Now);
+                log.Info("HR File Processing Time: " + timeForProcess.ElapsedMilliseconds);
+            }
+            else
+            {
+                log.Error("HR Links File Not Found");
+            }
+
+            //Separation File
             if (File.Exists(separationFilePath))
+            {
+                log.Info("Starting Processing Separation File: " + DateTime.Now);
+
+                timeForProcess.Start();
                 processData.ProcessSeparationFile(separationFilePath);
+                timeForProcess.Stop();
 
-            //Process if file exists
-            if (File.Exists(organizationFilePath))
-                processData.ProcessOrganizationFile(organizationFilePath);
+                log.Info("Done Processing Separation File: " + DateTime.Now);
+                log.Info("Separation File Processing Time: " + timeForProcess.ElapsedMilliseconds);
+            }
+            else
+            {
+                log.Error("Separation File Not Found");
+            }
 
-            //Stop timer
-            timeForProcesses.Stop();
+            log.Info("Done Processing HR Links File(s):" + DateTime.Now);
 
-#if DEBUG
-            Console.WriteLine(string.Format("Processed Files in {0} milliseconds", timeForProcesses.ElapsedMilliseconds));
-#endif
-            //Log elapsed time for processing
-            log.Info(string.Format("Processed Files in {0} milliseconds", timeForProcesses.ElapsedMilliseconds));
+            processData.SendSummaryEMail();
 
             //Stop second timer
-            stopWatch.Stop();
+            timeForApp.Stop();
 
             //Output total time
-            Console.WriteLine(string.Format("Application Completed in {0} milliseconds", stopWatch.ElapsedMilliseconds));
+            Console.WriteLine(string.Format("Application Completed in {0} milliseconds", timeForApp.ElapsedMilliseconds));
 
             //Log total time
-            log.Info(string.Format("Application Completed in {0} milliseconds", stopWatch.ElapsedMilliseconds));
+            log.Info(string.Format("Application Completed in {0} milliseconds", timeForApp.ElapsedMilliseconds));
 
             //Log application end
-            log.Info("Application Done");
+            log.Info("Application Done: " + DateTime.Now);
+
+            //Output application start
+            Console.WriteLine("Application Ended: " + DateTime.Now);
 
 #if DEBUG
             //Wait for key press
             Console.ReadLine();
 #endif
         }
+
+        private static void CreateMaps()
+        {
+            map.CreateSaveConfig();
+            saveMapper = map.CreateSaveMapping();
+        }
     }
 }
-

@@ -1,124 +1,222 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.IO;
-using System.Linq;
-using CHRISUpdate.Mapping;
-using CHRISUpdate.Models;
+﻿using AutoMapper;
 using CsvHelper;
 using CsvHelper.Configuration;
-using MySql.Data.MySqlClient;
-using System.Diagnostics;
+using FluentValidation.Results;
+using HRUpdate.Mapping;
+using HRUpdate.Models;
+using HRUpdate.Utilities;
+using HRUpdate.Validation;
+using KellermanSoftware.CompareNetObjects;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Linq;
+using System.Text;
 
-namespace CHRISUpdate.Process
+namespace HRUpdate.Process
 {
-    //private static Stopwatch timeForProcesses = new Stopwatch();
-    class ProcessData
+    internal class ProcessData
     {
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        //Class to work with CSV's
-        private static CsvConfiguration config = new CsvConfiguration();
+        private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
+        private readonly SaveData save;
 
-        //Set up database connections
-        private MySqlConnection conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["GCIMS"].ToString());
-        private MySqlCommand cmd = new MySqlCommand();
-        private MySqlConnection connHR = new MySqlConnection(ConfigurationManager.ConnectionStrings["HR"].ToString());
-        private MySqlCommand cmdHR = new MySqlCommand();
+        private readonly EMailData emailData = new EMailData();
 
-        //Class variables
-        private static List<Chris> chrisList = new List<Chris>();
-        private static List<ChrisData> chrisListData = new List<ChrisData>();
-
-        int processedRecords = 0; //rolling count of records that were processed
-        int processedUsers = 0;  //rolling count of users processed
-        int unprocessedUsers = 0; //rolling count of unprocessed users
-
-        SaveData save = new SaveData();
-
-        //Need better naming namespace and convention here
-        Utilities.Utilities u = new Utilities.Utilities();
+        private readonly Helpers helper = new Helpers();
 
         //Constructor
-        //Assigns defaults
-        public ProcessData()
+        public ProcessData(IMapper saveMappper)
         {
-            config.Delimiter = "~";
-            config.HasHeaderRecord = false;
-            config.WillThrowOnMissingField = false;
+            save = new SaveData(saveMappper);
+        }
+
+        private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
+        {
+            CompareLogic compareLogic = new CompareLogic();
+            compareLogic.Config.MembersToIgnore.Add("Person.SocialSecurityNumber");
+            compareLogic.Config.MembersToIgnore.Add("Detail");
+
+            ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
+
+            return result.AreEqual;
         }
 
         /// <summary>
-        /// Processes chris file
+        /// Get HR Data
+        /// Loop HR Data
+        /// Get GCIMS Record
+        /// Update GCIMS Record
         /// </summary>
-        /// <param name="chrisFile"></param>
-        public void ProcessCHRISFile(string chrisFile)
+        /// <param name="hrFile"></param>
+        public void ProcessHRFile(string HRFile)
         {
-            //Log start of processing file
-            log.Info("Processing CHRIS Users");
+            log.Info("Processing HR Users");
 
             try
             {
-                //Call function to map file to csv
-                chrisList = GetFileData<Chris, CHRISMapping>(chrisFile, config);
+                List<Employee> usersToProcess;
+                List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
+                List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
+                List<SocialSecurityNumberChangeSummary> socialSecurityNumberChange = new List<SocialSecurityNumberChangeSummary>();
+                List<InactiveSummary> inactive = new List<InactiveSummary>();
 
-                foreach (Chris chrisData in chrisList) // Loop through List with foreach - Chris chrisData in chrisList
+                ValidateHR validate = new ValidateHR();
+                ValidationResult errors;
+
+                usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
+
+                Tuple<int, int, string, string, Employee> personResults;
+                Tuple<int, string, string> updatedResults;
+
+                //Start Processing the HR Data
+                foreach (Employee employeeData in usersToProcess)
                 {
-                    int personID = 0;
+                    //Validate Record If Valid then process record
+                    errors = validate.ValidateEmployeeCriticalInfo(employeeData);
 
-                    //Hash the ssn 
-                    chrisData.Employee.SSN = u.HashSSN(chrisData.SSN);
-
-                    //If person id > 0 meaning it found a person id
-                    if (GetPersonID(chrisData.Employee.SSN, out personID) > 0)
+                    if (errors.IsValid)
                     {
-                        //Assign the Id to all the associated locations
-                        chrisData.Employee.PersonID = personID;
+                        personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, employeeData.Person.SocialSecurityNumber, employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
 
-                        //PersonID and Set Supervisor name (we are not able to map this as it's a combined field)
-                        //Reason personID is apart of person is we can just pass the object to the save method
-                        chrisData.Person.PersonID = personID;
-                        chrisData.Person.Supervisor = chrisData.Supervisor.LastNameSuffix + ", " + chrisData.Supervisor.FirstName + " " + chrisData.Supervisor.MiddleName;
+                        int personID = personResults.Item1;
 
-                        //Save the data
-                        save.SaveCHRISInformation(chrisData, connHR);
+                        //If user is not found or other issue add to the error summary file
+                        if (personID == -1)
+                        {
+                            var proccessedUserIssue = usersToProcess
+                                .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                                .Select
+                                     (
+                                         s =>
+                                             new ProcessedSummary
+                                             {
+                                                 GCIMSID = personID,
+                                                 EmployeeID = s.Person.EmployeeID,
+                                                 FirstName = s.Person.FirstName,
+                                                 MiddleName = s.Person.MiddleName,
+                                                 LastName = s.Person.LastName,
+                                                 Action = personResults.Item3
+                                             }
+                                     ).ToList();
 
-                        //Increment processed
-                        processedUsers += 1;
+                            unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+
+                            continue;
+                        }
+
+                        Employee gcimsData = personResults.Item5;
+
+                        if (gcimsData.Person.Status == "Inactive")
+                        {
+                            inactive.Add(new InactiveSummary
+                            {
+                                GCIMSID = personID,
+                                EmployeeID = employeeData.Person.EmployeeID,
+                                FirstName = gcimsData.Person.FirstName,
+                                MiddleName = gcimsData.Person.MiddleName,
+                                LastName = gcimsData.Person.LastName
+                            });
+                        }
+
+                        helper.CopyValues<Employee>(employeeData, gcimsData);
+
+                        if (personID > 0 && !AreEqualGCIMSToHR(gcimsData, employeeData))
+                        {
+                            log.Info("Trying To Update Record:" + personResults.Item1);
+
+                            updatedResults = save.UpdatePersonInformation(personResults.Item1, employeeData);
+
+                            if (updatedResults.Item1 > 0)
+                            {
+                                var processedUserSuccess = usersToProcess
+                                 .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                                 .Select
+                                     (
+                                         s =>
+                                             new ProcessedSummary
+                                             {
+                                                 GCIMSID = personID,
+                                                 EmployeeID = s.Person.EmployeeID,
+                                                 FirstName = s.Person.FirstName,
+                                                 MiddleName = s.Person.MiddleName,
+                                                 LastName = s.Person.LastName,
+                                                 Action = updatedResults.Item2
+                                             }
+                                     ).ToList();
+
+                                successfulHRUsersProcessed.AddRange(processedUserSuccess);
+
+                                log.Info("Successfully Updated Record: " + personResults.Item1);
+                            }
+                            else
+                            {
+                                var proccessedUserIssue = usersToProcess
+                                .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                                .Select
+                                     (
+                                         s =>
+                                             new ProcessedSummary
+                                             {
+                                                 GCIMSID = personID,
+                                                 EmployeeID = s.Person.EmployeeID,
+                                                 FirstName = s.Person.FirstName,
+                                                 MiddleName = s.Person.MiddleName,
+                                                 LastName = s.Person.LastName,
+                                                 Action = updatedResults.Item3
+                                             }
+                                     ).ToList();
+
+                                unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+                            }
+                        }
+                        else
+                        {
+                            
+                        }
                     }
-                    //If a certain percentage is met (the threshold) then we need to generate an error file. (Are we doing this, we are having a meeting about this stuff)
                     else
                     {
-                        //For now we are going to skip a person if they are not found in GCIMS.
-                        //We are thinking this might be the source to actually add a new person to GCIMS.
-                        //We need to talk to operations about this issue.
-                        //log.Warn("Unable to process user");
+                        var proccessedUserIssue = usersToProcess
+                                .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                                .Select
+                                     (
+                                         s =>
+                                             new ProcessedSummary
+                                             {
+                                                 GCIMSID = -1,
+                                                 EmployeeID = s.Person.EmployeeID,
+                                                 FirstName = s.Person.FirstName,
+                                                 MiddleName = s.Person.MiddleName,
+                                                 LastName = s.Person.LastName,
+                                                 Action = GetErrors(errors.Errors, Hrlinks.Hrfile).TrimEnd(',')
+                                             }
+                                     ).ToList();
 
-                        //Increment unprocessed
-                        unprocessedUsers += 1;
-
-                        //Log not found warning
-                        log.Warn("Not Found! " + chrisData.Employee.EmployeeID + " " + chrisData.Employee.FirstName + " " + chrisData.Employee.FamilySuffix);
+                        unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
                     }
-
-                    processedRecords += 1;
                 }
 
-                //Add log entries
-                log.Info("CHRIS Records Processed: " + String.Format("{0:#,###0}", processedUsers));
-                log.Info("CHRIS Users Not Processed: " + String.Format("{0:#,###0}", unprocessedUsers));
-                log.Info("CHRIS Processed Records: " + String.Format("{0:#,###0}", processedRecords));
+                emailData.HRFilename = Path.GetFileName(HRFile);
+                emailData.HRAttempted = usersToProcess.Count;
+                emailData.HRSucceeded = successfulHRUsersProcessed.Count;
+                emailData.HRFailed = unsuccessfulHRUsersProcessed.Count;
+                emailData.HRHasErrors = unsuccessfulHRUsersProcessed.Count > 0 ? true : false;
 
-                //Close connection
-                connHR.Close();
-                conn.Close();
+                //Add log entries
+                log.Info("HR Records Updated: " + String.Format("{0:#,###0}", successfulHRUsersProcessed.Count));
+                log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
+                log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
+
+                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed, socialSecurityNumberChange, inactive);
             }
             //Catch all errors
             catch (Exception ex)
             {
-                log.Error("Process CHRIS Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);                
+                log.Error("Process HR Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);
             }
         }
 
@@ -126,240 +224,300 @@ namespace CHRISUpdate.Process
         /// Process separation file
         /// </summary>
         /// <param name="separationFile"></param>
-        public void ProcessSeparationFile(string separationFile)
+        public void ProcessSeparationFile(string SEPFile)
         {
-            //Log function start
             log.Info("Processing Separation Users");
-
-            //If we can't open the DB just crash here no point going forward (just making sure we have a connection)
-            if (connHR.State == ConnectionState.Closed)
-            {
-                connHR.Open();
-                cmdHR.Connection = connHR;
-            }
-
-            //Initialize counters
-            processedRecords = 0; //rolling count of records that were processed
-            processedUsers = 0;  //rolling count of users processed
-            unprocessedUsers = 0; //rolling count of unprocessed users
-
-            //Initialize list to hold mapped csv data
-            List<Separation> separationList = new List<Separation>();
-
-            //Call function that loads file and maps to csv
-            separationList = GetFileData<Separation, CustomSeparationMap>(separationFile, config);
 
             try
             {
-                //Iterate through all data
-                foreach (Separation separationData in separationList)
-                {
-                    //If employee exists based on employee id
-                    if (DoesEmployeeExist(separationData.EmployeeID)) //EmployeeID = Chris ID
-                    {
-                        //Save data
-                        save.SaveSeparationInformation(separationData, connHR);
+                List<Separation> separationUsersToProcess;
+                List<SeperationSummary> successfulSeparationUsersProcessed = new List<SeperationSummary>();
+                List<SeperationSummary> unsuccessfulSeparationUsersProcessed = new List<SeperationSummary>();
 
-                        //Increment
-                        processedUsers += 1;
+                ValidateSeparation validate = new ValidateSeparation();
+                ValidationResult errors;
+
+                separationUsersToProcess = GetFileData<Separation, SeparationMapping>(SEPFile);
+
+                Tuple<int, int, string, string> separationResults;
+
+                foreach (Separation separationData in separationUsersToProcess)
+                {
+                    //Validate Record If Valid then process record
+                    errors = validate.ValidateSeparationInformation(separationData);
+
+                    if (errors.IsValid)
+                    {
+                        separationResults = save.SeparateUser(separationData);
+
+                        if (separationResults.Item1 > 0)
+                        {
+                            log.Info("Separating User: " + separationResults.Item1);
+
+                            var separationSuccess = separationUsersToProcess
+                                 .Where(w => w.EmployeeID == separationData.EmployeeID)
+                                 .Select
+                                     (
+                                         s =>
+                                             new SeperationSummary
+                                             {
+                                                 GCIMSID = separationResults.Item1,
+                                                 EmployeeID = s.EmployeeID,
+                                                 SeparationCode = s.SeparationCode,
+                                                 Action = separationResults.Item3
+                                             }
+                                     ).ToList();
+
+                            successfulSeparationUsersProcessed.AddRange(separationSuccess);
+
+                            log.Info("Successfully Separated Record: " + separationResults.Item1);
+                        }
+                        else
+                        {
+                            var separationIssue = separationUsersToProcess
+                                .Where(w => w.EmployeeID == separationData.EmployeeID)
+                                .Select
+                                    (
+                                        s =>
+                                            new SeperationSummary
+                                            {
+                                                GCIMSID = separationResults.Item1,
+                                                EmployeeID = s.EmployeeID,
+                                                SeparationCode = s.SeparationCode,
+                                                Action = separationResults.Item3
+                                            }
+                                    ).ToList();
+
+                            unsuccessfulSeparationUsersProcessed.AddRange(separationIssue);
+                        }
                     }
-                    //If a certain percentage is met (the threshold) then we need to generate an error file. (Are we doing this, we are having a meeting about this stuff)
                     else
                     {
-                        //For now we are going to skip a person if they are not found in GCIMS.
-                        //We are thinking this might be the source to actually add a new person to GCIMS.
-                        //We need to talk to operations about this issue.
-                        //log.Warn("Unable to process user");
-                        unprocessedUsers += 1;
-                        log.Warn("Not Found! " + separationData.EmployeeUniqueID + " " + separationData.FirstName + " " + separationData.LastNameAndSuffix);
-                    }
+                        var separationIssue = separationUsersToProcess
+                                .Where(w => w.EmployeeID == separationData.EmployeeID)
+                                .Select
+                                    (
+                                        s =>
+                                            new SeperationSummary
+                                            {
+                                                GCIMSID = -1,
+                                                EmployeeID = s.EmployeeID,
+                                                SeparationCode = s.SeparationCode,
+                                                Action = GetErrors(errors.Errors, Hrlinks.Separation).TrimEnd(',')
+                                            }
+                                    ).ToList();
 
-                    //Moved here on 9/15 was in the wrong location and was reporting 1 always
-                    processedRecords += 1;
+                        unsuccessfulSeparationUsersProcessed.AddRange(separationIssue);
+                    }
                 }
 
-                //Add to log
-                log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", processedUsers));
-                log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", unprocessedUsers));
-                log.Info("Separation Processed Records: " + String.Format("{0:#,###0}", processedRecords));
+                emailData.SEPFileName = Path.GetFileName(SEPFile);
+                emailData.SEPAttempted = separationUsersToProcess.Count;
+                emailData.SEPSucceeded = successfulSeparationUsersProcessed.Count;
+                emailData.SEPFailed = unsuccessfulSeparationUsersProcessed.Count;
+                emailData.SEPHasErrors = unsuccessfulSeparationUsersProcessed.Count > 0 ? true : false;
+
+                log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", successfulSeparationUsersProcessed.Count));
+                log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulSeparationUsersProcessed.Count));
+                log.Info("Separation Total Records: " + String.Format("{0:#,###0}", separationUsersToProcess.Count));
+
+                GenerateSeparationSummaryFiles(successfulSeparationUsersProcessed, unsuccessfulSeparationUsersProcessed);
             }
-            //Catch all errors
             catch (Exception ex)
             {
-                //Log error
-                log.Error("Process Separation Users Error:" + ex.Message + " " + ex.InnerException); 
+                log.Error("Process Separation Users Error:" + ex.Message + " " + ex.InnerException);
             }
         }
 
         /// <summary>
-        /// Process organization file
+        ///
         /// </summary>
-        /// <param name="organizationFile"></param>
-        public void ProcessOrganizationFile(string organizationFile)
+        /// <param name="processedSuccessSummary"></param>
+        /// <param name="processedErrorSummary"></param>
+        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary, List<SocialSecurityNumberChangeSummary> socialSecurityNumberChangeSummary, List<InactiveSummary> inactiveSummary)
         {
-            //Log start of function
-            log.Info("Processing Separation Users");
-
-            //If we can't open the DB just crash here no point going forward (just making sure we have a connection)
-            //if (conn.State == ConnectionState.Closed)
-            //{
-            //    conn.Open();
-            //    cmd.Connection = conn;
-            //}
-
-            //Declare counters
-            processedRecords = 0; //rolling count of records that were processed
-            processedUsers = 0;  //rolling count of users processed
-            unprocessedUsers = 0; //rolling count of unprocessed users
-
-            //List to hold csv data
-            List<Organization> organizationList = new List<Organization>();
-
-            //Populate list with csv data
-            organizationList = GetFileData<Organization, CustomOrganizationMap>(organizationFile, config);
-
-            //save.SaveCHRISInformation(chrisData);
-
-            //Return if nothing to store
-            if (organizationList.Count == 0)
-                return;
-
-            //Iterate and save data
-            foreach (Organization organizationData in organizationList)
+            if (usersProcessedSuccessSummary.Count > 0)
             {
-                //Save the data
-                save.SaveOrganizationInformation(organizationData);
-
-                //Increment counter
-                processedRecords += 1;
+                emailData.HRSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), usersProcessedSuccessSummary);
+                log.Info("HR Success File: " + emailData.HRSuccessfulSummaryFilename);
             }
 
-            //continue to process
-        }
-
-        /// <summary>
-        /// Gets person id from db using hashed ssn
-        /// The out param and the return are the same for some reason. 
-        /// </summary>
-        /// <param name="ssn"></param>
-        /// <param name="personID"></param>
-        /// <returns></returns>
-        private int GetPersonID(byte[] ssn, out int personID)
-        {
-            //Open connection if not open
-            if (conn.State == ConnectionState.Closed)
+            if (usersProcessedErrorSummary.Count > 0)
             {
-                conn.Open();
-                cmd.Connection = conn;
+                emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
+                log.Info("HR Error File: " + emailData.HRErrorSummaryFilename);
             }
 
-            try
+            if (socialSecurityNumberChangeSummary.Count > 0)
             {
-                object obj;
-
-                personID = 0;
-
-                //Set query string
-                cmd.CommandText = "Select pers_id from person where pers_hashed_ssn = @ssn";
-
-                //Clear parameters and add sql parameter for ssn
-                cmd.Parameters.Clear();
-                cmd.Parameters.AddWithValue("@ssn", ssn);
-
-                //Run command
-                obj = cmd.ExecuteScalar();
-
-                //Parse ID from object if not null
-                if (obj != null)
-                    personID = int.Parse(obj.ToString());
-
-                //Return person id
-                return personID;
-            }
-            //Catch all exceptions
-            catch (Exception ex)
-            {
-                //Log error and re-throw
-                log.Error(ex.Message + " - " + ex.InnerException);
-                throw;
-            }
-        }
-
-        //Overload in case we just want to return without an out
-        private int GetPersonID(byte[] ssn)
-        {
-            if (conn.State == ConnectionState.Closed)
-            {
-                conn.Open();
-                cmd.Connection = conn;
+                emailData.HRSocialSecurityNumberChangeSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SocialSecurityNumberChangeSummary, SocialSecurityNumberChangeSummaryMapping>(ConfigurationManager.AppSettings["SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME"].ToString(), socialSecurityNumberChangeSummary);
+                log.Info("HR Social Security Number Change File: " + emailData.HRSocialSecurityNumberChangeSummaryFilename);
             }
 
-            try
+            if (inactiveSummary.Count > 0)
             {
-                object obj;
-
-                cmd.CommandText = "Select pers_id from person where pers_hashed_ssn = @ssn";
-
-                cmd.Parameters.Clear();                
-                cmd.Parameters.AddWithValue("@ssn", ssn);
-
-                obj = cmd.ExecuteScalar();
-
-                if (obj != null)
-                    return int.Parse(obj.ToString());
-
-                return 0;
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex.Message + " - " + ex.InnerException);
-                throw;
+                emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<InactiveSummary, InactiveSummaryMapping>(ConfigurationManager.AppSettings["INACTIVESUMMARYFILENAME"].ToString(), inactiveSummary);
+                log.Info("HR Inactive File: " + emailData.HRInactiveSummaryFilename);
             }
         }
 
         /// <summary>
-        /// Determines if employee exists by employee id
+        ///
         /// </summary>
-        /// <param name="empID"></param>
-        /// <returns></returns>
-        private bool DoesEmployeeExist(string empID)
+        /// <param name="separationSuccessSummary"></param>
+        /// <param name="separationErrorSummary"></param>
+        private void GenerateSeparationSummaryFiles(List<SeperationSummary> separationSuccessSummary, List<SeperationSummary> separationErrorSummary)
         {
-            //Open connection if not open
-            if (connHR.State == ConnectionState.Closed)
+            if (separationSuccessSummary.Count > 0)
             {
-                connHR.Open();
-                cmdHR.Connection = connHR;
+                emailData.SeparationSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
+                log.Info("Separation Success File: " + emailData.SeparationSuccessfulSummaryFilename);
             }
+
+            if (separationErrorSummary.Count > 0)
+            {
+                emailData.SeparationErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
+                log.Info("Separation Error File: " + emailData.SeparationErrorSummaryFilename);
+            }
+        }
+
+        internal void SendSummaryEMail()
+        {
+            EMail email = new EMail();
+
+            string subject = string.Empty;
+            string body = string.Empty;
+            string attahcments = string.Empty;
+
+            subject = ConfigurationManager.AppSettings["EMAILSUBJECT"].ToString() + " - " + DateTime.Now.ToString("MMMM dd, yyyy HH:mm:ss");
+
+            body = GenerateEMailBody();
+
+            attahcments = SummaryAttachments();
 
             try
             {
-                object obj;
-
-                //Create query string
-                cmdHR.CommandText = "Select emp_id from employee where emp_id = @empID";
-
-                //Clear and set parameters
-                cmdHR.Parameters.Clear();
-                cmdHR.Parameters.AddWithValue("@empID", empID);
-
-                //Execute query
-                obj = cmdHR.ExecuteScalar();
-
-                //If object not null return true
-                if (obj != null)
-                    return true;
-
-                //Else return false
-                return false;
+                using (email)
+                {
+                    email.Send(ConfigurationManager.AppSettings["DEFAULTEMAIL"].ToString(),
+                               ConfigurationManager.AppSettings["TO"].ToString(),
+                               ConfigurationManager.AppSettings["CC"].ToString(),
+                               ConfigurationManager.AppSettings["BCC"].ToString(),
+                               subject, body, attahcments.TrimEnd(';'), ConfigurationManager.AppSettings["SMTPSERVER"].ToString(), true);
+                }
             }
-            //Catch all errors
             catch (Exception ex)
             {
-                //Log and re-throw
-                log.Error(ex.Message + " - " + ex.InnerException);
-                throw;
+                log.Error("Error Sending HR Links Summary E-Mail: " + ex.Message + " - " + ex.InnerException);
+            }
+            finally
+            {
+                log.Info("HR Links Summary E-Mail Sent");
             }
         }
+
+        public string GenerateEMailBody()
+        {
+            StringBuilder errors = new StringBuilder();
+            StringBuilder fileNames = new StringBuilder();
+
+            string template = File.ReadAllText(ConfigurationManager.AppSettings["SUMMARYTEMPLATE"]);
+
+            fileNames.Append(emailData.HRFilename == null ? "No HR Links File Found" : emailData.HRFilename.ToString());
+            fileNames.Append(", ");
+            fileNames.Append(emailData.SEPFileName == null ? "No Separation File Found" : emailData.SEPFileName.ToString());
+
+            template = template.Replace("[FILENAMES]", fileNames.ToString());
+
+            template = template.Replace("[HRATTEMPTED]", emailData.HRAttempted.ToString());
+            template = template.Replace("[HRSUCCEEDED]", emailData.HRSucceeded.ToString());
+            template = template.Replace("[HRFAILED]", emailData.HRFailed.ToString());
+
+            if (emailData.HRHasErrors)
+            {
+                errors.Clear();
+
+                errors.Append("<b><font color='red'>Errors were found while processing the HR file</font></b><br />");
+                errors.Append("<br />Please see the attached file: <b><font color='red'>");
+                errors.Append(emailData.HRErrorSummaryFilename);
+                errors.Append("</font></b>");
+
+                template = template.Replace("[IFHRERRORS]", errors.ToString());
+            }
+            else
+            {
+                template = template.Replace("[IFHRERRORS]", null);
+            }
+
+            template = template.Replace("[SEPATTEMPTED]", emailData.SEPAttempted.ToString());
+            template = template.Replace("[SEPSUCCEEDED]", emailData.SEPSucceeded.ToString());
+            template = template.Replace("[SEPFAILED]", emailData.SEPFailed.ToString());
+
+            if (emailData.SEPHasErrors)
+            {
+                errors.Clear();
+
+                errors.Append("<b><font color='red'>Errors were found while processing the separation file</font></b><br />");
+                errors.Append("<br />Please see the attached file: <b><font color='red'>");
+                errors.Append(emailData.SeparationErrorSummaryFilename);
+                errors.Append("</font></b>");
+
+                template = template.Replace("[IFSEPERRORS]", errors.ToString());
+            }
+            else
+            {
+                template = template.Replace("[IFSEPERRORS]", null);
+            }
+
+            return template;
+        }
+
+        private string SummaryAttachments()
+        {
+            StringBuilder attachments = new StringBuilder();
+
+            if (emailData.HRSuccessfulSummaryFilename != null)
+                attachments.Append(AddAttachment(emailData.HRSuccessfulSummaryFilename));
+
+            if (emailData.HRErrorSummaryFilename != null)
+                attachments.Append(AddAttachment(emailData.HRErrorSummaryFilename));
+
+            if (emailData.SeparationSuccessfulSummaryFilename != null)
+                attachments.Append(AddAttachment(emailData.SeparationSuccessfulSummaryFilename));
+
+            if (emailData.SeparationErrorSummaryFilename != null)
+                attachments.Append(AddAttachment(emailData.SeparationErrorSummaryFilename));
+
+            return attachments.ToString();
+        }
+
+        private string AddAttachment(string fileName)
+        {
+            StringBuilder addAttachment = new StringBuilder();
+
+            addAttachment.Append(ConfigurationManager.AppSettings["SUMMARYFILEPATH"]);
+            addAttachment.Append(fileName);
+            addAttachment.Append(";");
+
+            return addAttachment.ToString();
+        }
+
+        private enum Hrlinks{ Separation = 1, Hrfile = 2 };
+
+        private string GetErrors(IList<ValidationFailure> failures, Hrlinks hr)
+        {
+            StringBuilder errors = new StringBuilder();
+
+            foreach (var rule in failures)
+            {
+                errors.Append(rule.ErrorMessage.Remove(0,rule.ErrorMessage.IndexOf('.')+(int)hr));
+                errors.Append(",");
+            }
+
+            return errors.ToString();
+        }
+
+        
 
         /// <summary>
         /// Takes a file and loads the data into the object type specified using the mapping
@@ -369,22 +527,15 @@ namespace CHRISUpdate.Process
         /// <param name="filePath"></param>
         /// <param name="config"></param>
         /// <returns>A list of the type of objects specified</returns>
-        private List<TClass> GetFileData<TClass, TMap>(string filePath, CsvConfiguration config)
+        private List<TClass> GetFileData<TClass, TMap>(string filePath)
             where TClass : class
-            where TMap : CsvClassMap<TClass>
+            where TMap : ClassMap<TClass>
         {
-            CsvParser csvParser = new CsvParser(new StreamReader(filePath), config);
+            CsvParser csvParser = new CsvParser(new StreamReader(filePath));
             CsvReader csvReader = new CsvReader(csvParser);
 
-            //Used for testing
-            //while (true)
-            //{
-            //    var row = csvParser.Read();
-            //    if (row == null)
-            //    {
-            //        break;
-            //    }
-            //}
+            csvReader.Configuration.Delimiter = "~";
+            csvReader.Configuration.HasHeaderRecord = false;
 
             csvReader.Configuration.RegisterClassMap<TMap>();
 

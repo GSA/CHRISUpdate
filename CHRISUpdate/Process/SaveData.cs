@@ -1,504 +1,261 @@
-﻿using System;
+﻿using AutoMapper;
+using HRUpdate.Models;
+using MySql.Data.MySqlClient;
+using System;
 using System.Configuration;
 using System.Data;
-using CHRISUpdate.Models;
-using MySql.Data.MySqlClient;
-using System.Linq;
-using System.Reflection;
 
-namespace CHRISUpdate.Process
+namespace HRUpdate.Process
 {
-    class SaveData
+    internal class SaveData
     {
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        //Set connection string from config file
-        private static string connectionString = ConfigurationManager.ConnectionStrings["HR"].ToString();
-
         //Set up connection
-        //MySqlConnection conn = new MySqlConnection(connectionString);
-        MySqlCommand cmd = new MySqlCommand();
+        private readonly MySqlConnection conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["GCIMS"].ToString());
 
-        //Want to turn this into the type converter in mapping
-        Utilities.Utilities u = new Utilities.Utilities();
+        private readonly MySqlCommand cmd = new MySqlCommand();
 
-        public SaveData(){}
+        private readonly IMapper saveMapper;
 
-        /// <summary>
-        /// Saves chris info and returns true if successful
-        /// </summary>
-        /// <param name="saveData"></param>
-        /// <param name="conn"></param>
-        /// <returns>bool</returns>
-        public bool SaveCHRISInformation(Chris saveData, MySqlConnection conn)
+        public SaveData(IMapper mapper)
+        {
+            saveMapper = mapper;
+        }
+
+        public Tuple<int, int, string, string, Employee> GetGCIMSRecord(string employeeID, string ssn, string lastName, string dateOfBirth)
         {
             try
             {
-                //Open connection if not open
-                if (conn.State == ConnectionState.Closed)
-                    conn.Open();
-
-                //Set up cmd
-                cmd.Connection = conn;
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                //AddOrUpdate<Employee>(saveData.Employee, "Employee");
-
-                //Save data in db
-                AddOrUpdate(saveData.Employee);
-                AddOrUpdate(saveData.Position);
-                AddOrUpdate(saveData.Supervisor);
-                AddOrUpdate(saveData.Security);
-                AddOrUpdate(saveData.Person);
-
-                //AddOrUpdate<Employee>(saveData.Employee);
-
-                //Return true if save was successful
-                return true;
-            }
-            //Catch all errors
-            catch (Exception ex)
-            {
-                //Log error and return false for failure while saving
-                log.Warn("[SaveCHRISInformation] - Unable to save " + saveData.ChrisID + ex.InnerException);
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Save separation info and return true if successful
-        /// </summary>
-        /// <param name="saveData"></param>
-        /// <param name="conn"></param>
-        /// <returns>Bool</returns>
-        public bool SaveSeparationInformation(Separation saveData, MySqlConnection conn)
-        {
-            try
-            {
-                //Open connection if not open
-                if (conn.State == ConnectionState.Closed)
-                    conn.Open();
-
-                //Set cmd
-                cmd.Connection = conn;
-                cmd.CommandType = CommandType.StoredProcedure;
-
-                //AddOrupdate<Separation>(saveData, "Separation");
-
-                //Save data
-                AddOrUpdate(saveData);
-
-                //If success return true
-                return true;
-            }
-            //Catch all errors
-            catch (Exception)
-            {
-                //Log error and return false
-                log.Warn("[SaveSeparationInformation] Unable to save " + saveData.EmployeeID);
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Always returns true
-        /// Function has no purpose
-        /// </summary>
-        /// <param name="saveData"></param>
-        /// <returns>Bool</returns>
-        public bool SaveOrganizationInformation(Organization saveData)
-        {
-            //AddOrupdate<Organization>(saveData, "Organization");
-            return true;
-        }
-
-        /// <summary>
-        /// Save organization data
-        /// </summary>
-        /// <param name="organizationData"></param>
-        private void AddOrUpdate(Organization organizationData)
-        {
-            try
-            {
-                //Set cmd
-                cmd.CommandText = "Organization";
-
-                //Clear parameters and add new parameters
-                cmd.Parameters.Clear();
-                MySqlParameter[] employeParameters = new MySqlParameter[] {
-                                        new MySqlParameter { ParameterName = "@SeparationCode", Value = organizationData.AbolishedbyOrder, MySqlDbType = MySqlDbType.VarChar, Size = 2},
-                                        new MySqlParameter { ParameterName = "@SeparationDate", Value = organizationData.ChangedByOrder, MySqlDbType = MySqlDbType.Date},
-                                        new MySqlParameter { ParameterName = "@EmpID", Value = organizationData.ChangedByOrder, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is CHRIS ID
-                                    };
-
-                //Add sql parameters to cmd
-                cmd.Parameters.AddRange(employeParameters);
-
-                //Execute cmd
-                cmd.ExecuteNonQuery();
-            }
-            //Catch all exceptions
-            catch (Exception ex)
-            {
-                //Log error and re-throw
-                log.Error("Process Organization Users Error:" + ex.Message + " " + ex.InnerException);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Save separation data in db
-        /// </summary>
-        /// <param name="separationData"></param>
-        private void AddOrUpdate(Separation separationData)
-        {
-            try
-            {
-                //Set up cmd
-                cmd.CommandText = "Separation";
-
-                //Clear sql parameters and create new sql parameters
-                cmd.Parameters.Clear();
-                MySqlParameter[] employeParameters = new MySqlParameter[] {
-                                        new MySqlParameter { ParameterName = "@SeparationCode", Value = separationData.SeparationCode, MySqlDbType = MySqlDbType.VarChar, Size = 2},
-                                        new MySqlParameter { ParameterName = "@SeparationDate", Value = separationData.SeparationDate, MySqlDbType = MySqlDbType.Date},
-                                        new MySqlParameter { ParameterName = "@EmpID", Value = separationData.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is CHRIS ID
-                                    };
-
-                //Add parameters to cmd
-                cmd.Parameters.AddRange(employeParameters);
-
-                //Execute query
-                cmd.ExecuteNonQuery();
-            }
-            //Catch all exceptions
-            catch (Exception ex)
-            {
-                //Log error and re-throw
-                log.Error("Process Separation Users Error:" + ex.Message + " " + ex.InnerException);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Add or update person data
-        /// </summary>
-        /// <param name="personData"></param>
-        private void AddOrUpdate(Person personData)
-        {
-            try
-            {
-                //Set up cmd
-                cmd.CommandText = "Person";
-
-                //Clear sql params
-                cmd.Parameters.Clear();
-
-                //New sql params
-                MySqlParameter[] personParameters = new MySqlParameter[] {
-                                        new MySqlParameter { ParameterName = "@PersonID", Value = personData.PersonID, MySqlDbType = MySqlDbType.Int32, Size = 20 },
-                                        new MySqlParameter { ParameterName = "@Gender", Value = personData.Gender, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
-                                        new MySqlParameter { ParameterName = "@SupervisoryLevel", Value = personData.SupervisoryLevel, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
-                                        new MySqlParameter { ParameterName = "@ChrisID", Value = personData.ChrisID, MySqlDbType = MySqlDbType.VarChar, Size = 12 },
-                                        new MySqlParameter { ParameterName = "@JobTitle", Value = personData.JobTitle, MySqlDbType = MySqlDbType.VarChar, Size = 60 },
-                                        new MySqlParameter { ParameterName = "@OfficeSymbol", Value = personData.OfficeSymbol, MySqlDbType = MySqlDbType.VarChar, Size = 12 },
-                                        //new MySqlParameter { ParameterName = "@MajorOrg", Value = personData.MajorOrg, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
-                                        new MySqlParameter { ParameterName = "@Region", Value = personData.Region, MySqlDbType = MySqlDbType.VarChar, Size = 3 },
-                                        new MySqlParameter { ParameterName = "@Supervisor", Value = personData.Supervisor, MySqlDbType = MySqlDbType.VarChar, Size = 100 },                                        
-                                    };
-
-                //Add new params to cmd
-                cmd.Parameters.AddRange(personParameters);
-
-                //Execute cmd
-                cmd.ExecuteNonQuery();
-            }
-            //Catch all errors
-            catch (Exception ex)
-            {
-                //Log Error and re-throw
-                log.Error("[AddOrUpdate - Person] - Process Users Error:" + ex.Message + " " + ex.InnerException);
-                throw;
-            }
-        }
-
-        //auto set separation values always to null here
-
-        /// <summary>
-        /// Add or update employee data
-        /// </summary>
-        /// <param name="employeeData"></param>
-        private void AddOrUpdate(Employee employeeData)
-        {
-            try
-            {
-                //bool IsSavePII = false;
-
-                //bool.TryParse(ConfigurationManager.AppSettings["LOADPII"].ToString(), out IsSavePII);
-
-                //if (!IsSavePII) //Should always be false
-                    //employeeData.SSN = null;
-
-                //Set up cmd
-                cmd.CommandText = "Employee";
-
-                //Clear sql params
-                cmd.Parameters.Clear();
-
-                //Set sql parameters
-                MySqlParameter[] employeParameters = new MySqlParameter[] {
-                                        new MySqlParameter { ParameterName = "@PersonID", Value = employeeData.PersonID, MySqlDbType = MySqlDbType.Int32, Size = 20 },
-                                        new MySqlParameter { ParameterName = "@EmpUniqueID", Value = employeeData.UniqueEmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 30 },
-                                        new MySqlParameter { ParameterName = "@EmpID", Value = employeeData.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@SSN", Value = DBNull.Value, MySqlDbType = MySqlDbType.VarBinary, Size = 32 }, //No need to store this
-                                        new MySqlParameter { ParameterName = "@AgencyCode", Value = employeeData.AgencyCode, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
-                                        new MySqlParameter { ParameterName = "@EmpStatus", Value = employeeData.EmployeeStatus, MySqlDbType = MySqlDbType.VarChar, Size = 8 },
-                                        new MySqlParameter { ParameterName = "@DutyStatus", Value = employeeData.DutyStatus, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
-                                        new MySqlParameter { ParameterName = "@AssignmentStatus", Value = employeeData.AssignmentStatus, MySqlDbType = MySqlDbType.VarChar, Size = 80 },
-                                        new MySqlParameter { ParameterName = "@SCDLeave", Value = employeeData.SCDLeave, MySqlDbType = MySqlDbType.Date },
-                                        new MySqlParameter { ParameterName = "@Suffix", Value = employeeData.FamilySuffix, MySqlDbType = MySqlDbType.VarChar, Size = 150 },
-                                        new MySqlParameter { ParameterName = "@FirstName", Value = employeeData.FirstName, MySqlDbType = MySqlDbType.VarChar, Size = 150 },
-                                        new MySqlParameter { ParameterName = "@MiddleName", Value = employeeData.MiddleName, MySqlDbType = MySqlDbType.VarChar, Size = 60 },
-                                        new MySqlParameter { ParameterName = "@Gender", Value = employeeData.Gender, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
-                                        new MySqlParameter { ParameterName = "@SupervisoryStatus", Value = employeeData.SupervisoryStatus, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
-                                    };
-
-                //Add parameters to cmd
-                cmd.Parameters.AddRange(employeParameters);
-
-                //Execute cmd
-                cmd.ExecuteNonQuery();
-            }
-            //Catch all errors
-            catch (Exception ex)
-            {
-                //Log errors and re-throw
-                log.Error("[AddOrUpdate - Employee] - Process Users Error:" + ex.Message + " " + ex.InnerException);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// add or update position data
-        /// </summary>
-        /// <param name="employeeData"></param>
-        private void AddOrUpdate(Position employeeData)
-        {
-            try
-            {
-                //Setup cmd
-                cmd.CommandText = "Position";
-
-                //Clear sql params
-                cmd.Parameters.Clear();
-
-                //New sql params
-                MySqlParameter[] employeParameters = new MySqlParameter[] {
-                                        new MySqlParameter { ParameterName = "@EmployeeID", Value = employeeData.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@PosNo", Value = employeeData.PositionNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@PositionControlNumber", Value = employeeData.PositionControlNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@PositionControlNumberIndicator", Value = employeeData.PositionControlNumberIndicator, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
-                                        new MySqlParameter { ParameterName = "@AgencyCodeSubelment", Value = employeeData.AgencyCodeSubelment, MySqlDbType = MySqlDbType.VarChar, Size = 4 },
-                                        new MySqlParameter { ParameterName = "@TeleworkEligible", Value = employeeData.TeleworkEligible, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
-                                        new MySqlParameter { ParameterName = "@Sensitivity", Value = employeeData.Sensitivity, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
-                                        new MySqlParameter { ParameterName = "@StartDate", Value = employeeData.StartDate, MySqlDbType = MySqlDbType.Date },
-                                        new MySqlParameter { ParameterName = "@EndDate", Value = employeeData.EndDate, MySqlDbType = MySqlDbType.Date },
-                                        new MySqlParameter { ParameterName = "@JobTitle", Value = employeeData.JobTitle, MySqlDbType = MySqlDbType.VarChar, Size = 60 },
-                                        new MySqlParameter { ParameterName = "@OrganizationCode", Value = employeeData.OrganizationCode, MySqlDbType = MySqlDbType.VarChar, Size = 250 },
-                                        new MySqlParameter { ParameterName = "@OfficeSymbol", Value = employeeData.OfficeSymbol, MySqlDbType = MySqlDbType.VarChar, Size = 18 },
-                                        new MySqlParameter { ParameterName = "@PayPlan", Value = employeeData.PayPlan, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
-                                        new MySqlParameter { ParameterName = "@JobSeries", Value = employeeData.JobSeries, MySqlDbType = MySqlDbType.VarChar, Size = 4 },
-                                        new MySqlParameter { ParameterName = "@LevelGrade", Value = employeeData.LevelGrade, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
-                                        new MySqlParameter { ParameterName = "@WorkSchedule", Value = employeeData.WorkSchedule, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
-                                        new MySqlParameter { ParameterName = "@Region", Value = employeeData.Region, MySqlDbType = MySqlDbType.VarChar, Size = 3 },
-                                        new MySqlParameter { ParameterName = "@DutyCode", Value = employeeData.DutyCode, MySqlDbType = MySqlDbType.VarChar, Size = 9 },
-                                        new MySqlParameter { ParameterName = "@DutyCity", Value = employeeData.DutyCity, MySqlDbType = MySqlDbType.VarChar, Size = 40 },
-                                        new MySqlParameter { ParameterName = "@DutyState", Value = employeeData.DutyState, MySqlDbType = MySqlDbType.VarChar, Size = 40 },
-                                        new MySqlParameter { ParameterName = "@DutyCounty", Value = employeeData.DutyCounty, MySqlDbType = MySqlDbType.VarChar, Size = 40 },
-                                        new MySqlParameter { ParameterName = "@IsDetail", Value = false, MySqlDbType = MySqlDbType.Bit },
-                                    };
-
-                //Add new params to cmd
-                cmd.Parameters.AddRange(employeParameters);
-
-                //Execute cmd
-                cmd.ExecuteNonQuery();
-
-                //Need to figure out a better way for parameters
-                //If on detail than insert detail information
-                if (employeeData.IsDetail)
+                using (conn)
                 {
-                    cmd.Parameters.Clear();
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
 
-                    MySqlParameter[] employeParametersDetails = new MySqlParameter[] {
-                                        new MySqlParameter { ParameterName = "@EmployeeID", Value = employeeData.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@PosNo", Value = employeeData.DetailPositionNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@PositionControlNumber", Value = employeeData.DetailPositionControlNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@PositionControlNumberIndicator", Value = employeeData.DetailPositionControlNumberIndicator, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
-                                        new MySqlParameter { ParameterName = "@AgencyCodeSubelment", Value = employeeData.AgencyCodeSubelment, MySqlDbType = MySqlDbType.VarChar, Size = 4 },
-                                        new MySqlParameter { ParameterName = "@TeleworkEligible", Value = employeeData.TeleworkEligible, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
-                                        new MySqlParameter { ParameterName = "@Sensitivity", Value = employeeData.Sensitivity, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
-                                        new MySqlParameter { ParameterName = "@StartDate", Value = employeeData.DetailBeginDate, MySqlDbType = MySqlDbType.Date },
-                                        new MySqlParameter { ParameterName = "@EndDate", Value = employeeData.DetailEndDate, MySqlDbType = MySqlDbType.Date },
-                                        new MySqlParameter { ParameterName = "@JobTitle", Value = employeeData.DetailPositionTitle, MySqlDbType = MySqlDbType.VarChar, Size = 60 },
-                                        new MySqlParameter { ParameterName = "@OrganizationCode", Value = employeeData.DetailOrganizationCode, MySqlDbType = MySqlDbType.VarChar, Size = 250 },
-                                        new MySqlParameter { ParameterName = "@OfficeSymbol", Value = employeeData.DetailOfficeSymbol, MySqlDbType = MySqlDbType.VarChar, Size = 18 },
-                                        new MySqlParameter { ParameterName = "@PayPlan", Value = employeeData.DetailPayPlan, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
-                                        new MySqlParameter { ParameterName = "@JobSeries", Value = employeeData.DetailJobSeries, MySqlDbType = MySqlDbType.VarChar, Size = 4 },
-                                        new MySqlParameter { ParameterName = "@LevelGrade", Value = employeeData.DetailLevelGrade, MySqlDbType = MySqlDbType.VarChar, Size = 2 },
-                                        new MySqlParameter { ParameterName = "@WorkSchedule", Value = employeeData.DetailWorkSchedule, MySqlDbType = MySqlDbType.VarChar, Size = 1 },
-                                        new MySqlParameter { ParameterName = "@Region", Value = employeeData.DetailRegion, MySqlDbType = MySqlDbType.VarChar, Size = 3 },
-                                        new MySqlParameter { ParameterName = "@DutyCode", Value = employeeData.DetailDutyCode, MySqlDbType = MySqlDbType.VarChar, Size = 9 },
-                                        new MySqlParameter { ParameterName = "@DutyCity", Value = employeeData.DetailDutyCity, MySqlDbType = MySqlDbType.VarChar, Size = 40 },
-                                        new MySqlParameter { ParameterName = "@DutyState", Value = employeeData.DetailDutyState, MySqlDbType = MySqlDbType.VarChar, Size = 40 },
-                                        new MySqlParameter { ParameterName = "@DutyCounty", Value = employeeData.DetailDutyCounty, MySqlDbType = MySqlDbType.VarChar, Size = 40 },
-                                        new MySqlParameter { ParameterName = "@IsDetail", Value = employeeData.IsDetail, MySqlDbType = MySqlDbType.Bit },
-                                    };
+                    using (cmd)
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = "HR_GetRecord";
 
-                    cmd.Parameters.AddRange(employeParametersDetails);
+                        cmd.Parameters.Clear();
+                        MySqlParameter[] personParameters = new MySqlParameter[]
+                        {
+                            new MySqlParameter { ParameterName = "ssn", Value = ssn, MySqlDbType = MySqlDbType.VarChar, Size = 9},
+                            new MySqlParameter { ParameterName = "lastName", Value = lastName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
+                            new MySqlParameter { ParameterName = "dateOfBirth", Value = dateOfBirth, MySqlDbType = MySqlDbType.VarChar, Size = 10},
+                            new MySqlParameter { ParameterName = "emplID", Value = employeeID, MySqlDbType = MySqlDbType.VarChar, Size = 12 },
+                            new MySqlParameter { ParameterName = "persID", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "result", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "actionMsg", MySqlDbType = MySqlDbType.VarChar, Size = 50, Direction = ParameterDirection.Output },
+                            new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
+                        };
 
-                    cmd.ExecuteNonQuery();
+                        cmd.Parameters.AddRange(personParameters);
+
+                        MySqlDataReader gcimsData;
+
+                        Employee gcimsRecord = new Employee();
+
+                        gcimsData = cmd.ExecuteReader();
+
+                        using (gcimsData)
+                        {
+                            if (gcimsData.HasRows)
+                                gcimsRecord = MapGCIMSData(gcimsData);
+                        }
+
+                        return new Tuple<int, int, string, string, Employee>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["actionMsg"].Value.ToString(), cmd.Parameters["SQLExceptionWarning"].Value.ToString(), gcimsRecord);
+                    }
                 }
             }
-            //Catch errors
             catch (Exception ex)
             {
-                //Log and re-throw
-                log.Error("[AddOrUpdate - Position] - Process Users Error:" + ex.Message + " " + ex.InnerException);
-                throw;
+                log.Error("GetGCIMSRecord: " + employeeID + " - " + ex.Message + " - " + ex.InnerException);
+                return new Tuple<int, int, string, string, Employee>(-1, -1, ex.Message.ToString(), ex.InnerException.ToString(), null);
             }
         }
 
+        private Employee MapGCIMSData(MySqlDataReader gcimsData)
+        {
+            Employee employee = new Employee();
+
+            while (gcimsData.Read())
+            {
+                employee.Address = saveMapper.Map<IDataReader, Address>(gcimsData);
+                employee.Birth = saveMapper.Map<IDataReader, Birth>(gcimsData);
+                employee.Emergency = saveMapper.Map<IDataReader, Emergency>(gcimsData);
+                employee.Investigation = saveMapper.Map<IDataReader, Investigation>(gcimsData);
+                employee.Person = saveMapper.Map<IDataReader, Person>(gcimsData);
+                employee.Phone = saveMapper.Map<IDataReader, Phone>(gcimsData);
+                employee.Position = saveMapper.Map<IDataReader, Position>(gcimsData); //Need to fix SupervisorID
+            }
+
+            return employee;
+        }
+
         /// <summary>
-        /// Add or update supervisor data
+        ///
         /// </summary>
-        /// <param name="employeeData"></param>
-        private void AddOrUpdate(Supervisor employeeData)
+        /// <param name="saveData"></param>
+        /// <returns></returns>
+        /// Change to person data
+        public Tuple<int, string, string> UpdatePersonInformation(int persID, Employee hrData)
         {
             try
             {
-                //Set up cmd
-                cmd.CommandText = "Supervisor";
+                using (conn)
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
 
-                //Clear sql params
-                cmd.Parameters.Clear();
+                    using (cmd)
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = "HR_UpdatePerson";
 
-                //New sql params
-                MySqlParameter[] employeParameters = new MySqlParameter[] {
-                                        new MySqlParameter { ParameterName = "@EmployeeID", Value = employeeData.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@UniqueEmployeeID", Value = employeeData.UniqueEmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 30, IsNullable = true },
-                                        new MySqlParameter { ParameterName = "@SupervisorEmployeeID", Value = employeeData.SupervisorEmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15, IsNullable = true },
-                                        new MySqlParameter { ParameterName = "@LastNameSuffix", Value = employeeData.LastNameSuffix, MySqlDbType = MySqlDbType.VarChar, Size = 150, IsNullable = true },
-                                        new MySqlParameter { ParameterName = "@FirstName", Value = employeeData.FirstName, MySqlDbType = MySqlDbType.VarChar, Size = 150, IsNullable = true },
-                                        new MySqlParameter { ParameterName = "@MiddleName", Value = employeeData.MiddleName, MySqlDbType = MySqlDbType.VarChar, Size = 60, IsNullable = true },                                        
-                                        new MySqlParameter { ParameterName = "@PositionControlNumber", Value = employeeData.PositionControlNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15, IsNullable = true },                                        
-                                        new MySqlParameter { ParameterName = "@PositionControlNumberIndicator", Value = employeeData.PositionControlNumberIndicator, MySqlDbType = MySqlDbType.VarChar, Size = 1, IsNullable = true },                                        
-                                        new MySqlParameter { ParameterName = "@EMail", Value = employeeData.EMail, MySqlDbType = MySqlDbType.VarChar, Size = 100, IsNullable = true },                                        
+                        cmd.Parameters.Clear();
 
-                                    };
+                        //If Detail select detail object values
 
-                //Add new sql params to cmd
-                cmd.Parameters.AddRange(employeParameters);
+                        MySqlParameter[] personParameters = new MySqlParameter[]
+                        {
+                            new MySqlParameter { ParameterName = "persID", Value = persID, MySqlDbType = MySqlDbType.Int32},
+                            new MySqlParameter { ParameterName = "emplID", Value = hrData.Person.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},
+                            new MySqlParameter { ParameterName = "lastName", Value = hrData.Person.LastName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
+                            new MySqlParameter { ParameterName = "suffix", Value = hrData.Person.Suffix, MySqlDbType = MySqlDbType.VarChar, Size = 15},
+                            new MySqlParameter { ParameterName = "firstName", Value = hrData.Person.FirstName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
+                            new MySqlParameter { ParameterName = "middleName", Value = hrData.Person.MiddleName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
+                            new MySqlParameter { ParameterName = "cityOfBirth", Value = hrData.Birth.CityOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "stateOfBirth", Value = hrData.Birth.StateOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "countryOfBirth", Value = hrData.Birth.CountryOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "countryOfCitizenship", Value = hrData.Birth.CountryOfCitizenship, MySqlDbType = MySqlDbType.VarChar, Size = 2},
+                            new MySqlParameter { ParameterName = "isCitizen", Value = hrData.Birth.Citizen, MySqlDbType = MySqlDbType.Byte},
+                            new MySqlParameter { ParameterName = "cordialName", Value = hrData.Person.CordialName, MySqlDbType = MySqlDbType.VarChar, Size = 24},
+                            new MySqlParameter { ParameterName = "homeAddress1", Value = hrData.Address.HomeAddress1, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "homeAddress2", Value = hrData.Address.HomeAddress2, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "homeCity", Value = hrData.Address.HomeCity, MySqlDbType = MySqlDbType.VarChar, Size = 50},
+                            new MySqlParameter { ParameterName = "homeState", Value = hrData.Address.HomeState, MySqlDbType = MySqlDbType.VarChar, Size = 2},
+                            new MySqlParameter { ParameterName = "homeZipCode", Value = hrData.Address.HomeZipCode, MySqlDbType = MySqlDbType.VarChar, Size = 10},
+                            new MySqlParameter { ParameterName = "homeCountry", Value = hrData.Address.HomeCountry, MySqlDbType = MySqlDbType.VarChar, Size = 2},
+                            new MySqlParameter { ParameterName = "dateOfBirth", Value = hrData.Birth.DateOfBirth?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "gender", Value = hrData.Person.Gender, MySqlDbType = MySqlDbType.VarChar, Size = 1},
+                            new MySqlParameter { ParameterName = "scdLeave", Value = hrData.Person.ServiceComputationDateLeave?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "priorInvestigation", Value = hrData.Investigation.PriorInvestigation, MySqlDbType = MySqlDbType.VarChar, Size = 20},
+                            new MySqlParameter { ParameterName = "typeOfInvestigation", Value = hrData.Investigation.TypeOfInvestigation, MySqlDbType = MySqlDbType.VarChar, Size = 20},
+                            new MySqlParameter { ParameterName = "dateOfInvestigation", Value = hrData.Investigation.DateOfInvestigation?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "typeOfInvestigationToRequest", Value = hrData.Investigation.TypeOfInvestigationToRequest, MySqlDbType = MySqlDbType.VarChar, Size = 12},
+                            new MySqlParameter { ParameterName = "initialResult", Value = hrData.Investigation.InitialResult, MySqlDbType = MySqlDbType.Byte},
+                            new MySqlParameter { ParameterName = "initialResultDate", Value = hrData.Investigation.InitialResultDate?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "finalResult", Value = hrData.Investigation.FinalResult, MySqlDbType = MySqlDbType.Byte},
+                            new MySqlParameter { ParameterName = "finalResultDate", Value = hrData.Investigation.FinalResultDate?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "adjudicatorEmplID", Value = hrData.Investigation.AdjudicatorEmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},
+                            new MySqlParameter { ParameterName = "pcn", Value = hrData.Position.PositionControlNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15},
+                            new MySqlParameter { ParameterName = "jobTitle", Value = hrData.Position.PositionTitle, MySqlDbType = MySqlDbType.VarChar, Size = 70},
+                            new MySqlParameter { ParameterName = "supervisoryStatus", Value = hrData.Position.SupervisoryStatus, MySqlDbType = MySqlDbType.VarChar, Size = 2},
+                            new MySqlParameter { ParameterName = "payPlan", Value = hrData.Position.PayPlan, MySqlDbType = MySqlDbType.VarChar, Size = 3},
+                            new MySqlParameter { ParameterName = "jobSeries", Value = hrData.Position.JobSeries, MySqlDbType = MySqlDbType.VarChar, Size = 8},
+                            new MySqlParameter { ParameterName = "payGrade", Value = hrData.Position.PayGrade, MySqlDbType = MySqlDbType.VarChar, Size = 3},
+                            new MySqlParameter { ParameterName = "workSchedule", Value = hrData.Position.WorkSchedule, MySqlDbType = MySqlDbType.VarChar, Size = 1},
+                            new MySqlParameter { ParameterName = "fero", Value = hrData.Person.FederalEmergencyResponseOfficial, MySqlDbType = MySqlDbType.Byte},
+                            new MySqlParameter { ParameterName = "leo", Value = hrData.Person.LawEnforcementOfficer, MySqlDbType = MySqlDbType.Byte},
+                            new MySqlParameter { ParameterName = "positionTeleworkEligibility", Value = hrData.Position.PositionTeleworkEligibility, MySqlDbType = MySqlDbType.Byte},
+                            new MySqlParameter { ParameterName = "positionSensitivity", Value = hrData.Position.PositionSensitivity, MySqlDbType = MySqlDbType.VarChar, Size = 4},
+                            new MySqlParameter { ParameterName = "positionStartDate", Value = hrData.Position.PositionStartDate?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "region", Value = hrData.Person.Region, MySqlDbType = MySqlDbType.VarChar, Size = 3},
+                            new MySqlParameter { ParameterName = "dutyLocationCode", Value = hrData.Position.DutyLocationCode, MySqlDbType = MySqlDbType.VarChar, Size = 9},
+                            new MySqlParameter { ParameterName = "dutyLocationCity", Value = hrData.Position.DutyLocationCity, MySqlDbType = MySqlDbType.VarChar, Size = 40},
+                            new MySqlParameter { ParameterName = "dutyLocationState", Value = hrData.Position.DutyLocationState, MySqlDbType = MySqlDbType.VarChar, Size = 2},
+                            new MySqlParameter { ParameterName = "dutyLocationCounty", Value = hrData.Position.DutyLocationCounty, MySqlDbType = MySqlDbType.VarChar, Size = 40},
+                            new MySqlParameter { ParameterName = "agencyCodeSubelement", Value = hrData.Position.AgencyCodeSubelement, MySqlDbType = MySqlDbType.VarChar, Size = 4},
+                            new MySqlParameter { ParameterName = "organizationCode", Value = hrData.Person.OrganizationCode, MySqlDbType = MySqlDbType.VarChar, Size = 2},
+                            new MySqlParameter { ParameterName = "supervisorEmplId", Value = hrData.Position.SupervisorEmployeeID, MySqlDbType = MySqlDbType.Int64},
+                            new MySqlParameter { ParameterName = "homeAddress3", Value = hrData.Address.HomeAddress3, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "positionTitle", Value = hrData.Position.PositionTitle, MySqlDbType = MySqlDbType.VarChar, Size = 60},
+                            new MySqlParameter { ParameterName = "positionOrganization", Value = hrData.Position.PositionOrganization, MySqlDbType = MySqlDbType.VarChar, Size = 18},
+                            new MySqlParameter { ParameterName = "homePhone", Value = hrData.Phone.HomePhone, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "homeCell", Value = hrData.Phone.HomeCell, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "homeEmail", Value = hrData.Person.HomeEmail, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "emergencyContactName", Value = hrData.Emergency.EmergencyContactName, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "emergencyContactHomePhone", Value = hrData.Emergency.EmergencyContactHomePhone, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "emergencyContactWorkPhone", Value = hrData.Emergency.EmergencyContactWorkPhone, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "emergencyContactCellPhone", Value = hrData.Emergency.EmergencyContactCellPhone, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "outOfAreaContactName", Value = hrData.Emergency.OutOfAreaContactName, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "outOfAreaContactHomePhone", Value = hrData.Emergency.OutOfAreaContactHomePhone, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "outOfAreaContactWorkPhone", Value = hrData.Emergency.OutOfAreaContactWorkPhone, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "outOfAreaContactCellPhone", Value = hrData.Emergency.OutOfAreaContactCellPhone, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "workPhone", Value = hrData.Phone.WorkPhone, MySqlDbType = MySqlDbType.VarChar, Size = 22},
+                            new MySqlParameter { ParameterName = "workFax", Value = hrData.Phone.WorkFax, MySqlDbType = MySqlDbType.VarChar, Size = 22},
+                            new MySqlParameter { ParameterName = "workCell", Value = hrData.Phone.WorkCell, MySqlDbType = MySqlDbType.VarChar, Size = 22},
+                            new MySqlParameter { ParameterName = "workTTY", Value = hrData.Phone.WorkTextTelephone, MySqlDbType = MySqlDbType.VarChar, Size = 22},
+                            new MySqlParameter { ParameterName = "result", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "actionMsg", MySqlDbType = MySqlDbType.VarChar, Size = 50, Direction = ParameterDirection.Output },
+                            new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
+                        };
 
-                //Execute cmd
-                cmd.ExecuteNonQuery();
+                        cmd.Parameters.AddRange(personParameters);
+
+                        cmd.ExecuteNonQuery();
+
+                        return new Tuple<int, string, string>((int)cmd.Parameters["result"].Value, cmd.Parameters["actionMsg"].Value.ToString(), cmd.Parameters["SQLExceptionWarning"].Value.ToString());
+                    }
+                }
             }
             //Catch all errors
             catch (Exception ex)
             {
-                //Log and re-throw
-                log.Error("[AddOrUpdate - Supervisor] - Process Users Error:" + ex.Message + " " + ex.InnerException);
-                throw;
+                log.Error("Updating GCIMS Record: " + ex.Message + " - " + ex.InnerException);
+                return new Tuple<int, string, string>(-1, "-1", ex.Message.ToString());
             }
         }
 
         /// <summary>
-        /// Add or update security data
+        /// Saves Separation Data
         /// </summary>
-        /// <param name="employeeData"></param>
-        private void AddOrUpdate(Security employeeData)
+        /// <param name="separationData"></param>
+        /// <returns></returns>
+        public Tuple<int, int, string, string> SeparateUser(Separation separationData)
         {
             try
             {
-                //Set up cmd
-                cmd.CommandText = "Security";
+                using (conn)
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
 
-                //Clear sql params
-                cmd.Parameters.Clear();
+                    using (cmd)
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = "HR_Separation";
 
-                //New sql params
-                MySqlParameter[] employeParameters = new MySqlParameter[] {
-                                        new MySqlParameter { ParameterName = "@EmployeeID", Value = employeeData.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 15 },
-                                        new MySqlParameter { ParameterName = "@TypeCompleted", Value = employeeData.TypeCompleted, MySqlDbType = MySqlDbType.VarChar, Size = 30 },
-                                        new MySqlParameter { ParameterName = "@DateCompleted", Value = employeeData.DateCompleted, MySqlDbType = MySqlDbType.Date },
-                                        new MySqlParameter { ParameterName = "@PriorCompleted", Value = employeeData.PriorCompleted, MySqlDbType = MySqlDbType.VarChar, Size = 30 },
-                                        new MySqlParameter { ParameterName = "@TypeRequested", Value = employeeData.TypeRequested, MySqlDbType = MySqlDbType.VarChar, Size = 30 },
-                                        new MySqlParameter { ParameterName = "@AdjudicationAuth", Value = employeeData.AdjudicationAuth, MySqlDbType = MySqlDbType.VarChar, Size = 240 },                                        
-                                    };
+                        cmd.Parameters.Clear();
+                        MySqlParameter[] employeeParameters = new MySqlParameter[]
+                        {
+                            new MySqlParameter { ParameterName = "emplID", Value = separationData.EmployeeID, MySqlDbType = MySqlDbType.Int32},
+                            new MySqlParameter { ParameterName = "separationReasonCode", Value = separationData.SeparationCode, MySqlDbType = MySqlDbType.VarChar, Size = 3},
+                            new MySqlParameter { ParameterName = "separationDate", Value = separationData.SeparationDate, MySqlDbType = MySqlDbType.Date},
+                            new MySqlParameter { ParameterName = "persID", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "result", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "actionMsg", MySqlDbType = MySqlDbType.VarChar, Size = 50, Direction = ParameterDirection.Output },
+                            new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
+                        };
 
-                //Add sql params to cmd
-                cmd.Parameters.AddRange(employeParameters);
+                        cmd.Parameters.AddRange(employeeParameters);
 
-                //Execute cmd
-                cmd.ExecuteNonQuery();
+                        cmd.ExecuteNonQuery();
+
+                        return new Tuple<int, int, string, string>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["actionMsg"].Value.ToString(), cmd.Parameters["SQLExceptionWarning"].Value.ToString());
+                    }
+                }
             }
-            //Catch all errors
             catch (Exception ex)
             {
-                //Log errors and re-throw
-                log.Error("[AddOrUpdate - Security] - Process Users Error:" + ex.Message + " " + ex.InnerException);
-                throw;
+                log.Error("SaveSeparationInformation: " + separationData.EmployeeID + " - " + ex.Message + " - " + ex.InnerException);
+                return new Tuple<int, int, string, string>(-1, -1, "Unknown Error", "Unknown SQL Exception Warning");
             }
         }
-
-        //need to figure out how to get this to work
-        //private void AddOrUpdate<T>(T saveData, string commandText) where T : class
-        //{
-        //    try
-        //    {
-        //        cmd.CommandText = commandText;
-
-        //        object result = Convert.ChangeType(saveData, typeof(T));
-
-        //        PopulateParameters(result);
-
-        //        cmd.ExecuteNonQuery();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.Error("Error while trying to save data:" + ex.Message + " " + ex.InnerException);
-        //        throw;
-        //    }
-        //}
-
-        ////private void PopulateParamters<T>(T saveData) where T : Employee
-        ////{
-
-        ////}
-
-        //private void PopulateParameters(Employee saveData)
-        //{
-
-        //}
-
-        //private void PopulateParameters(Position saveData)
-        //{
-
-        //}
-
-        //private void PopulateParameters<T>(T saveData) where T : class
-        //{
-        //    cmd.Parameters.Clear();
-
-        //    MySqlParameter[] employeParameters = new MySqlParameter[] {
-        //                                new MySqlParameter { ParameterName = "@SeparationCode", Value = organizationData.AbolishedbyOrder, MySqlDbType = MySqlDbType.VarChar, Size = 2},
-        //                                new MySqlParameter { ParameterName = "@SeparationDate", Value = organizationData.ChangedByOrder, MySqlDbType = MySqlDbType.Date},
-        //                                new MySqlParameter { ParameterName = "@EmpID", Value = organizationData.ChangedByOrder, MySqlDbType = MySqlDbType.VarChar, Size = 15}, //This is CHRIS ID
-        //                            };
-
-        //    cmd.Parameters.AddRange(employeParameters);
-
-        //}
     }
 }
