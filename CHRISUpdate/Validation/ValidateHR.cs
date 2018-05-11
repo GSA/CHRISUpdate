@@ -311,10 +311,14 @@ namespace HRUpdate.Validation
                     e.Address.HomeCountry.ToLower().Equals("ca") ||
                     e.Address.HomeCountry.ToLower().Equals("mx"), () =>
                     {
-                        RuleFor(Employee => Employee.Address.HomeState)
-                        //.NotEmpty()
-                        //.WithMessage($"{{PropertyName}} is required")
-                        .In(lookups["StateCodes"]);
+                        Unless(e => string.IsNullOrEmpty(e.Address.HomeState), () =>
+                        {
+                            RuleFor(Employee => Employee.Address.HomeState)
+                                //.NotEmpty()
+                                //.WithMessage($"{{PropertyName}} is required")
+                                .In(lookups["StateCodes"]);
+                        });
+                        
                     });                
             });    
 
