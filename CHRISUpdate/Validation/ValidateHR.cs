@@ -4,10 +4,8 @@ using HRUpdate.Lookups;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Process;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace HRUpdate.Validation
 {
@@ -274,14 +272,12 @@ namespace HRUpdate.Validation
             RuleFor(Employee => Employee.Person.JobTitle)
                 .MaximumLength(70)
                 .WithMessage($"{{PropertyName}} length must be 0-70");
-            
+
             RuleFor(Employee => Employee.Person.HomeEmail)
                 //.NotEmpty()
                 //.WithMessage($"{{PropertyName}} is required")
                 .MaximumLength(64)
-                .WithMessage($"{{PropertyName}}l must be between 0-64")
-                .EmailAddress()
-                .WithMessage($"{{PropertyName}} must be a valid email address");
+                .WithMessage($"{{PropertyName}}l must be between 0-64");                
 
             #endregion Person
 
