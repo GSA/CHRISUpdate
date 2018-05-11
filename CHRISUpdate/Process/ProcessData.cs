@@ -76,7 +76,7 @@ namespace HRUpdate.Process
                 foreach (Employee employeeData in usersToProcess)
                 {
                     //Validate Record If Valid then process record
-                    errors = validate.ValidateEmployeeInformation(employeeData);
+                    errors = validate.ValidateEmployeeCriticalInfo(employeeData);
 
                     if (!errors.IsValid)
                     {
@@ -184,7 +184,7 @@ namespace HRUpdate.Process
                                                  FirstName = s.Person.FirstName,
                                                  MiddleName = s.Person.MiddleName,
                                                  LastName = s.Person.LastName,
-                                                 Action = GetErrors(errors.Errors).TrimEnd(',')
+                                                 Action = GetErrors(errors.Errors, Hrlinks.Hrfile).TrimEnd(',')
                                              }
                                      ).ToList();
 
@@ -295,7 +295,7 @@ namespace HRUpdate.Process
                                                 GCIMSID = -1,
                                                 EmployeeID = s.EmployeeID,
                                                 SeparationCode = s.SeparationCode,
-                                                Action = GetErrors(errors.Errors).TrimEnd(',')
+                                                Action = GetErrors(errors.Errors, Hrlinks.Separation).TrimEnd(',')
                                             }
                                     ).ToList();
 
@@ -494,13 +494,15 @@ namespace HRUpdate.Process
             return addAttachment.ToString();
         }
 
-        private string GetErrors(IList<ValidationFailure> failures)
+        private enum Hrlinks{ Separation = 1, Hrfile = 2 };
+
+        private string GetErrors(IList<ValidationFailure> failures, Hrlinks hr)
         {
             StringBuilder errors = new StringBuilder();
 
             foreach (var rule in failures)
             {
-                errors.Append(rule.ErrorMessage.Remove(0, rule.ErrorMessage.IndexOf('.') + 2));
+                errors.Append(rule.ErrorMessage.Remove(0,rule.ErrorMessage.IndexOf('.')+(int)hr));
                 errors.Append(",");
             }
 
