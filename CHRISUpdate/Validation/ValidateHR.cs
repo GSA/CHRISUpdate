@@ -42,9 +42,7 @@ namespace HRUpdate.Validation
         {
             CascadeMode = CascadeMode.StopOnFirstFailure;
 
-            string[] investigationTypes = lookups.investigationLookup.Select(e => e.Code).Distinct().ToArray();
-            string[] stateCodes = lookups.stateLookup.Select(s => s.Code).Distinct().ToArray();
-            string[] countryCodes = lookups.countryLookup.Select(c => c.Code).Distinct().ToArray();
+            string[] investigationTypes = lookups.investigationLookup.Select(e => e.Code).Distinct().ToArray();            
 
             Unless(e => string.IsNullOrEmpty(e.Person.Gender), () =>
             {
