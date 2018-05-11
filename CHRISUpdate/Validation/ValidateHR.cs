@@ -5,6 +5,7 @@ using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Process;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -12,13 +13,16 @@ namespace HRUpdate.Validation
 {
     internal class ValidateHR
     {
-        private readonly Lookup lookups;
+        private readonly Dictionary<string,string[]> lookups=new Dictionary<string,string[]>();
         private readonly HRMapper map = new HRMapper();
 
         public ValidateHR()
         {
             map.CreateLookupConfig();
-            lookups = new LoadLookupData(map.CreateLookupMapping()).GetEmployeeLookupData();
+            Lookup lookup = new LoadLookupData(map.CreateLookupMapping()).GetEmployeeLookupData();
+            lookups.Add("InvestigationTypes", lookup.investigationLookup.Select(e => e.Code).Distinct().ToArray());
+            lookups.Add("StateCodes", lookup.stateLookup.Select(s => s.Code).Distinct().ToArray());
+            lookups.Add("CountryCodes", lookup.countryLookup.Select(c => c.Code).Distinct().ToArray());
         }
 
         public ValidationResult ValidateEmployeeCriticalInfo(Employee employeeInformation)
@@ -38,11 +42,9 @@ namespace HRUpdate.Validation
 
     internal class EmployeeNonCriticalErrorValidator : AbstractValidator<Employee>
     {
-        public EmployeeNonCriticalErrorValidator(Lookup lookups)
+        public EmployeeNonCriticalErrorValidator(Dictionary<string, string[]> lookups)
         {
             CascadeMode = CascadeMode.StopOnFirstFailure;
-
-            string[] investigationTypes = lookups.investigationLookup.Select(e => e.Code).Distinct().ToArray();            
 
             Unless(e => string.IsNullOrEmpty(e.Person.Gender), () =>
             {
@@ -51,9 +53,13 @@ namespace HRUpdate.Validation
                     .WithMessage($"{{PropertyName}} must be one of these values: 'M', 'm', 'F', 'f'");
             });
 
-            RuleFor(Employee => Employee.Person.HomeEmail)               
-               .EmailAddress()
-               .WithMessage($"{{PropertyName}} must be a valid email address");
+            Unless(e => string.IsNullOrEmpty(e.Person.HomeEmail), () =>
+            {
+                RuleFor(Employee => Employee.Person.HomeEmail)
+                   .EmailAddress()
+                   .WithMessage($"{{PropertyName}} must be a valid email address");
+            });
+            
 
             Unless(Employee => string.IsNullOrEmpty(Employee.Investigation.TypeOfInvestigation) &&
                         Employee.Investigation.DateOfInvestigation == null, () =>
@@ -61,7 +67,7 @@ namespace HRUpdate.Validation
                             RuleFor(Employee => Employee.Investigation.TypeOfInvestigation)
                                 .NotEmpty()
                                 .WithMessage($"{{PropertyName}} cannot be null when Date of investigation is not null")
-                                .In(investigationTypes)
+                                .In(lookups["InvestigationTypes"])
                                 .MaximumLength(20)
                                 .WithMessage($"{{PropertyName}} length must be 0-20");
 
@@ -190,13 +196,11 @@ namespace HRUpdate.Validation
 
     internal class EmployeeCriticalErrorValidator : AbstractValidator<Employee>
     {
-        public EmployeeCriticalErrorValidator(Lookup lookups)
+        public EmployeeCriticalErrorValidator(Dictionary<string, string[]> lookups)
         {
             CascadeMode = CascadeMode.StopOnFirstFailure;
 
-            string[] investigationTypes = lookups.investigationLookup.Select(e => e.Code).Distinct().ToArray();
-            string[] stateCodes = lookups.stateLookup.Select(s => s.Code).Distinct().ToArray();
-            string[] countryCodes = lookups.countryLookup.Select(c => c.Code).Distinct().ToArray();
+            
 
 
 
@@ -314,7 +318,7 @@ namespace HRUpdate.Validation
                         RuleFor(Employee => Employee.Address.HomeState)
                         //.NotEmpty()
                         //.WithMessage($"{{PropertyName}} is required")
-                        .In(stateCodes);
+                        .In(lookups["StateCodes"]);
                     });                
             });    
 
@@ -327,7 +331,7 @@ namespace HRUpdate.Validation
                 RuleFor(Employee => Employee.Address.HomeCountry)
                 //.NotEmpty()
                 //.WithMessage($"{{PropertyName}} is required")
-                .In(countryCodes);
+                .In(lookups["CountryCodes"]);
             });            
 
             #endregion Address
@@ -351,10 +355,14 @@ namespace HRUpdate.Validation
                     e.Address.HomeCountry.ToLower().Equals("ca") ||
                     e.Address.HomeCountry.ToLower().Equals("mx"), () =>
                     {
-                        RuleFor(Employee => Employee.Birth.StateOfBirth)
-                            //.NotEmpty()
-                            //.WithMessage($"{{PropertyName}} is required")
-                            .In(stateCodes);
+                        Unless(e => string.IsNullOrEmpty(e.Birth.StateOfBirth), () =>
+                        {
+                            RuleFor(Employee => Employee.Birth.StateOfBirth)
+                                //.NotEmpty()
+                                //.WithMessage($"{{PropertyName}} is required")
+                                .In(lookups["StateCodes"]);
+                        });
+                        
                     });
             });
 
@@ -363,7 +371,7 @@ namespace HRUpdate.Validation
                 RuleFor(Employee => Employee.Birth.CountryOfBirth)
                 //.NotEmpty()
                 //.WithMessage($"{{PropertyName}} is required")
-                .In(countryCodes);
+                .In(lookups["CountryCodes"]);
             });            
 
             Unless(e => string.IsNullOrEmpty(e.Birth.CountryOfCitizenship), () =>
@@ -371,7 +379,7 @@ namespace HRUpdate.Validation
                 RuleFor(Employee => Employee.Birth.CountryOfCitizenship)
                 //.NotEmpty()
                 //.WithMessage($"{{PropertyName}} is required")
-                .In(countryCodes);
+                .In(lookups["CountryCodes"]);
             });          
                         
             //RuleFor(Employee => Employee.Birth.Citizen)
@@ -396,7 +404,7 @@ namespace HRUpdate.Validation
             Unless(e => string.IsNullOrEmpty(e.Investigation.PriorInvestigation), () =>
               {
                   RuleFor(Employee => Employee.Investigation.PriorInvestigation)
-                      .In(investigationTypes)
+                      .In(lookups["InvestigationTypes"])
                       .MaximumLength(20)
                       .WithMessage($"{{PropertyName}} length must be 0-20");
               });
@@ -406,7 +414,7 @@ namespace HRUpdate.Validation
             Unless(e => string.IsNullOrEmpty(e.Investigation.TypeOfInvestigationToRequest), () =>
             {
                 RuleFor(Employee => Employee.Investigation.TypeOfInvestigationToRequest)
-                    .In(investigationTypes)
+                    .In(lookups["InvestigationTypes"])
                     .MaximumLength(12)
                     .WithMessage($"{{PropertyName}} length must be 0-12");
             });
@@ -526,7 +534,7 @@ namespace HRUpdate.Validation
             Unless(Employee => string.IsNullOrEmpty(Employee.Position.DutyLocationState), () =>
             {
                 RuleFor(Employee => Employee.Position.DutyLocationState)
-                    .In(stateCodes);
+                    .In(lookups["StateCodes"]);
             });
 
             RuleFor(Employee => Employee.Position.DutyLocationCounty)
