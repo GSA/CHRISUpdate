@@ -18,7 +18,7 @@ namespace HRUpdate.Validation
         {
             map.CreateLookupConfig();
             Lookup lookup = new LoadLookupData(map.CreateLookupMapping()).GetEmployeeLookupData();
-            lookups.Add("InvestigationTypes", lookup.investigationLookup.Select(e => e.Code).Distinct().ToArray());
+            lookups.Add("InvestigationTypes", lookup.investigationLookup.Select(e => e.Tier).Distinct().ToArray());
             lookups.Add("StateCodes", lookup.stateLookup.Select(s => s.Code).Distinct().ToArray());
             lookups.Add("CountryCodes", lookup.countryLookup.Select(c => c.Code).Distinct().ToArray());
         }
@@ -311,10 +311,14 @@ namespace HRUpdate.Validation
                     e.Address.HomeCountry.ToLower().Equals("ca") ||
                     e.Address.HomeCountry.ToLower().Equals("mx"), () =>
                     {
-                        RuleFor(Employee => Employee.Address.HomeState)
-                        //.NotEmpty()
-                        //.WithMessage($"{{PropertyName}} is required")
-                        .In(lookups["StateCodes"]);
+                        Unless(e => string.IsNullOrEmpty(e.Address.HomeState), () =>
+                        {
+                            RuleFor(Employee => Employee.Address.HomeState)
+                                //.NotEmpty()
+                                //.WithMessage($"{{PropertyName}} is required")
+                                .In(lookups["StateCodes"]);
+                        });
+                        
                     });                
             });    
 
