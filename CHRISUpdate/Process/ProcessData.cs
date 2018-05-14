@@ -73,7 +73,7 @@ namespace HRUpdate.Process
                 usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
 
                 log.Info("Loading GCIMS Data");
-                allGCIMSData = save.LoadGCIMSData();
+                //allGCIMSData = save.LoadGCIMSData();
 
                 Tuple<int, int, string, string, Employee> personResults;
                 Tuple<int, string, string> updatedResults;
@@ -110,7 +110,7 @@ namespace HRUpdate.Process
                                                  FirstName = s.Person.FirstName,
                                                  MiddleName = s.Person.MiddleName,
                                                  LastName = s.Person.LastName,
-                                                 Action = GetErrors(criticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
+                                                 Action = "Critical - " + GetErrors(criticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
                                              }
                                      ).ToList();
 
@@ -123,7 +123,29 @@ namespace HRUpdate.Process
                     noncriticalErrors = validate.validateEmployeeNonCriticalInfo(employeeData);
 
                     if (!noncriticalErrors.IsValid)
+                    {
                         log.Warn("Non critical errors found for user: " + currentEmployeeID);
+
+                        var proccessedUserIssue = usersToProcess
+                               .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                               .Select
+                                    (
+                                        s =>
+                                            new ProcessedSummary
+                                            {
+                                                GCIMSID = -1,
+                                                EmployeeID = s.Person.EmployeeID,
+                                                FirstName = s.Person.FirstName,
+                                                MiddleName = s.Person.MiddleName,
+                                                LastName = s.Person.LastName,
+                                                Action = "Non-Critical - " + GetErrors(noncriticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
+                                            }
+                                    ).ToList();
+
+                        unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+                    }
+
+                    continue;
 
                     hrLinksMatch = allGCIMSData.Where(w => w.Person.EmployeeID == currentEmployeeID).Count();
 
@@ -146,11 +168,7 @@ namespace HRUpdate.Process
                             log.Info("Match found by name for user: " + currentEmployeeID);
                         }
                     }
-
-                    continue;
-
                     
-
                     //if (errors.IsValid)
                     //{
                     //personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, employeeData.Person.SocialSecurityNumber, employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
