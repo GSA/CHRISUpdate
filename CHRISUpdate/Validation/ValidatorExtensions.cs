@@ -49,7 +49,7 @@ namespace HRUpdate.Validation
 
         private static bool IsValidPhoneNumber_Alt(string phoneNumber)
         {
-            bool valid = Regex.IsMatch(phoneNumber, @"^[0-9]{3}[/]{1}[0-9]{3}[-]{1}[0-9]{4}$");
+            bool valid = Regex.IsMatch(phoneNumber, @"^[0-9]{3}[\/]{1}[0-9]{3}[-]{1}[0-9]{4}(([xX]){1}[0-9]{1,8}){0,1}$");
 
             if (!valid)
             {

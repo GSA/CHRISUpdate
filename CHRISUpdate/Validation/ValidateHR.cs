@@ -147,7 +147,7 @@ namespace HRUpdate.Validation
             Unless(e => string.IsNullOrEmpty(e.Phone.HomePhone), () =>
             {
                 RuleFor(Employee => Employee.Phone.HomePhone)
-             .ValidPhone()
+                .ValidPhone()
                 .WithMessage($"{{PropertyName}} must be a valid phone number");
             });
 
