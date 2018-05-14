@@ -4,6 +4,7 @@ namespace HRUpdate.Models
 {
     public class Person
     {
+        public Int64 GCIMSID { get; set; }
         public string EmployeeID { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

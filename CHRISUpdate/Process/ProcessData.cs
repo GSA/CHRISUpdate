@@ -59,15 +59,21 @@ namespace HRUpdate.Process
             try
             {
                 List<Employee> usersToProcess;
+                List<Employee> allGCIMSData;
                 List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<SocialSecurityNumberChangeSummary> socialSecurityNumberChange = new List<SocialSecurityNumberChangeSummary>();
                 List<InactiveSummary> inactive = new List<InactiveSummary>();
 
                 ValidateHR validate = new ValidateHR();
-                ValidationResult errors;
+                ValidationResult criticalErrors;
+                ValidationResult noncriticalErrors;
 
+                log.Info("Loading HR Links File");
                 usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
+
+                log.Info("Loading GCIMS Data");
+                //allGCIMSData = save.LoadGCIMSData();
 
                 Tuple<int, int, string, string, Employee> personResults;
                 Tuple<int, string, string> updatedResults;
@@ -75,14 +81,103 @@ namespace HRUpdate.Process
                 //Start Processing the HR Data
                 foreach (Employee employeeData in usersToProcess)
                 {
-                    //Validate Record If Valid then process record
-                    errors = validate.ValidateEmployeeCriticalInfo(employeeData);
+                    string currentEmployeeID = employeeData.Person.EmployeeID;
+                    int gcimsID = 0;
+                    int hrLinksMatch = 0;
+                    int nameMatch = 0;
 
-                    if (errors.IsValid)
+                    Console.WriteLine(currentEmployeeID);
+
+                    log.Info("Processing HR User: " + currentEmployeeID);
+
+                    log.Info("Checking for Critical errors for user: " + currentEmployeeID);
+                    criticalErrors = validate.ValidateEmployeeCriticalInfo(employeeData);
+
+                    //If there are critical errors write to error summary and move to the next record
+                    if (!criticalErrors.IsValid)
                     {
-                        personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, employeeData.Person.SocialSecurityNumber, employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
+                        log.Warn("Critical Errors found for user: " + currentEmployeeID);
 
-                        int personID = personResults.Item1;
+                        var proccessedUserIssue = usersToProcess
+                                .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                                .Select
+                                     (
+                                         s =>
+                                             new ProcessedSummary
+                                             {
+                                                 GCIMSID = -1,
+                                                 EmployeeID = s.Person.EmployeeID,
+                                                 FirstName = s.Person.FirstName,
+                                                 MiddleName = s.Person.MiddleName,
+                                                 LastName = s.Person.LastName,
+                                                 Action = "Critical - " + GetErrors(criticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
+                                             }
+                                     ).ToList();
+
+                        unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+
+                        continue;
+                    }
+
+                    log.Info("Checking for non critical errors for user: " + currentEmployeeID);
+                    noncriticalErrors = validate.validateEmployeeNonCriticalInfo(employeeData);
+
+                    if (!noncriticalErrors.IsValid)
+                    {
+                        log.Warn("Non critical errors found for user: " + currentEmployeeID);
+
+                        var proccessedUserIssue = usersToProcess
+                               .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                               .Select
+                                    (
+                                        s =>
+                                            new ProcessedSummary
+                                            {
+                                                GCIMSID = -1,
+                                                EmployeeID = s.Person.EmployeeID,
+                                                FirstName = s.Person.FirstName,
+                                                MiddleName = s.Person.MiddleName,
+                                                LastName = s.Person.LastName,
+                                                Action = "Non-Critical - " + GetErrors(noncriticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
+                                            }
+                                    ).ToList();
+
+                        unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+                    }
+
+                    continue;
+
+                    hrLinksMatch = allGCIMSData.Where(w => w.Person.EmployeeID == currentEmployeeID).Count();
+
+                    if (hrLinksMatch == 1)
+                    {
+                        log.Info("Matching record found by emplID: " + currentEmployeeID);
+                    }
+                    else
+                    {
+                        log.Info("Trying to match record by Lastname, Birth Date and SSN: " + currentEmployeeID);
+
+                        nameMatch = allGCIMSData.Where(w =>
+                            w.Person.LastName == employeeData.Person.LastName &&
+                            w.Birth.DateOfBirth == employeeData.Birth.DateOfBirth &&
+                            w.Person.SocialSecurityNumber == employeeData.Person.SocialSecurityNumber
+                        ).Count();
+
+                        if (nameMatch == 1)
+                        {
+                            log.Info("Match found by name for user: " + currentEmployeeID);
+                        }
+                    }
+                    
+                    //if (errors.IsValid)
+                    //{
+                    //personResults = save.GetGCIMSRecord(employeeData.Person.EmployeeID, employeeData.Person.SocialSecurityNumber, employeeData.Person.LastName, employeeData.Birth.DateOfBirth?.ToString("yyyy-M-dd"));
+
+                    //int personID = personResults.Item1;
+
+                    int personID;
+
+                    personID = -1;
 
                         //If user is not found or other issue add to the error summary file
                         if (personID == -1)
@@ -99,7 +194,7 @@ namespace HRUpdate.Process
                                                  FirstName = s.Person.FirstName,
                                                  MiddleName = s.Person.MiddleName,
                                                  LastName = s.Person.LastName,
-                                                 Action = personResults.Item3
+                                                 Action = "No DB Connection"
                                              }
                                      ).ToList();
 
@@ -108,7 +203,7 @@ namespace HRUpdate.Process
                             continue;
                         }
 
-                        Employee gcimsData = personResults.Item5;
+                    Employee gcimsData = employeeData; //personResults.Item5;
 
                         if (gcimsData.Person.Status == "Inactive")
                         {
@@ -126,9 +221,9 @@ namespace HRUpdate.Process
 
                         if (personID > 0 && !AreEqualGCIMSToHR(gcimsData, employeeData))
                         {
-                            log.Info("Trying To Update Record:" + personResults.Item1);
+                            log.Info("Trying To Update Record:" + personID);
 
-                            updatedResults = save.UpdatePersonInformation(personResults.Item1, employeeData);
+                            updatedResults = save.UpdatePersonInformation(personID, employeeData);
 
                             if (updatedResults.Item1 > 0)
                             {
@@ -150,7 +245,7 @@ namespace HRUpdate.Process
 
                                 successfulHRUsersProcessed.AddRange(processedUserSuccess);
 
-                                log.Info("Successfully Updated Record: " + personResults.Item1);
+                                log.Info("Successfully Updated Record: " + personID);
                             }
                             else
                             {
@@ -173,11 +268,7 @@ namespace HRUpdate.Process
                                 unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
                             }
                         }
-                        else
-                        {
-                            
-                        }
-                    }
+                    //}
                     else
                     {
                         var proccessedUserIssue = usersToProcess
@@ -192,7 +283,7 @@ namespace HRUpdate.Process
                                                  FirstName = s.Person.FirstName,
                                                  MiddleName = s.Person.MiddleName,
                                                  LastName = s.Person.LastName,
-                                                 Action = GetErrors(errors.Errors, Hrlinks.Hrfile).TrimEnd(',')
+                                                 Action = "Nothing" //GetErrors(errors.Errors, Hrlinks.Hrfile).TrimEnd(',')
                                              }
                                      ).ToList();
 
@@ -219,7 +310,7 @@ namespace HRUpdate.Process
                 log.Error("Process HR Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);
             }
         }
-
+        
         /// <summary>
         /// Process separation file
         /// </summary>

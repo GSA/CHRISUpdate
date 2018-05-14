@@ -24,7 +24,7 @@ namespace HRUpdate.Mapping
             {
                 cfg.AddDataReaderMapping();
                 cfg.AllowNullCollections = true;
-                cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SocialSecurityNumber, opt => opt.Ignore());
+                //cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SocialSecurityNumber, opt => opt.Ignore());
             });
         }
 
