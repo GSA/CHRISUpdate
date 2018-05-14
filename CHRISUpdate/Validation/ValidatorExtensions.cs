@@ -53,7 +53,9 @@ namespace HRUpdate.Validation
 
             if (!valid)
             {
-                valid = libphonenumber.PhoneNumberUtil.Instance.IsPossibleNumber(phoneNumber, "US");
+                //valid = libphonenumber.PhoneNumberUtil.Instance.IsPossibleNumber(phoneNumber, "US");
+                //International phone number format: +CCC.NNNNNNNNNNNNxEEEE
+                valid = Regex.IsMatch(phoneNumber, @"^\+[0-9]{1,3}\.[0-9]{4,14}(?:[xX][0-9]+)?$");
             }
             return valid;
         }
