@@ -26,8 +26,6 @@ namespace HRUpdate.Process
 
         private readonly EMailData emailData = new EMailData();
 
-        private readonly Helpers helper = new Helpers();
-
         //Constructor
         public ProcessData(IMapper saveMappper)
         {
@@ -39,6 +37,7 @@ namespace HRUpdate.Process
             CompareLogic compareLogic = new CompareLogic();
             compareLogic.Config.MembersToIgnore.Add("Person.SocialSecurityNumber");
             compareLogic.Config.MembersToIgnore.Add("Detail");
+            compareLogic.Config.TreatStringEmptyAndNullTheSame = true;
 
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
@@ -63,17 +62,20 @@ namespace HRUpdate.Process
                 List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<SocialSecurityNumberChangeSummary> socialSecurityNumberChange = new List<SocialSecurityNumberChangeSummary>();
+                List<NameNotFoundSummary> nameNotFound = new List<NameNotFoundSummary>();
                 List<InactiveSummary> inactive = new List<InactiveSummary>();
 
                 ValidateHR validate = new ValidateHR();
                 ValidationResult criticalErrors;
                 ValidationResult noncriticalErrors;
 
+                Helpers helper;
+
                 log.Info("Loading HR Links File");
-                usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
+                usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);               
 
                 log.Info("Loading GCIMS Data");
-                //allGCIMSData = save.LoadGCIMSData();
+                allGCIMSData = save.LoadGCIMSData();
 
                 Tuple<int, int, string, string, Employee> personResults;
                 Tuple<int, string, string> updatedResults;
@@ -143,34 +145,61 @@ namespace HRUpdate.Process
                                     ).ToList();
 
                         unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
-                    }
+                    }                    
 
-                    continue;
-
-                    hrLinksMatch = allGCIMSData.Where(w => w.Person.EmployeeID == currentEmployeeID).Count();
+                    hrLinksMatch = allGCIMSData.Count(w => w.Person.EmployeeID == currentEmployeeID);
 
                     if (hrLinksMatch == 1)
                     {
                         log.Info("Matching record found by emplID: " + currentEmployeeID);
+
+                        continue;
                     }
                     else
                     {
                         log.Info("Trying to match record by FirstName, MiddleName, Lastname, Suffix, Birth Date and SSN: " + currentEmployeeID);
 
-                        nameMatch = allGCIMSData.Where(w =>
-                            w.Person.FirstName == employeeData.Person.FirstName &&
-                            w.Person.MiddleName == employeeData.Person.MiddleName &&
-                            w.Person.LastName == employeeData.Person.LastName &&
-                            w.Person.Suffix == employeeData.Person.Suffix &&
-                            w.Birth.DateOfBirth == employeeData.Birth.DateOfBirth &&
-                            w.Person.SocialSecurityNumber == employeeData.Person.SocialSecurityNumber
-                        ).Count();
+                        nameMatch = allGCIMSData.Count(c =>
+                            c.Person.FirstName.ToLower().Trim().Equals(employeeData.Person.FirstName.ToLower().Trim()) &&
+                            employeeData.Person.MiddleName.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.MiddleName) ? string.Empty : c.Person.MiddleName) &&
+                            c.Person.LastName.ToLower().Trim().Equals(employeeData.Person.LastName.ToLower()) &&
+                            employeeData.Person.Suffix.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.Suffix) ? string.Empty : c.Person.Suffix) &&
+                            c.Birth.DateOfBirth == employeeData.Birth.DateOfBirth &&
+                            c.Person.SocialSecurityNumber == employeeData.Person.SocialSecurityNumber);
 
                         if (nameMatch == 1)
                         {
                             log.Info("Match found by name for user: " + currentEmployeeID);
+
+                            continue;
+                        }
+                        else
+                        {
+                            var nameNotFoundIssue = usersToProcess
+                              .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                              .Select
+                                   (
+                                       s =>
+                                           new NameNotFoundSummary
+                                           {
+                                               GCIMSID = -1,
+                                               EmployeeID = s.Person.EmployeeID,
+                                               FirstName = s.Person.FirstName,
+                                               MiddleName = s.Person.MiddleName,
+                                               LastName = s.Person.LastName,
+                                               Suffix = s.Person.Suffix,
+                                               SSN = s.Person.SocialSecurityNumber,
+                                               DOB = s.Birth.DateOfBirth
+                                           }
+                                   ).ToList();
+
+                            nameNotFound.AddRange(nameNotFoundIssue);
+
+                            continue;
                         }
                     }
+
+                    continue;
                     
                     //if (errors.IsValid)
                     //{
@@ -305,7 +334,7 @@ namespace HRUpdate.Process
                 log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
                 log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
 
-                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed, socialSecurityNumberChange, inactive);
+                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed, socialSecurityNumberChange, inactive, nameNotFound);
             }
             //Catch all errors
             catch (Exception ex)
@@ -428,7 +457,7 @@ namespace HRUpdate.Process
         /// </summary>
         /// <param name="processedSuccessSummary"></param>
         /// <param name="processedErrorSummary"></param>
-        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary, List<SocialSecurityNumberChangeSummary> socialSecurityNumberChangeSummary, List<InactiveSummary> inactiveSummary)
+        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary, List<SocialSecurityNumberChangeSummary> socialSecurityNumberChangeSummary, List<InactiveSummary> inactiveSummary, List<NameNotFoundSummary> nameNotFoundSummary)
         {
             if (usersProcessedSuccessSummary.Count > 0)
             {
@@ -452,6 +481,12 @@ namespace HRUpdate.Process
             {
                 emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<InactiveSummary, InactiveSummaryMapping>(ConfigurationManager.AppSettings["INACTIVESUMMARYFILENAME"].ToString(), inactiveSummary);
                 log.Info("HR Inactive File: " + emailData.HRInactiveSummaryFilename);
+            }
+
+            if (nameNotFoundSummary.Count > 0)
+            {
+                emailData.HRNameNotFoundFileName = summaryFileGenerator.GenerateSummaryFile<NameNotFoundSummary, NameNotFoundSummaryMapping>(ConfigurationManager.AppSettings["NAMENOTFOUNDSUMMARYFILENAME"].ToString(), nameNotFoundSummary);
+                log.Info("HR Name Not Found File: " + emailData.HRInactiveSummaryFilename);
             }
         }
 

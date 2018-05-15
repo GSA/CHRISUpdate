@@ -9,6 +9,8 @@
         public Emergency Emergency { get; set; }
         public Position Position { get; set; }
         public Phone Phone { get; set; }
-        public Detail Detail { get; set; }
+
+        //At this time we will not be handling Detail information
+        //public Detail Detail { get; set; }
     }
 }

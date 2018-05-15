@@ -552,9 +552,9 @@ namespace HRUpdate.Validation
                 .MaximumLength(4)
                 .WithMessage($"{{PropertyName}} length must be 0-4");
 
-            RuleFor(Employee => Employee.Position.SupervisorEmployeeID)
-                .MaximumLength(11)
-                .WithMessage($"{{PropertyName}} length must be 0-11");
+            //RuleFor(Employee => Employee.Position.SupervisorEmployeeID)
+            //    .MaximumLength(11)
+            //    .WithMessage($"{{PropertyName}} length must be 0-11");
 
             #endregion Position
 

@@ -26,7 +26,7 @@ namespace HRUpdate.Process
         }
 
         public List<Employee> LoadGCIMSData()
-        {
+       {
             try
             {
                 List<Employee> allGCIMSData = new List<Employee>();
@@ -122,12 +122,13 @@ namespace HRUpdate.Process
         }
 
         private List<Employee> MapAllGCIMSData(MySqlDataReader gcimsData)
-        {
-            Employee employee = new Employee();
+        {            
             List<Employee> allRecords = new List<Employee>();
 
             while (gcimsData.Read())
             {
+                Employee employee = new Employee();
+
                 employee.Address = saveMapper.Map<IDataReader, Address>(gcimsData);
                 employee.Birth = saveMapper.Map<IDataReader, Birth>(gcimsData);
                 employee.Emergency = saveMapper.Map<IDataReader, Emergency>(gcimsData);

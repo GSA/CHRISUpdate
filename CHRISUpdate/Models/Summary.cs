@@ -21,14 +21,16 @@ namespace HRUpdate.Models
         public string Action { get; set; }
     }
 
-    internal class NameChangeSummary
+    internal class NameNotFoundSummary
     {
         public Int64 GCIMSID { get; set; }
         public string EmployeeID { get; set; }
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
-        public string Status { get; set; }
+        public string Suffix { get; set; }
+        public string SSN { get; set; }
+        public DateTime? DOB { get; set; }
     }
 
     internal class SocialSecurityNumberChangeSummary
@@ -64,6 +66,7 @@ namespace HRUpdate.Models
         public string HRErrorSummaryFilename { get; set; }
         public string HRSocialSecurityNumberChangeSummaryFilename { get; set; }
         public string HRInactiveSummaryFilename { get; set; }
+        public string HRNameNotFoundFileName { get; set; }
 
         public bool HRHasErrors { get; set; }
 

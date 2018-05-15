@@ -28,16 +28,18 @@ namespace HRUpdate.Mapping
         }
     }
 
-    internal sealed class NameChangeSummaryMapping : ClassMap<NameChangeSummary>
+    internal sealed class NameNotFoundSummaryMapping : ClassMap<NameNotFoundSummary>
     {
-        public NameChangeSummaryMapping()
+        public NameNotFoundSummaryMapping()
         {
             Map(m => m.GCIMSID).Name("GCIMS ID");
             Map(m => m.EmployeeID).Name("Employee ID");
             Map(m => m.FirstName).Name("First Name");
             Map(m => m.MiddleName).Name("Middle Name");
             Map(m => m.LastName).Name("Last Name");
-            Map(m => m.Status).Name("Status");
+            Map(m => m.Suffix).Name("Suffix");
+            Map(m => m.SSN).Name("SSN");
+            Map(m => m.DOB).Name("DOB");
         }
     }
 
