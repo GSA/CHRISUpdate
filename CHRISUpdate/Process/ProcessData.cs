@@ -72,10 +72,14 @@ namespace HRUpdate.Process
                 Helpers helper;
 
                 log.Info("Loading HR Links File");
-                usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);               
+                usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
+
+                //var temp1 = usersToProcess.Where(w => w.Person.LastName.ToLower().Trim().Equals("smith")).ToList();               
 
                 log.Info("Loading GCIMS Data");
                 allGCIMSData = save.LoadGCIMSData();
+
+                //var temp2 = allGCIMSData.Where(w => w.Person.LastName.ToLower().Trim().Equals("smith")).ToList();
 
                 Tuple<int, int, string, string, Employee> personResults;
                 Tuple<int, string, string> updatedResults;
@@ -160,12 +164,12 @@ namespace HRUpdate.Process
                         log.Info("Trying to match record by FirstName, MiddleName, Lastname, Suffix, Birth Date and SSN: " + currentEmployeeID);
 
                         nameMatch = allGCIMSData.Count(c =>
-                            c.Person.FirstName.ToLower().Trim().Equals(employeeData.Person.FirstName.ToLower().Trim()) &&
-                            employeeData.Person.MiddleName.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.MiddleName) ? string.Empty : c.Person.MiddleName) &&
-                            c.Person.LastName.ToLower().Trim().Equals(employeeData.Person.LastName.ToLower()) &&
-                            employeeData.Person.Suffix.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.Suffix) ? string.Empty : c.Person.Suffix) &&
-                            c.Birth.DateOfBirth == employeeData.Birth.DateOfBirth &&
-                            c.Person.SocialSecurityNumber == employeeData.Person.SocialSecurityNumber);
+                            employeeData.Person.FirstName.ToLower().Trim().Equals(c.Person.FirstName.ToLower().Trim()) &&
+                            employeeData.Person.MiddleName.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.MiddleName) ? string.Empty : c.Person.MiddleName.ToLower().Trim()) &&
+                            employeeData.Person.LastName.ToLower().Trim().Equals(c.Person.LastName.ToLower().Trim()) &&
+                            employeeData.Person.Suffix.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.Suffix) ? string.Empty : c.Person.Suffix.ToLower().Trim()) &&
+                            employeeData.Birth.DateOfBirth.Equals(c.Birth.DateOfBirth)  &&
+                            employeeData.Person.SocialSecurityNumber.Equals(c.Person.SocialSecurityNumber));
 
                         if (nameMatch == 1)
                         {
