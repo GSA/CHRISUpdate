@@ -155,10 +155,13 @@ namespace HRUpdate.Process
                     }
                     else
                     {
-                        log.Info("Trying to match record by Lastname, Birth Date and SSN: " + currentEmployeeID);
+                        log.Info("Trying to match record by FirstName, MiddleName, Lastname, Suffix, Birth Date and SSN: " + currentEmployeeID);
 
                         nameMatch = allGCIMSData.Where(w =>
+                            w.Person.FirstName == employeeData.Person.FirstName &&
+                            w.Person.MiddleName == employeeData.Person.MiddleName &&
                             w.Person.LastName == employeeData.Person.LastName &&
+                            w.Person.Suffix == employeeData.Person.Suffix &&
                             w.Birth.DateOfBirth == employeeData.Birth.DateOfBirth &&
                             w.Person.SocialSecurityNumber == employeeData.Person.SocialSecurityNumber
                         ).Count();
