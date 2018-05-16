@@ -21,7 +21,7 @@ namespace HRUpdate.Models
         public string Action { get; set; }
     }
 
-    internal class NameNotFoundSummary
+    internal class RecordNotFoundSummary
     {
         public Int64 GCIMSID { get; set; }
         public string EmployeeID { get; set; }

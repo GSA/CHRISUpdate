@@ -64,7 +64,6 @@ namespace HRUpdate.Utilities
                 t = val.GetType().ToString();
             else
                 t = null;
-            //Console.WriteLine(t);
             switch (t)
             {
                 case "System.String": return string.IsNullOrEmpty((string)val);

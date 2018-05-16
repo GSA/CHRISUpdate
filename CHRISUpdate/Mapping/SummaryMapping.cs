@@ -28,9 +28,9 @@ namespace HRUpdate.Mapping
         }
     }
 
-    internal sealed class NameNotFoundSummaryMapping : ClassMap<NameNotFoundSummary>
+    internal sealed class RecordNotFoundSummaryMapping : ClassMap<RecordNotFoundSummary>
     {
-        public NameNotFoundSummaryMapping()
+        public RecordNotFoundSummaryMapping()
         {
             Map(m => m.GCIMSID).Name("GCIMS ID");
             Map(m => m.EmployeeID).Name("Employee ID");

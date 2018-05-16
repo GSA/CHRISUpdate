@@ -14,7 +14,7 @@
   <add key="ERRORSUMMARYFILENAME" value="[filename]" />
   <add key="SEPARATIONSUMMARYFILENAME" value="[filename]" />
   <add key="SEPARATIONERRORSUMMARYFILENAME" value="[filename]" />
-  <add key="NAMENOTFOUNDSUMMARYFILENAME" value="[filename]" />
+  <add key="RECORDNOTFOUNDSUMMARYFILENAME" value="[filename]" />
   <add key="SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME" value="[filename]" />
   <add key="INACTIVESUMMARYFILENAME" value="[filename]" />
 </appSettings>
