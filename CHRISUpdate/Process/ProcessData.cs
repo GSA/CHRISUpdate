@@ -102,7 +102,7 @@ namespace HRUpdate.Process
                     //If there are critical errors write to error summary and move to the next record
                     if (!criticalErrors.IsValid)
                     {
-                        log.Warn("Critical Errors found for user: " + currentEmployeeID);
+                        log.Warn("Critical Errors found for user: " + currentEmployeeID + "(" + criticalErrors.Errors.Count() + ")");
 
                         var proccessedUserIssue = usersToProcess
                                 .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
@@ -130,7 +130,7 @@ namespace HRUpdate.Process
 
                     if (!noncriticalErrors.IsValid)
                     {
-                        log.Warn("Non critical errors found for user: " + currentEmployeeID);
+                        log.Warn("Non critical errors found for user: " + currentEmployeeID + "(" + noncriticalErrors.Errors.Count() + ")");
 
                         var proccessedUserIssue = usersToProcess
                                .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
@@ -168,8 +168,8 @@ namespace HRUpdate.Process
                             employeeData.Person.MiddleName.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.MiddleName) ? string.Empty : c.Person.MiddleName.ToLower().Trim()) &&
                             employeeData.Person.LastName.ToLower().Trim().Equals(c.Person.LastName.ToLower().Trim()) &&
                             employeeData.Person.Suffix.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.Suffix) ? string.Empty : c.Person.Suffix.ToLower().Trim()) &&
-                            employeeData.Birth.DateOfBirth.Equals(c.Birth.DateOfBirth)  &&
-                            employeeData.Person.SocialSecurityNumber.Equals(c.Person.SocialSecurityNumber));
+                            employeeData.Person.SocialSecurityNumber.Equals(c.Person.SocialSecurityNumber) &&
+                            employeeData.Birth.DateOfBirth.Equals(c.Birth.DateOfBirth));
 
                         if (nameMatch == 1)
                         {
@@ -179,6 +179,8 @@ namespace HRUpdate.Process
                         }
                         else
                         {
+                            log.Info("Match not found by name for user: " + currentEmployeeID);
+
                             var nameNotFoundIssue = usersToProcess
                               .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
                               .Select
