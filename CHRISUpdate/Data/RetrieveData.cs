@@ -23,6 +23,8 @@ namespace HRUpdate.Data
         public RetrieveData(IMapper mapper)
         {
             retrieveMapper = mapper;
+
+            retrieveMapper.ConfigurationProvider.CompileMappings();
         }
 
         public List<Employee> AllGCIMSData()

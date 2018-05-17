@@ -25,13 +25,13 @@ namespace HRUpdate.Mapping
                 cfg.AddDataReaderMapping();
                 cfg.AllowNullCollections = true;
 
-                //cfg.CreateMap<Employee, Person>().ReverseMap();
-                //cfg.CreateMap<Employee, Address>().ReverseMap();
-                //cfg.CreateMap<Employee, Birth>().ReverseMap();
-                //cfg.CreateMap<Employee, Investigation>().ReverseMap();
-                //cfg.CreateMap<Employee, Emergency>().ReverseMap();
-                //cfg.CreateMap<Employee, Position>().ReverseMap();
-                //cfg.CreateMap<Employee, Phone>().ReverseMap();
+                cfg.CreateMap<Employee, Person>().ReverseMap();
+                cfg.CreateMap<Employee, Address>().ReverseMap();
+                cfg.CreateMap<Employee, Birth>().ReverseMap();
+                cfg.CreateMap<Employee, Investigation>().ReverseMap();
+                cfg.CreateMap<Employee, Emergency>().ReverseMap();
+                cfg.CreateMap<Employee, Position>().ReverseMap();
+                cfg.CreateMap<Employee, Phone>().ReverseMap();
 
                 //cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SocialSecurityNumber, opt => opt.Ignore());
             });
