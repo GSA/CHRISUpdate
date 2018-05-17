@@ -29,6 +29,8 @@ namespace HRUpdate.Process
 
         private static Stopwatch timeForProcess = new Stopwatch();
 
+        private enum Hrlinks { Separation = 1, Hrfile = 2 };
+
         //Constructor
         public ProcessData(IMapper saveMappper)
         {
@@ -86,7 +88,7 @@ namespace HRUpdate.Process
 
                     //If there are critical errors write to the error summary and move to the next record
                     log.Info("Checking for Critical errors for user: " + employeeData.Person.EmployeeID);
-                    if (CheckForCriticalErrors(validate, employeeData, usersToProcess, unsuccessfulHRUsersProcessed))
+                    if (CheckForCriticalErrors(validate, employeeData, unsuccessfulHRUsersProcessed))
                         continue;
 
                     //If there are non critical errors write to the error summary and continue with current record
@@ -180,9 +182,7 @@ namespace HRUpdate.Process
                             FirstName = employeeData.Person.FirstName,
                             MiddleName = employeeData.Person.MiddleName,
                             LastName = employeeData.Person.LastName,
-                            Suffix = employeeData.Person.Suffix,
-                            SSN = employeeData.Person.SocialSecurityNumber,
-                            DOB = employeeData.Birth.DateOfBirth
+                            Suffix = employeeData.Person.Suffix                            
                         });
                     }                    
                 }
@@ -207,7 +207,7 @@ namespace HRUpdate.Process
             }
         }
 
-        private bool CheckForCriticalErrors(ValidateHR validate, Employee employeeData, List<Employee> usersToProcess, List<ProcessedSummary> unsuccessfulHRUsersProcessed)
+        private bool CheckForCriticalErrors(ValidateHR validate, Employee employeeData, List<ProcessedSummary> unsuccessfulHRUsersProcessed)
         {
             ValidationResult criticalErrors;
 
@@ -217,23 +217,15 @@ namespace HRUpdate.Process
             {
                 log.Warn("Critical Errors found for user: " + employeeData.Person.EmployeeID + "(" + criticalErrors.Errors.Count() + ")");
 
-                var proccessedUserIssue = usersToProcess
-                        .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
-                        .Select
-                             (
-                                 s =>
-                                     new ProcessedSummary
-                                     {
-                                         GCIMSID = -1,
-                                         EmployeeID = s.Person.EmployeeID,
-                                         FirstName = s.Person.FirstName,
-                                         MiddleName = s.Person.MiddleName,
-                                         LastName = s.Person.LastName,
-                                         Action = "Critical - " + GetErrors(criticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
-                                     }
-                             ).ToList();
-
-                unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+                unsuccessfulHRUsersProcessed.Add(new ProcessedSummary
+                {
+                    GCIMSID = -1,
+                    EmployeeID = employeeData.Person.EmployeeID,
+                    FirstName = employeeData.Person.FirstName,
+                    MiddleName = employeeData.Person.MiddleName,
+                    LastName = employeeData.Person.LastName,
+                    Action = "Critical - " + GetErrors(criticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
+                });                
 
                 return true;
             }
@@ -251,31 +243,22 @@ namespace HRUpdate.Process
             {
                 log.Warn("Non critical errors found for user: " + employeeData.Person.EmployeeID + "(" + noncriticalErrors.Errors.Count() + ")");
 
-                var proccessedUserIssue = usersToProcess
-                   .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
-                   .Select
-                        (
-                            s =>
-                                new ProcessedSummary
-                                {
-                                    GCIMSID = -1,
-                                    EmployeeID = s.Person.EmployeeID,
-                                    FirstName = s.Person.FirstName,
-                                    MiddleName = s.Person.MiddleName,
-                                    LastName = s.Person.LastName,
-                                    Action = "Non-Critical - " + GetErrors(noncriticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
-                                }
-                        ).ToList();
-
-                unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+                unsuccessfulHRUsersProcessed.Add(new ProcessedSummary
+                {
+                    GCIMSID = -1,
+                    EmployeeID = employeeData.Person.EmployeeID,
+                    FirstName = employeeData.Person.FirstName,
+                    MiddleName = employeeData.Person.MiddleName,
+                    LastName = employeeData.Person.LastName,
+                    Action = "Non-Critical - " + GetErrors(noncriticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
+                });                
             }
         }
 
         private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
         {
             CompareLogic compareLogic = new CompareLogic();
-            compareLogic.Config.MembersToIgnore.Add("Person.SocialSecurityNumber");
-            compareLogic.Config.MembersToIgnore.Add("Detail");
+
             compareLogic.Config.TreatStringEmptyAndNullTheSame = true;
 
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
@@ -286,9 +269,7 @@ namespace HRUpdate.Process
         private Employee RecordFound(Employee employeeData, List<Employee> allGCIMSData)
         {
             var hrLinksMatch = allGCIMSData.Where(w => employeeData.Person.EmployeeID.Equals(string.IsNullOrEmpty(w.Person.EmployeeID) ? string.Empty : w.Person.EmployeeID)).ToList();
-
-            //string.IsNullOrEmpty(employeeData.Person.FirstName) ? string.Empty : employeeData.Person.FirstName.ToLower().Trim()).Equals(string.IsNullOrEmpty(c.Person.FirstName) ? string.Empty : c.Person.FirstName.ToLower().Trim())
-
+            
             if (hrLinksMatch.Count > 1)
             {
                 log.Info("Multiple HR Links IDs Found: " + employeeData.Person.EmployeeID);
@@ -362,60 +343,39 @@ namespace HRUpdate.Process
                         {
                             log.Info("Separating User: " + separationResults.Item1);
 
-                            var separationSuccess = separationUsersToProcess
-                                 .Where(w => w.EmployeeID == separationData.EmployeeID)
-                                 .Select
-                                     (
-                                         s =>
-                                             new SeperationSummary
-                                             {
-                                                 GCIMSID = separationResults.Item1,
-                                                 EmployeeID = s.EmployeeID,
-                                                 SeparationCode = s.SeparationCode,
-                                                 Action = separationResults.Item3
-                                             }
-                                     ).ToList();
-
-                            successfulSeparationUsersProcessed.AddRange(separationSuccess);
+                            successfulSeparationUsersProcessed.Add(new SeperationSummary
+                            {
+                                GCIMSID = separationResults.Item1,
+                                EmployeeID = separationData.EmployeeID,
+                                SeparationCode = separationData.SeparationCode,
+                                SeparationDate = separationData.SeparationDate,
+                                Action = separationResults.Item3
+                            });                            
 
                             log.Info("Successfully Separated Record: " + separationResults.Item1);
                         }
                         else
                         {
-                            var separationIssue = separationUsersToProcess
-                                .Where(w => w.EmployeeID == separationData.EmployeeID)
-                                .Select
-                                    (
-                                        s =>
-                                            new SeperationSummary
-                                            {
-                                                GCIMSID = separationResults.Item1,
-                                                EmployeeID = s.EmployeeID,
-                                                SeparationCode = s.SeparationCode,
-                                                Action = separationResults.Item3
-                                            }
-                                    ).ToList();
-
-                            unsuccessfulSeparationUsersProcessed.AddRange(separationIssue);
+                            unsuccessfulSeparationUsersProcessed.Add(new SeperationSummary
+                            {
+                                GCIMSID = separationResults.Item1,
+                                EmployeeID = separationData.EmployeeID,
+                                SeparationCode = separationData.SeparationCode,
+                                SeparationDate = separationData.SeparationDate,
+                                Action = separationResults.Item3
+                            });
                         }
                     }
                     else
                     {
-                        var separationIssue = separationUsersToProcess
-                                .Where(w => w.EmployeeID == separationData.EmployeeID)
-                                .Select
-                                    (
-                                        s =>
-                                            new SeperationSummary
-                                            {
-                                                GCIMSID = -1,
-                                                EmployeeID = s.EmployeeID,
-                                                SeparationCode = s.SeparationCode,
-                                                Action = GetErrors(errors.Errors, Hrlinks.Separation).TrimEnd(',')
-                                            }
-                                    ).ToList();
-
-                        unsuccessfulSeparationUsersProcessed.AddRange(separationIssue);
+                        unsuccessfulSeparationUsersProcessed.Add(new SeperationSummary
+                        {
+                            GCIMSID = -1,
+                            EmployeeID = separationData.EmployeeID,
+                            SeparationCode = separationData.SeparationCode,
+                            SeparationDate = separationData.SeparationDate,
+                            Action = GetErrors(errors.Errors, Hrlinks.Separation).TrimEnd(',')
+                        });                        
                     }
                 }
 
@@ -464,7 +424,7 @@ namespace HRUpdate.Process
 
             if (inactiveSummary.Count > 0)
             {
-                emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<InactiveSummary, InactiveSummaryMapping>(ConfigurationManager.AppSettings["INACTIVESUMMARYFILENAME"].ToString(), inactiveSummary);
+                emailData.HRInactiveSummaryFilename = summaryFileGenerator.GenerateSummaryFile<InactiveSummary, InactiveSummaryMapping>(ConfigurationManager.AppSettings["INACTIVESUMMARYFILENAME"].ToString(), inactiveSummary);
                 log.Info("HR Inactive File: " + emailData.HRInactiveSummaryFilename);
             }
 
@@ -615,9 +575,7 @@ namespace HRUpdate.Process
 
             return addAttachment.ToString();
         }
-
-        private enum Hrlinks { Separation = 1, Hrfile = 2 };
-
+        
         private string GetErrors(IList<ValidationFailure> failures, Hrlinks hr)
         {
             StringBuilder errors = new StringBuilder();
