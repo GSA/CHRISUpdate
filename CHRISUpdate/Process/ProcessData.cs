@@ -56,7 +56,7 @@ namespace HRUpdate.Process
 
                 ValidateHR validate = new ValidateHR();
 
-                Helpers helper;
+                Helpers helper = new Helpers();
 
                 log.Info("Loading HR Links File");
                 usersToProcess = GetFileData<Employee, EmployeeMapping>(HRFile);
@@ -88,7 +88,69 @@ namespace HRUpdate.Process
 
                     if (gcimsRecord != null)
                     {
-                        log.Info("Updating Record: " + employeeData.Person.EmployeeID);
+                        log.Info("Comparing HR and GCIMS Data: " + employeeData.Person.EmployeeID);
+
+                        if (!AreEqualGCIMSToHR(gcimsRecord, employeeData))
+                        {
+                            log.Info("Copying objects: " + employeeData.Person.EmployeeID);
+                            helper.CopyValues<Employee>(employeeData, gcimsRecord);
+
+                            log.Info("Checking if inactive record: " + employeeData.Person.EmployeeID);
+
+                            if (employeeData.Person.Status == "Inactive")
+                            {
+                                inactive.Add(new InactiveSummary
+                                {
+                                    GCIMSID = employeeData.Person.GCIMSID,
+                                    EmployeeID = employeeData.Person.EmployeeID,
+                                    FirstName = employeeData.Person.FirstName,
+                                    MiddleName = employeeData.Person.MiddleName,
+                                    LastName = employeeData.Person.LastName
+                                });
+                            }
+
+                            log.Info("Updating Record: " + employeeData.Person.EmployeeID);
+
+                            continue;
+
+                            updatedResults = save.UpdatePersonInformation(employeeData.Person.GCIMSID, employeeData);
+
+                            if (updatedResults.Item1 > 0)
+                            {
+                                successfulHRUsersProcessed.Add(new ProcessedSummary
+                                {
+                                    GCIMSID = employeeData.Person.GCIMSID,
+                                    EmployeeID = employeeData.Person.EmployeeID,
+                                    FirstName = employeeData.Person.FirstName,
+                                    MiddleName = employeeData.Person.MiddleName,
+                                    LastName = employeeData.Person.LastName,
+                                    Action = updatedResults.Item2
+                                });
+
+                                log.Info("Successfully Updated Record: " + employeeData.Person.EmployeeID);
+                            }
+                            else
+                            {
+                                unsuccessfulHRUsersProcessed.Add(new ProcessedSummary
+                                {
+                                    GCIMSID = employeeData.Person.GCIMSID,
+                                    EmployeeID = employeeData.Person.EmployeeID,
+                                    FirstName = employeeData.Person.FirstName,
+                                    MiddleName = employeeData.Person.MiddleName,
+                                    LastName = employeeData.Person.LastName,
+                                    Action = updatedResults.Item3
+                                });
+
+                                log.Error("Unable to update: " + employeeData.Person.EmployeeID);
+                            }
+
+                            continue;
+                        }
+                        else
+                        {
+                            log.Info("HR and GCIMS Data are the same: " + employeeData.Person.EmployeeID);
+                            continue;
+                        }
                     }
                     else
                     {
@@ -113,6 +175,8 @@ namespace HRUpdate.Process
                                                     .ToList();
 
                         recordsNotfound.AddRange(nameNotFoundIssue);
+
+                        continue;
                     }
 
                     //Checks if a record exists within the GCIMS data
@@ -133,134 +197,93 @@ namespace HRUpdate.Process
 
                     //int personID = personResults.Item1;
 
-                    int personID;
+                    //int personID;
 
-                    personID = -1;
+                    //personID = -1;
 
                     //If user is not found or other issue add to the error summary file
-                    if (personID == -1)
-                    {
-                        var proccessedUserIssue = usersToProcess
-                            .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
-                            .Select
-                                 (
-                                     s =>
-                                         new ProcessedSummary
-                                         {
-                                             GCIMSID = personID,
-                                             EmployeeID = s.Person.EmployeeID,
-                                             FirstName = s.Person.FirstName,
-                                             MiddleName = s.Person.MiddleName,
-                                             LastName = s.Person.LastName,
-                                             Action = "No DB Connection"
-                                         }
-                                 ).ToList();
+                    //    if (personID == -1)
+                    //    {
+                    //        var proccessedUserIssue = usersToProcess
+                    //            .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                    //            .Select
+                    //                 (
+                    //                     s =>
+                    //                         new ProcessedSummary
+                    //                         {
+                    //                             GCIMSID = personID,
+                    //                             EmployeeID = s.Person.EmployeeID,
+                    //                             FirstName = s.Person.FirstName,
+                    //                             MiddleName = s.Person.MiddleName,
+                    //                             LastName = s.Person.LastName,
+                    //                             Action = "No DB Connection"
+                    //                         }
+                    //                 ).ToList();
 
-                        unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+                    //        unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
 
-                        continue;
-                    }
+                    //        continue;
+                    //    }
 
-                    Employee gcimsData = employeeData; //personResults.Item5;
+                    //    Employee gcimsData = employeeData; //personResults.Item5;
 
-                    if (gcimsData.Person.Status == "Inactive")
-                    {
-                        inactive.Add(new InactiveSummary
-                        {
-                            GCIMSID = personID,
-                            EmployeeID = employeeData.Person.EmployeeID,
-                            FirstName = gcimsData.Person.FirstName,
-                            MiddleName = gcimsData.Person.MiddleName,
-                            LastName = gcimsData.Person.LastName
-                        });
-                    }
+                    //    if (gcimsData.Person.Status == "Inactive")
+                    //    {
+                    //        inactive.Add(new InactiveSummary
+                    //        {
+                    //            GCIMSID = personID,
+                    //            EmployeeID = employeeData.Person.EmployeeID,
+                    //            FirstName = gcimsData.Person.FirstName,
+                    //            MiddleName = gcimsData.Person.MiddleName,
+                    //            LastName = gcimsData.Person.LastName
+                    //        });
+                    //    }
 
-                    helper.CopyValues<Employee>(employeeData, gcimsData);
+                    //    helper.CopyValues<Employee>(employeeData, gcimsData);
 
-                    if (personID > 0 && !AreEqualGCIMSToHR(gcimsData, employeeData))
-                    {
-                        log.Info("Trying To Update Record:" + personID);
+                    //    if (personID > 0 && !AreEqualGCIMSToHR(gcimsData, employeeData))
+                    //    {
+                    //        log.Info("Trying To Update Record:" + personID);
 
-                        updatedResults = save.UpdatePersonInformation(personID, employeeData);
+                    //        updatedResults = save.UpdatePersonInformation(personID, employeeData);
 
-                        if (updatedResults.Item1 > 0)
-                        {
-                            var processedUserSuccess = usersToProcess
-                             .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
-                             .Select
-                                 (
-                                     s =>
-                                         new ProcessedSummary
-                                         {
-                                             GCIMSID = personID,
-                                             EmployeeID = s.Person.EmployeeID,
-                                             FirstName = s.Person.FirstName,
-                                             MiddleName = s.Person.MiddleName,
-                                             LastName = s.Person.LastName,
-                                             Action = updatedResults.Item2
-                                         }
-                                 ).ToList();
 
-                            successfulHRUsersProcessed.AddRange(processedUserSuccess);
+                    //    //}
+                    //    else
+                    //    {
+                    //        var proccessedUserIssue = usersToProcess
+                    //                .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
+                    //                .Select
+                    //                     (
+                    //                         s =>
+                    //                             new ProcessedSummary
+                    //                             {
+                    //                                 GCIMSID = -1,
+                    //                                 EmployeeID = s.Person.EmployeeID,
+                    //                                 FirstName = s.Person.FirstName,
+                    //                                 MiddleName = s.Person.MiddleName,
+                    //                                 LastName = s.Person.LastName,
+                    //                                 Action = "Nothing" //GetErrors(errors.Errors, Hrlinks.Hrfile).TrimEnd(',')
+                    //                             }
+                    //                     ).ToList();
 
-                            log.Info("Successfully Updated Record: " + personID);
-                        }
-                        else
-                        {
-                            var proccessedUserIssue = usersToProcess
-                            .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
-                            .Select
-                                 (
-                                     s =>
-                                         new ProcessedSummary
-                                         {
-                                             GCIMSID = personID,
-                                             EmployeeID = s.Person.EmployeeID,
-                                             FirstName = s.Person.FirstName,
-                                             MiddleName = s.Person.MiddleName,
-                                             LastName = s.Person.LastName,
-                                             Action = updatedResults.Item3
-                                         }
-                                 ).ToList();
-
-                            unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
-                        }
-                    }
+                    //        unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
+                    //    }
                     //}
-                    else
-                    {
-                        var proccessedUserIssue = usersToProcess
-                                .Where(w => w.Person.EmployeeID == employeeData.Person.EmployeeID)
-                                .Select
-                                     (
-                                         s =>
-                                             new ProcessedSummary
-                                             {
-                                                 GCIMSID = -1,
-                                                 EmployeeID = s.Person.EmployeeID,
-                                                 FirstName = s.Person.FirstName,
-                                                 MiddleName = s.Person.MiddleName,
-                                                 LastName = s.Person.LastName,
-                                                 Action = "Nothing" //GetErrors(errors.Errors, Hrlinks.Hrfile).TrimEnd(',')
-                                             }
-                                     ).ToList();
 
-                        unsuccessfulHRUsersProcessed.AddRange(proccessedUserIssue);
-                    }
+                    emailData.HRFilename = Path.GetFileName(HRFile);
+                    emailData.HRAttempted = usersToProcess.Count;
+                    emailData.HRSucceeded = successfulHRUsersProcessed.Count;
+                    emailData.HRFailed = unsuccessfulHRUsersProcessed.Count;
+                    emailData.HRHasErrors = unsuccessfulHRUsersProcessed.Count > 0 ? true : false;
+
+                    //Add log entries
+                    log.Info("HR Records Updated: " + String.Format("{0:#,###0}", successfulHRUsersProcessed.Count));
+                    log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
+                    log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
+
+                    GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed, socialSecurityNumberChange, inactive, recordsNotfound);
                 }
-
-                emailData.HRFilename = Path.GetFileName(HRFile);
-                emailData.HRAttempted = usersToProcess.Count;
-                emailData.HRSucceeded = successfulHRUsersProcessed.Count;
-                emailData.HRFailed = unsuccessfulHRUsersProcessed.Count;
-                emailData.HRHasErrors = unsuccessfulHRUsersProcessed.Count > 0 ? true : false;
-
-                //Add log entries
-                log.Info("HR Records Updated: " + String.Format("{0:#,###0}", successfulHRUsersProcessed.Count));
-                log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
-                log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
-
-                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed, socialSecurityNumberChange, inactive, recordsNotfound);
             }
             //Catch all errors
             catch (Exception ex)

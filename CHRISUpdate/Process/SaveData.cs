@@ -167,7 +167,7 @@ namespace HRUpdate.Process
         /// <param name="saveData"></param>
         /// <returns></returns>
         /// Change to person data
-        public Tuple<int, string, string> UpdatePersonInformation(int persID, Employee hrData)
+        public Tuple<int, string, string> UpdatePersonInformation(Int64 persID, Employee hrData)
         {
             try
             {
@@ -188,7 +188,7 @@ namespace HRUpdate.Process
 
                         MySqlParameter[] personParameters = new MySqlParameter[]
                         {
-                            new MySqlParameter { ParameterName = "persID", Value = persID, MySqlDbType = MySqlDbType.Int32},
+                            new MySqlParameter { ParameterName = "persID", Value = persID, MySqlDbType = MySqlDbType.Int64},
                             new MySqlParameter { ParameterName = "emplID", Value = hrData.Person.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},
                             new MySqlParameter { ParameterName = "lastName", Value = hrData.Person.LastName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
                             new MySqlParameter { ParameterName = "suffix", Value = hrData.Person.Suffix, MySqlDbType = MySqlDbType.VarChar, Size = 15},
