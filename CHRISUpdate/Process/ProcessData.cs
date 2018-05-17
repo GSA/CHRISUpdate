@@ -2,6 +2,7 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using FluentValidation.Results;
+using HRUpdate.Data;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Utilities;
@@ -24,6 +25,7 @@ namespace HRUpdate.Process
 
         private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
         private readonly SaveData save;
+        private readonly RetrieveData retrieve;
 
         private readonly EMailData emailData = new EMailData();
 
@@ -32,9 +34,10 @@ namespace HRUpdate.Process
         private enum Hrlinks { Separation = 1, Hrfile = 2 };
 
         //Constructor
-        public ProcessData(IMapper saveMappper)
+        public ProcessData(IMapper dataMapper)
         {
-            save = new SaveData(saveMappper);
+            retrieve = new RetrieveData(dataMapper);
+            save = new SaveData(dataMapper);
         }
 
         /// <summary>
@@ -70,7 +73,7 @@ namespace HRUpdate.Process
 
                 timeForProcess.Start();
                 log.Info("Loading GCIMS Data");
-                allGCIMSData = save.LoadGCIMSData();
+                allGCIMSData = retrieve.AllGCIMSData();
                 timeForProcess.Stop();
 
                 log.Warn("It took " + timeForProcess.ElapsedMilliseconds + " to retrieve the data from the DB");
@@ -84,7 +87,7 @@ namespace HRUpdate.Process
                 {
                     log.Info("Processing HR User: " + employeeData.Person.EmployeeID);
 
-                    Console.WriteLine("Processing HR User: " + employeeData.Person.EmployeeID);
+                    //Console.WriteLine("Processing HR User: " + employeeData.Person.EmployeeID);
 
                     //If there are critical errors write to the error summary and move to the next record
                     log.Info("Checking for Critical errors for user: " + employeeData.Person.EmployeeID);
@@ -93,7 +96,7 @@ namespace HRUpdate.Process
 
                     //If there are non critical errors write to the error summary and continue with current record
                     log.Info("Checking for non critical errors for user: " + employeeData.Person.EmployeeID);
-                    CheckForNonCriticalErrors(validate, employeeData, usersToProcess, unsuccessfulHRUsersProcessed);
+                    CheckForNonCriticalErrors(validate, employeeData, unsuccessfulHRUsersProcessed);
 
                     //If record is found continue processing, otherwise record the issue
                     gcimsRecord = RecordFound(employeeData, allGCIMSData);
@@ -233,7 +236,7 @@ namespace HRUpdate.Process
             return false;
         }
 
-        private void CheckForNonCriticalErrors(ValidateHR validate, Employee employeeData, List<Employee> usersToProcess, List<ProcessedSummary> unsuccessfulHRUsersProcessed)
+        private void CheckForNonCriticalErrors(ValidateHR validate, Employee employeeData, List<ProcessedSummary> unsuccessfulHRUsersProcessed)
         {
             ValidationResult noncriticalErrors;
 

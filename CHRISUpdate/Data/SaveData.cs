@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 
-namespace HRUpdate.Process
+namespace HRUpdate.Data
 {
     internal class SaveData
     {
@@ -23,140 +23,6 @@ namespace HRUpdate.Process
         public SaveData(IMapper mapper)
         {
             saveMapper = mapper;
-        }
-
-        public List<Employee> LoadGCIMSData()
-        {
-            try
-            {
-                List<Employee> allGCIMSData = new List<Employee>();
-
-                using (conn)
-                {
-                    if (conn.State == ConnectionState.Closed)
-                        conn.Open();
-
-                    using (cmd)
-                    {
-                        MySqlDataReader gcimsData;
-
-                        cmd.Connection = conn;
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.CommandText = "HR_GetAllRecords";
-                        cmd.Parameters.Clear();
-
-                        gcimsData = cmd.ExecuteReader();
-
-                        using (gcimsData)
-                        {
-                            if (gcimsData.HasRows)
-                            {
-                                allGCIMSData = MapAllGCIMSData(gcimsData);
-                            }
-                        }
-                    }
-                }
-
-                return allGCIMSData;
-            }
-            catch (Exception ex)
-            {
-                log.Error("GetGCIMSRecord: " + " - " + ex.Message + " - " + ex.InnerException);
-                return new List<Employee>();
-            }
-        }
-
-        public Tuple<int, int, string, string, Employee> GetGCIMSRecord(string employeeID, string ssn, string lastName, string dateOfBirth)
-        {
-            try
-            {
-                using (conn)
-                {
-                    if (conn.State == ConnectionState.Closed)
-                        conn.Open();
-
-                    using (cmd)
-                    {
-                        cmd.Connection = conn;
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.CommandText = "HR_GetRecord";
-
-                        cmd.Parameters.Clear();
-                        MySqlParameter[] personParameters = new MySqlParameter[]
-                        {
-                            new MySqlParameter { ParameterName = "ssn", Value = ssn, MySqlDbType = MySqlDbType.VarChar, Size = 9},
-                            new MySqlParameter { ParameterName = "lastName", Value = lastName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
-                            new MySqlParameter { ParameterName = "dateOfBirth", Value = dateOfBirth, MySqlDbType = MySqlDbType.VarChar, Size = 10},
-                            new MySqlParameter { ParameterName = "emplID", Value = employeeID, MySqlDbType = MySqlDbType.VarChar, Size = 12 },
-                            new MySqlParameter { ParameterName = "persID", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
-                            new MySqlParameter { ParameterName = "result", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
-                            new MySqlParameter { ParameterName = "actionMsg", MySqlDbType = MySqlDbType.VarChar, Size = 50, Direction = ParameterDirection.Output },
-                            new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
-                        };
-
-                        cmd.Parameters.AddRange(personParameters);
-
-                        MySqlDataReader gcimsData;
-
-                        Employee gcimsRecord = new Employee();
-
-                        gcimsData = cmd.ExecuteReader();
-
-                        using (gcimsData)
-                        {
-                            if (gcimsData.HasRows)
-                                gcimsRecord = MapGCIMSData(gcimsData);
-                        }
-
-                        return new Tuple<int, int, string, string, Employee>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["actionMsg"].Value.ToString(), cmd.Parameters["SQLExceptionWarning"].Value.ToString(), gcimsRecord);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("GetGCIMSRecord: " + employeeID + " - " + ex.Message + " - " + ex.InnerException);
-                return new Tuple<int, int, string, string, Employee>(-1, -1, ex.Message.ToString(), ex.InnerException.ToString(), null);
-            }
-        }
-
-        private List<Employee> MapAllGCIMSData(MySqlDataReader gcimsData)
-        {
-            List<Employee> allRecords = new List<Employee>();
-
-            while (gcimsData.Read())
-            {
-                Employee employee = new Employee();
-
-                employee.Address = saveMapper.Map<IDataReader, Address>(gcimsData);
-                employee.Birth = saveMapper.Map<IDataReader, Birth>(gcimsData);
-                employee.Emergency = saveMapper.Map<IDataReader, Emergency>(gcimsData);
-                employee.Investigation = saveMapper.Map<IDataReader, Investigation>(gcimsData);
-                employee.Person = saveMapper.Map<IDataReader, Person>(gcimsData);
-                employee.Phone = saveMapper.Map<IDataReader, Phone>(gcimsData);
-                employee.Position = saveMapper.Map<IDataReader, Position>(gcimsData); //Need to fix SupervisorID
-
-                allRecords.Add(employee);
-            }
-
-            return allRecords;
-        }
-
-        private Employee MapGCIMSData(MySqlDataReader gcimsData)
-        {
-            Employee employee = new Employee();
-
-            while (gcimsData.Read())
-            {
-                employee.Address = saveMapper.Map<IDataReader, Address>(gcimsData);
-                employee.Birth = saveMapper.Map<IDataReader, Birth>(gcimsData);
-                employee.Emergency = saveMapper.Map<IDataReader, Emergency>(gcimsData);
-                employee.Investigation = saveMapper.Map<IDataReader, Investigation>(gcimsData);
-                employee.Person = saveMapper.Map<IDataReader, Person>(gcimsData);
-                employee.Phone = saveMapper.Map<IDataReader, Phone>(gcimsData);
-                employee.Position = saveMapper.Map<IDataReader, Position>(gcimsData); //Need to fix SupervisorID
-            }
-
-            return employee;
         }
 
         /// <summary>

@@ -110,6 +110,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\RetrieveData.cs" />
+    <Compile Include="Data\SaveData.cs" />
     <Compile Include="Lookups\CountryLookup.cs" />
     <Compile Include="Lookups\InvestigationLookup.cs" />
     <Compile Include="Lookups\SeparationLookup.cs" />
@@ -135,7 +137,6 @@
     <Compile Include="Models\Summary.cs" />
     <Compile Include="Process\LoadLookupData.cs" />
     <Compile Include="Process\ProcessData.cs" />
-    <Compile Include="Process\SaveData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\EMail.cs" />
