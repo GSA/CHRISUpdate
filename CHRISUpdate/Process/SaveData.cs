@@ -26,7 +26,7 @@ namespace HRUpdate.Process
         }
 
         public List<Employee> LoadGCIMSData()
-       {
+        {
             try
             {
                 List<Employee> allGCIMSData = new List<Employee>();
@@ -39,8 +39,8 @@ namespace HRUpdate.Process
                     using (cmd)
                     {
                         MySqlDataReader gcimsData;
-                        
-                                                cmd.Connection = conn;
+
+                        cmd.Connection = conn;
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandText = "HR_GetAllRecords";
                         cmd.Parameters.Clear();
@@ -53,13 +53,11 @@ namespace HRUpdate.Process
                             {
                                 allGCIMSData = MapAllGCIMSData(gcimsData);
                             }
-
                         }
                     }
                 }
 
                 return allGCIMSData;
-                
             }
             catch (Exception ex)
             {
@@ -122,7 +120,7 @@ namespace HRUpdate.Process
         }
 
         private List<Employee> MapAllGCIMSData(MySqlDataReader gcimsData)
-        {            
+        {
             List<Employee> allRecords = new List<Employee>();
 
             while (gcimsData.Read())

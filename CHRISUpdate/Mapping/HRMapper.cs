@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using AutoMapper.Data;
-using HRUpdate.Models;
 
 namespace HRUpdate.Mapping
 {

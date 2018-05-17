@@ -25,7 +25,7 @@ namespace HRUpdate.Mapping
             Map(m => m.EmployeeID).Name("Employee ID");
             Map(m => m.SeparationCode).Name("Separation Code");
             Map(m => m.SeparationDate).Name("Separation Date");
-            Map(m => m.Action).Name("Action");            
+            Map(m => m.Action).Name("Action");
         }
     }
 
@@ -38,7 +38,7 @@ namespace HRUpdate.Mapping
             Map(m => m.FirstName).Name("First Name");
             Map(m => m.MiddleName).Name("Middle Name");
             Map(m => m.LastName).Name("Last Name");
-            Map(m => m.Suffix).Name("Suffix");            
+            Map(m => m.Suffix).Name("Suffix");
         }
     }
 

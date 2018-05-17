@@ -4,7 +4,6 @@ using HRUpdate.Lookups;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Process;
-using System;
 using System.Linq;
 
 namespace HRUpdate.Validation
@@ -49,5 +48,5 @@ namespace HRUpdate.Validation
                 .WithMessage($"{{PropertyName}} is not null")
                 .ValidDate();
         }
-    }    
+    }
 }

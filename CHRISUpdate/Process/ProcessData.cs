@@ -54,7 +54,7 @@ namespace HRUpdate.Process
 
                 List<Employee> usersToProcess;
                 List<Employee> allGCIMSData;
-                              
+
                 List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<SocialSecurityNumberChangeSummary> socialSecurityNumberChange = new List<SocialSecurityNumberChangeSummary>();
@@ -125,7 +125,7 @@ namespace HRUpdate.Process
                             log.Info("Updating Record: " + employeeData.Person.EmployeeID);
 
                             updatedResults = new Tuple<int, string, string>(-1, "Testing", "SQL Error");
-                            
+
                             //updatedResults = save.UpdatePersonInformation(employeeData.Person.GCIMSID, employeeData);
 
                             if (updatedResults.Item1 > 0)
@@ -182,9 +182,9 @@ namespace HRUpdate.Process
                             FirstName = employeeData.Person.FirstName,
                             MiddleName = employeeData.Person.MiddleName,
                             LastName = employeeData.Person.LastName,
-                            Suffix = employeeData.Person.Suffix                            
+                            Suffix = employeeData.Person.Suffix
                         });
-                    }                    
+                    }
                 }
 
                 emailData.HRFilename = Path.GetFileName(HRFile);
@@ -225,7 +225,7 @@ namespace HRUpdate.Process
                     MiddleName = employeeData.Person.MiddleName,
                     LastName = employeeData.Person.LastName,
                     Action = "Critical - " + GetErrors(criticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
-                });                
+                });
 
                 return true;
             }
@@ -251,7 +251,7 @@ namespace HRUpdate.Process
                     MiddleName = employeeData.Person.MiddleName,
                     LastName = employeeData.Person.LastName,
                     Action = "Non-Critical - " + GetErrors(noncriticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
-                });                
+                });
             }
         }
 
@@ -269,7 +269,7 @@ namespace HRUpdate.Process
         private Employee RecordFound(Employee employeeData, List<Employee> allGCIMSData)
         {
             var hrLinksMatch = allGCIMSData.Where(w => employeeData.Person.EmployeeID.Equals(string.IsNullOrEmpty(w.Person.EmployeeID) ? string.Empty : w.Person.EmployeeID)).ToList();
-            
+
             if (hrLinksMatch.Count > 1)
             {
                 log.Info("Multiple HR Links IDs Found: " + employeeData.Person.EmployeeID);
@@ -350,7 +350,7 @@ namespace HRUpdate.Process
                                 SeparationCode = separationData.SeparationCode,
                                 SeparationDate = separationData.SeparationDate,
                                 Action = separationResults.Item3
-                            });                            
+                            });
 
                             log.Info("Successfully Separated Record: " + separationResults.Item1);
                         }
@@ -375,7 +375,7 @@ namespace HRUpdate.Process
                             SeparationCode = separationData.SeparationCode,
                             SeparationDate = separationData.SeparationDate,
                             Action = GetErrors(errors.Errors, Hrlinks.Separation).TrimEnd(',')
-                        });                        
+                        });
                     }
                 }
 
@@ -575,7 +575,7 @@ namespace HRUpdate.Process
 
             return addAttachment.ToString();
         }
-        
+
         private string GetErrors(IList<ValidationFailure> failures, Hrlinks hr)
         {
             StringBuilder errors = new StringBuilder();
