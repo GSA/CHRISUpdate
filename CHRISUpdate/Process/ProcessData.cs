@@ -91,12 +91,8 @@ namespace HRUpdate.Process
 
                     //If there are critical errors write to the error summary and move to the next record
                     log.Info("Checking for Critical errors for user: " + employeeData.Person.EmployeeID);
-                    if (CheckForCriticalErrors(validate, employeeData, unsuccessfulHRUsersProcessed))
+                    if (CheckForErrors(validate, employeeData, unsuccessfulHRUsersProcessed))
                         continue;
-
-                    //If there are non critical errors write to the error summary and continue with current record
-                    log.Info("Checking for non critical errors for user: " + employeeData.Person.EmployeeID);
-                    CheckForNonCriticalErrors(validate, employeeData, unsuccessfulHRUsersProcessed);
 
                     //If record is found continue processing, otherwise record the issue
                     gcimsRecord = RecordFound(employeeData, allGCIMSData);
@@ -210,7 +206,7 @@ namespace HRUpdate.Process
             }
         }
 
-        private bool CheckForCriticalErrors(ValidateHR validate, Employee employeeData, List<ProcessedSummary> unsuccessfulHRUsersProcessed)
+        private bool CheckForErrors(ValidateHR validate, Employee employeeData, List<ProcessedSummary> unsuccessfulHRUsersProcessed)
         {
             ValidationResult criticalErrors;
 
@@ -218,7 +214,7 @@ namespace HRUpdate.Process
 
             if (!criticalErrors.IsValid)
             {
-                log.Warn("Critical Errors found for user: " + employeeData.Person.EmployeeID + "(" + criticalErrors.Errors.Count() + ")");
+                log.Warn("Errors found for user: " + employeeData.Person.EmployeeID + "(" + criticalErrors.Errors.Count() + ")");
 
                 unsuccessfulHRUsersProcessed.Add(new ProcessedSummary
                 {
@@ -227,35 +223,13 @@ namespace HRUpdate.Process
                     FirstName = employeeData.Person.FirstName,
                     MiddleName = employeeData.Person.MiddleName,
                     LastName = employeeData.Person.LastName,
-                    Action = "Critical - " + GetErrors(criticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
+                    Action = GetErrors(criticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
                 });
 
                 return true;
             }
 
             return false;
-        }
-
-        private void CheckForNonCriticalErrors(ValidateHR validate, Employee employeeData, List<ProcessedSummary> unsuccessfulHRUsersProcessed)
-        {
-            ValidationResult noncriticalErrors;
-
-            noncriticalErrors = validate.validateEmployeeNonCriticalInfo(employeeData);
-
-            if (!noncriticalErrors.IsValid)
-            {
-                log.Warn("Non critical errors found for user: " + employeeData.Person.EmployeeID + "(" + noncriticalErrors.Errors.Count() + ")");
-
-                unsuccessfulHRUsersProcessed.Add(new ProcessedSummary
-                {
-                    GCIMSID = -1,
-                    EmployeeID = employeeData.Person.EmployeeID,
-                    FirstName = employeeData.Person.FirstName,
-                    MiddleName = employeeData.Person.MiddleName,
-                    LastName = employeeData.Person.LastName,
-                    Action = "Non-Critical - " + GetErrors(noncriticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
-                });
-            }
         }
 
         private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
