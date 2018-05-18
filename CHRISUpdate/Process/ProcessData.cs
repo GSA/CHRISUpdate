@@ -117,8 +117,11 @@ namespace HRUpdate.Process
                                     EmployeeID = employeeData.Person.EmployeeID,
                                     FirstName = employeeData.Person.FirstName,
                                     MiddleName = employeeData.Person.MiddleName,
-                                    LastName = employeeData.Person.LastName
+                                    LastName = employeeData.Person.LastName,
+                                    Status = employeeData.Person.Status
                                 });
+
+                                log.Warn("Inactive Record: " + employeeData.Person.EmployeeID);
                             }
 
                             log.Info("Updating Record: " + employeeData.Person.EmployeeID);
@@ -527,12 +530,20 @@ namespace HRUpdate.Process
         {
             StringBuilder attachments = new StringBuilder();
 
+            //HR Summary Files
             if (emailData.HRSuccessfulSummaryFilename != null)
                 attachments.Append(AddAttachment(emailData.HRSuccessfulSummaryFilename));
 
             if (emailData.HRErrorSummaryFilename != null)
                 attachments.Append(AddAttachment(emailData.HRErrorSummaryFilename));
 
+            if (emailData.HRInactiveSummaryFilename != null)
+                attachments.Append(AddAttachment(emailData.HRInactiveSummaryFilename));
+
+            if (emailData.HRNameNotFoundFileName != null)
+                attachments.Append(AddAttachment(emailData.HRNameNotFoundFileName));
+
+            //Separation Summary Files
             if (emailData.SeparationSuccessfulSummaryFilename != null)
                 attachments.Append(AddAttachment(emailData.SeparationSuccessfulSummaryFilename));
 
