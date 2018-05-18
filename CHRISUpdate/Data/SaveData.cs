@@ -1,8 +1,7 @@
-﻿using AutoMapper;
-using HRUpdate.Models;
+﻿using HRUpdate.Models;
+using HRUpdate.Utilities;
 using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 
@@ -18,11 +17,8 @@ namespace HRUpdate.Data
 
         private readonly MySqlCommand cmd = new MySqlCommand();
 
-        private readonly IMapper saveMapper;
-
-        public SaveData(IMapper mapper)
+        public SaveData()
         {
-            saveMapper = mapper;
         }
 
         /// <summary>
@@ -53,7 +49,7 @@ namespace HRUpdate.Data
                         MySqlParameter[] personParameters = new MySqlParameter[]
                         {
                             new MySqlParameter { ParameterName = "persID", Value = persID, MySqlDbType = MySqlDbType.Int64},
-                            new MySqlParameter { ParameterName = "emplID", Value = hrData.Person.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},                            
+                            new MySqlParameter { ParameterName = "emplID", Value = hrData.Person.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},
                             new MySqlParameter { ParameterName = "cityOfBirth", Value = hrData.Birth.CityOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "stateOfBirth", Value = hrData.Birth.StateOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "countryOfBirth", Value = hrData.Birth.CountryOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
@@ -101,21 +97,21 @@ namespace HRUpdate.Data
                             new MySqlParameter { ParameterName = "homeAddress3", Value = hrData.Address.HomeAddress3, MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "positionTitle", Value = hrData.Position.PositionTitle, MySqlDbType = MySqlDbType.VarChar, Size = 60},
                             new MySqlParameter { ParameterName = "positionOrganization", Value = hrData.Position.PositionOrganization, MySqlDbType = MySqlDbType.VarChar, Size = 18},
-                            new MySqlParameter { ParameterName = "homePhone", Value = hrData.Phone.HomePhone, MySqlDbType = MySqlDbType.TinyBlob},
-                            new MySqlParameter { ParameterName = "homeCell", Value = hrData.Phone.HomeCell, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "homePhone", Value = hrData.Phone.HomePhone.RemovePhoneFormatting(), MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "homeCell", Value = hrData.Phone.HomeCell.RemovePhoneFormatting(), MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "homeEmail", Value = hrData.Person.HomeEmail, MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "emergencyContactName", Value = hrData.Emergency.EmergencyContactName, MySqlDbType = MySqlDbType.TinyBlob},
-                            new MySqlParameter { ParameterName = "emergencyContactHomePhone", Value = hrData.Emergency.EmergencyContactHomePhone, MySqlDbType = MySqlDbType.TinyBlob},
-                            new MySqlParameter { ParameterName = "emergencyContactWorkPhone", Value = hrData.Emergency.EmergencyContactWorkPhone, MySqlDbType = MySqlDbType.TinyBlob},
-                            new MySqlParameter { ParameterName = "emergencyContactCellPhone", Value = hrData.Emergency.EmergencyContactCellPhone, MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "emergencyContactHomePhone", Value = hrData.Emergency.EmergencyContactHomePhone.RemovePhoneFormatting(), MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "emergencyContactWorkPhone", Value = hrData.Emergency.EmergencyContactWorkPhone.RemovePhoneFormatting(), MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "emergencyContactCellPhone", Value = hrData.Emergency.EmergencyContactCellPhone.RemovePhoneFormatting(), MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "outOfAreaContactName", Value = hrData.Emergency.OutOfAreaContactName, MySqlDbType = MySqlDbType.TinyBlob},
-                            new MySqlParameter { ParameterName = "outOfAreaContactHomePhone", Value = hrData.Emergency.OutOfAreaContactHomePhone, MySqlDbType = MySqlDbType.TinyBlob},
-                            new MySqlParameter { ParameterName = "outOfAreaContactWorkPhone", Value = hrData.Emergency.OutOfAreaContactWorkPhone, MySqlDbType = MySqlDbType.TinyBlob},
-                            new MySqlParameter { ParameterName = "outOfAreaContactCellPhone", Value = hrData.Emergency.OutOfAreaContactCellPhone, MySqlDbType = MySqlDbType.TinyBlob},
-                            new MySqlParameter { ParameterName = "workPhone", Value = hrData.Phone.WorkPhone, MySqlDbType = MySqlDbType.VarChar, Size = 22},
-                            new MySqlParameter { ParameterName = "workFax", Value = hrData.Phone.WorkFax, MySqlDbType = MySqlDbType.VarChar, Size = 22},
-                            new MySqlParameter { ParameterName = "workCell", Value = hrData.Phone.WorkCell, MySqlDbType = MySqlDbType.VarChar, Size = 22},
-                            new MySqlParameter { ParameterName = "workTTY", Value = hrData.Phone.WorkTextTelephone, MySqlDbType = MySqlDbType.VarChar, Size = 22},
+                            new MySqlParameter { ParameterName = "outOfAreaContactHomePhone", Value = hrData.Emergency.OutOfAreaContactHomePhone.RemovePhoneFormatting(), MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "outOfAreaContactWorkPhone", Value = hrData.Emergency.OutOfAreaContactWorkPhone.RemovePhoneFormatting(), MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "outOfAreaContactCellPhone", Value = hrData.Emergency.OutOfAreaContactCellPhone.RemovePhoneFormatting(), MySqlDbType = MySqlDbType.TinyBlob},
+                            new MySqlParameter { ParameterName = "workPhone", Value = hrData.Phone.WorkPhone.RemovePhoneFormatting(), MySqlDbType = MySqlDbType.VarChar, Size = 22},
+                            new MySqlParameter { ParameterName = "workFax", Value = hrData.Phone.WorkFax.RemovePhoneFormatting(), MySqlDbType = MySqlDbType.VarChar, Size = 22},
+                            new MySqlParameter { ParameterName = "workCell", Value = hrData.Phone.WorkCell.RemovePhoneFormatting(), MySqlDbType = MySqlDbType.VarChar, Size = 22},
+                            new MySqlParameter { ParameterName = "workTTY", Value = hrData.Phone.WorkTextTelephone.RemovePhoneFormatting(), MySqlDbType = MySqlDbType.VarChar, Size = 22},
                             new MySqlParameter { ParameterName = "result", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
                             new MySqlParameter { ParameterName = "actionMsg", MySqlDbType = MySqlDbType.VarChar, Size = 50, Direction = ParameterDirection.Output },
                             new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },

@@ -24,8 +24,8 @@ namespace HRUpdate.Process
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
-        private readonly SaveData save;
         private readonly RetrieveData retrieve;
+        private readonly SaveData save;
 
         private readonly EMailData emailData = new EMailData();
 
@@ -37,7 +37,7 @@ namespace HRUpdate.Process
         public ProcessData(IMapper dataMapper)
         {
             retrieve = new RetrieveData(dataMapper);
-            save = new SaveData(dataMapper);
+            save = new SaveData();
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace HRUpdate.Process
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<SocialSecurityNumberChangeSummary> socialSecurityNumberChange = new List<SocialSecurityNumberChangeSummary>();
                 List<RecordNotFoundSummary> recordsNotfound = new List<RecordNotFoundSummary>();
-                List<InactiveSummary> inactive = new List<InactiveSummary>();
+                List<InactiveSummary> inactiveRecords = new List<InactiveSummary>();
 
                 ValidateHR validate = new ValidateHR();
 
@@ -87,8 +87,6 @@ namespace HRUpdate.Process
                 {
                     log.Info("Processing HR User: " + employeeData.Person.EmployeeID);
 
-                    //Console.WriteLine("Processing HR User: " + employeeData.Person.EmployeeID);
-
                     //If there are critical errors write to the error summary and move to the next record
                     log.Info("Checking for Critical errors for user: " + employeeData.Person.EmployeeID);
                     if (CheckForErrors(validate, employeeData, unsuccessfulHRUsersProcessed))
@@ -111,7 +109,7 @@ namespace HRUpdate.Process
 
                             if (employeeData.Person.Status == "Inactive")
                             {
-                                inactive.Add(new InactiveSummary
+                                inactiveRecords.Add(new InactiveSummary
                                 {
                                     GCIMSID = gcimsRecord.Person.GCIMSID,
                                     EmployeeID = employeeData.Person.EmployeeID,
@@ -192,6 +190,7 @@ namespace HRUpdate.Process
                 emailData.HRFilename = Path.GetFileName(HRFile);
                 emailData.HRAttempted = usersToProcess.Count;
                 emailData.HRSucceeded = successfulHRUsersProcessed.Count;
+                emailData.HRInactive = inactiveRecords.Count;
                 emailData.HRFailed = unsuccessfulHRUsersProcessed.Count;
                 emailData.HRHasErrors = unsuccessfulHRUsersProcessed.Count > 0 ? true : false;
 
@@ -200,7 +199,7 @@ namespace HRUpdate.Process
                 log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
                 log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
 
-                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed, socialSecurityNumberChange, inactive, recordsNotfound);
+                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed, socialSecurityNumberChange, inactiveRecords, recordsNotfound);
             }
             //Catch all errors
             catch (Exception ex)
@@ -490,6 +489,7 @@ namespace HRUpdate.Process
 
             template = template.Replace("[HRATTEMPTED]", emailData.HRAttempted.ToString());
             template = template.Replace("[HRSUCCEEDED]", emailData.HRSucceeded.ToString());
+            template = template.Replace("[HRINACTIVE]", emailData.HRInactive.ToString());
             template = template.Replace("[HRFAILED]", emailData.HRFailed.ToString());
 
             if (emailData.HRHasErrors)

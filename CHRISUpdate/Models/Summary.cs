@@ -59,6 +59,7 @@ namespace HRUpdate.Models
 
         public Int64 HRAttempted { get; set; }
         public Int64 HRSucceeded { get; set; }
+        public Int64 HRInactive { get; set; }
         public Int64 HRFailed { get; set; }
 
         public string HRSuccessfulSummaryFilename { get; set; }
