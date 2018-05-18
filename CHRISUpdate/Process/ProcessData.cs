@@ -113,7 +113,7 @@ namespace HRUpdate.Process
                             {
                                 inactive.Add(new InactiveSummary
                                 {
-                                    GCIMSID = employeeData.Person.GCIMSID,
+                                    GCIMSID = gcimsRecord.Person.GCIMSID,
                                     EmployeeID = employeeData.Person.EmployeeID,
                                     FirstName = employeeData.Person.FirstName,
                                     MiddleName = employeeData.Person.MiddleName,
@@ -134,7 +134,7 @@ namespace HRUpdate.Process
                             {
                                 successfulHRUsersProcessed.Add(new ProcessedSummary
                                 {
-                                    GCIMSID = employeeData.Person.GCIMSID,
+                                    GCIMSID = updatedResults.Item1,
                                     EmployeeID = employeeData.Person.EmployeeID,
                                     FirstName = employeeData.Person.FirstName,
                                     MiddleName = employeeData.Person.MiddleName,
@@ -148,7 +148,7 @@ namespace HRUpdate.Process
                             {
                                 unsuccessfulHRUsersProcessed.Add(new ProcessedSummary
                                 {
-                                    GCIMSID = employeeData.Person.GCIMSID,
+                                    GCIMSID = gcimsRecord.Person.GCIMSID,
                                     EmployeeID = employeeData.Person.EmployeeID,
                                     FirstName = employeeData.Person.FirstName,
                                     MiddleName = employeeData.Person.MiddleName,
@@ -165,7 +165,7 @@ namespace HRUpdate.Process
 
                             successfulHRUsersProcessed.Add(new ProcessedSummary
                             {
-                                GCIMSID = employeeData.Person.GCIMSID,
+                                GCIMSID = gcimsRecord.Person.GCIMSID,
                                 EmployeeID = employeeData.Person.EmployeeID,
                                 FirstName = employeeData.Person.FirstName,
                                 MiddleName = employeeData.Person.MiddleName,
