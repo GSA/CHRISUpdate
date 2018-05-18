@@ -17,7 +17,7 @@ namespace HRUpdate.Mapping
         }
     }
 
-    internal sealed class SeperationSummaryMapping : ClassMap<SeperationSummary>
+    internal sealed class SeperationSummaryMapping : ClassMap<SeparationSummary>
     {
         public SeperationSummaryMapping()
         {

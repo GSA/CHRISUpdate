@@ -1,7 +1,28 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HRUpdate.Models
 {
+    internal class Summary
+    {
+        public List<ProcessedSummary> ProcessedSummary { get; set; }
+        public List<SeparationSummary> SeparationSummary { get; set; }
+        public List<RecordNotFoundSummary> RecordNotFoundSummary { get; set; }
+        public List<SocialSecurityNumberChangeSummary> SocialSecurityNumberChangeSummary { get; set; }
+        public List<InactiveSummary> InactiveSummary { get; set; }
+        public EMailData EmailData { get; set; }
+
+        public Summary()
+        {
+            ProcessedSummary = new List<ProcessedSummary>();
+            SeparationSummary = new List<SeparationSummary>();
+            RecordNotFoundSummary = new List<RecordNotFoundSummary>();
+            SocialSecurityNumberChangeSummary = new List<SocialSecurityNumberChangeSummary>();
+            InactiveSummary = new List<InactiveSummary>();
+            EmailData = new EMailData();
+        }
+    }
+
     internal class ProcessedSummary
     {
         public Int64 GCIMSID { get; set; }
@@ -13,7 +34,7 @@ namespace HRUpdate.Models
         public string Action { get; set; }
     }
 
-    internal class SeperationSummary
+    internal class SeparationSummary
     {
         public Int64 GCIMSID { get; set; }
         public string EmployeeID { get; set; }

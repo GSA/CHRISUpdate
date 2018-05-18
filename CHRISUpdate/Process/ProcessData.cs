@@ -58,6 +58,8 @@ namespace HRUpdate.Process
                 List<Employee> usersToProcess;
                 List<Employee> allGCIMSData;
 
+                Summary summary = new Summary();
+
                 List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
                 List<SocialSecurityNumberChangeSummary> socialSecurityNumberChange = new List<SocialSecurityNumberChangeSummary>();
@@ -104,6 +106,7 @@ namespace HRUpdate.Process
 
                         if (!AreEqualGCIMSToHR(gcimsRecord, employeeData))
                         {
+
                             log.Info("Copying objects: " + employeeData.Person.EmployeeID);
                             helper.CopyValues<Employee>(employeeData, gcimsRecord);
 
@@ -330,8 +333,8 @@ namespace HRUpdate.Process
             try
             {
                 List<Separation> separationUsersToProcess;
-                List<SeperationSummary> successfulSeparationUsersProcessed = new List<SeperationSummary>();
-                List<SeperationSummary> unsuccessfulSeparationUsersProcessed = new List<SeperationSummary>();
+                List<SeparationSummary> successfulSeparationUsersProcessed = new List<SeparationSummary>();
+                List<SeparationSummary> unsuccessfulSeparationUsersProcessed = new List<SeparationSummary>();
 
                 ValidateSeparation validate = new ValidateSeparation();
                 ValidationResult errors;
@@ -353,7 +356,7 @@ namespace HRUpdate.Process
                         {
                             log.Info("Separating User: " + separationResults.Item1);
 
-                            successfulSeparationUsersProcessed.Add(new SeperationSummary
+                            successfulSeparationUsersProcessed.Add(new SeparationSummary
                             {
                                 GCIMSID = separationResults.Item1,
                                 EmployeeID = separationData.EmployeeID,
@@ -366,7 +369,7 @@ namespace HRUpdate.Process
                         }
                         else
                         {
-                            unsuccessfulSeparationUsersProcessed.Add(new SeperationSummary
+                            unsuccessfulSeparationUsersProcessed.Add(new SeparationSummary
                             {
                                 GCIMSID = separationResults.Item1,
                                 EmployeeID = separationData.EmployeeID,
@@ -378,7 +381,7 @@ namespace HRUpdate.Process
                     }
                     else
                     {
-                        unsuccessfulSeparationUsersProcessed.Add(new SeperationSummary
+                        unsuccessfulSeparationUsersProcessed.Add(new SeparationSummary
                         {
                             GCIMSID = -1,
                             EmployeeID = separationData.EmployeeID,
@@ -450,17 +453,17 @@ namespace HRUpdate.Process
         /// </summary>
         /// <param name="separationSuccessSummary"></param>
         /// <param name="separationErrorSummary"></param>
-        private void GenerateSeparationSummaryFiles(List<SeperationSummary> separationSuccessSummary, List<SeperationSummary> separationErrorSummary)
+        private void GenerateSeparationSummaryFiles(List<SeparationSummary> separationSuccessSummary, List<SeparationSummary> separationErrorSummary)
         {
             if (separationSuccessSummary.Count > 0)
             {
-                emailData.SeparationSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
+                emailData.SeparationSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
                 log.Info("Separation Success File: " + emailData.SeparationSuccessfulSummaryFilename);
             }
 
             if (separationErrorSummary.Count > 0)
             {
-                emailData.SeparationErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeperationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
+                emailData.SeparationErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
                 log.Info("Separation Error File: " + emailData.SeparationErrorSummaryFilename);
             }
         }
