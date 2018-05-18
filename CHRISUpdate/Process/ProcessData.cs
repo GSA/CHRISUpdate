@@ -92,6 +92,8 @@ namespace HRUpdate.Process
                     if (CheckForErrors(validate, employeeData, unsuccessfulHRUsersProcessed))
                         continue;
 
+                    CleanupHRData(employeeData);
+                    
                     //If record is found continue processing, otherwise record the issue
                     gcimsRecord = RecordFound(employeeData, allGCIMSData);
 
@@ -234,11 +236,35 @@ namespace HRUpdate.Process
             return false;
         }
 
+        private void CleanupHRData(Employee employeeData)
+        {   
+            employeeData.Phone.WorkFax.RemovePhoneFormatting();
+            employeeData.Phone.WorkCell.RemovePhoneFormatting();
+            employeeData.Phone.WorkPhone.RemovePhoneFormatting();
+            employeeData.Phone.WorkTextTelephone.RemovePhoneFormatting();
+            employeeData.Phone.HomeCell = employeeData.Phone.HomeCell.RemovePhoneFormatting();
+            employeeData.Phone.HomePhone = employeeData.Phone.HomePhone.RemovePhoneFormatting();
+
+            employeeData.Emergency.EmergencyContactHomePhone.RemovePhoneFormatting();
+            employeeData.Emergency.EmergencyContactWorkPhone.RemovePhoneFormatting();
+            employeeData.Emergency.EmergencyContactCellPhone.RemovePhoneFormatting();
+
+            employeeData.Emergency.OutOfAreaContactHomePhone.RemovePhoneFormatting();
+            employeeData.Emergency.OutOfAreaContactWorkPhone.RemovePhoneFormatting();
+            employeeData.Emergency.OutOfAreaContactCellPhone.RemovePhoneFormatting();
+        }
+
         private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
         {
             CompareLogic compareLogic = new CompareLogic();
 
             compareLogic.Config.TreatStringEmptyAndNullTheSame = true;
+
+            compareLogic.Config.MembersToIgnore.Add("Person.GCIMSID");
+            compareLogic.Config.MembersToIgnore.Add("Person.FirstName");
+            compareLogic.Config.MembersToIgnore.Add("Person.MiddleName");
+            compareLogic.Config.MembersToIgnore.Add("Person.LastName");
+            compareLogic.Config.MembersToIgnore.Add("Person.Suffix");
 
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
