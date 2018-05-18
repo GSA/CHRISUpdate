@@ -1,8 +1,21 @@
 <appSettings>
-    <add key="KEY" value="REPLACEME" />
-    <add key="CHRISFILENAME" value="C:\Temp\chris\smallfile.dat"/> <!-- CHRISData.dat || smallfile.dat -->
-    <add key="SEPARATIONFILENAME" value="CHRISGCIMSEXEMPOUT.dat"/> <!-- SeparationData.dat -->
-    <add key="ORGFILENAME" value="OrgData.dat"/>
-    <add key="LOADPII" value="false"/>
+  <add key="KEY" value="REPLACEME" />
+  <add key="HRFILE" value="[path]" />
+  <add key="SEPARATIONFILE" value="[path]" />
+  <add key="SMTPSERVER" value="" />
+  <add key="EMAILSUBJECT" value =""/>
+  <add key="DEFAULTEMAIL" value="[email]" />
+  <add key="TO" value="[email]" />
+  <add key="CC" value="[email]" />
+  <add key="BCC" value="[email]" />
+  <add key="SUMMARYFILEPATH" value="[path]" />
+  <add key="SUMMARYTEMPLATE" value="[path]" />
+  <add key="SUCCESSSUMMARYFILENAME" value="[filename]" />
+  <add key="ERRORSUMMARYFILENAME" value="[filename]" />
+  <add key="SEPARATIONSUMMARYFILENAME" value="[filename]" />
+  <add key="SEPARATIONERRORSUMMARYFILENAME" value="[filename]" />
+  <add key="RECORDNOTFOUNDSUMMARYFILENAME" value="[filename]" />
+  <add key="SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME" value="[filename]" />
+  <add key="INACTIVESUMMARYFILENAME" value="[filename]" />
 </appSettings>
   

@@ -1,82 +1,164 @@
-﻿using System;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using CsvHelper.TypeConversion;
+using HRUpdate.Lookups;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using CsvHelper.TypeConversion;
 
-namespace CHRISUpdate.Mapping
+namespace HRUpdate.Mapping
 {
-    //changed the poco classes to accept null values nullable dates DateTime?
-    sealed class DateConverter : DateTimeConverter
+    internal sealed class SocialSecurityNumberConverter : ByteConverter
     {
-        public override bool CanConvertFrom(Type type)
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            return typeof(string) == type;
-        }
+            Utilities.Helpers helper = new Utilities.Helpers();
 
-        public override bool CanConvertTo(Type type)
-        {
-            return typeof(DateTime) == type;
-        }
-
-        public override object ConvertFromString(TypeConverterOptions options, string text)
-        {
-            DateTime date;
-
-            if (DateTime.TryParse(text, out date))
-                return date;
-
-            return date;
+            return helper.HashSSN(text);
         }
     }
 
-    sealed class AssignmentConverter : BooleanConverter
+    internal sealed class PositionTeleworkEligibilityConverter : BooleanConverter
     {
-        public override bool CanConvertFrom(Type type)
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            return typeof(string) == type;
-        }
+            switch (text)
+            {
+                case "Y":
+                    return true;
 
-        public override object ConvertFromString(TypeConverterOptions options, string text)
-        {
-            //Look into returning !text.ToLower().Contains("detail")
+                case "N":
+                    return false;
 
-            return text.ToLower().Contains("detail");
-
-            //if (text.ToLower().Contains("detail"))
-            //    return true;
-
-            //return false;
+                default:
+                    return false;
+            }
         }
     }
 
-    sealed class SSNConverter : StringConverter
+    internal sealed class FederalEmergencyResponseOfficialConverter : BooleanConverter
     {
-        Utilities.Utilities u = new Utilities.Utilities();
-
-        public override object ConvertFromString(TypeConverterOptions options, string text)
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            Console.WriteLine(text);
-            if (string.IsNullOrEmpty(text))
+            if (text.Contains("N"))
+                return false;
+
+            return false;
+        }
+    }
+
+    internal sealed class LawEnforcementOfficerConverter : BooleanConverter
+    {
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        {
+            switch (text)
+            {
+                case "1":
+                    return true;
+
+                case "0":
+                    return false;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
+    internal sealed class InvistigationResultConverter : BooleanConverter
+    {
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        {
+            switch (text)
+            {
+                case "1":
+                    return true;
+
+                case "0":
+                    return false;
+
+                default:
+                    return false;
+            }
+        }
+    }
+
+    internal sealed class DateConverter : DateTimeConverter
+    {
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        {
+            DateTime dt;
+
+            if (DateTime.TryParse(text, out dt))
+                return dt;
+            else
                 return null;
-
-            return u.HashSSN(text);
         }
     }
 
-    sealed class RegionConverter : StringConverter
+    internal sealed class InvestigationConverter : StringConverter
     {
-        public override bool CanConvertFrom(Type type)
+        private readonly List<InvestigationLookup> investigationLookup;
+
+        public InvestigationConverter(List<InvestigationLookup> investigationLookup)
         {
-            return typeof(string) == type;
+            this.investigationLookup = investigationLookup;
         }
 
-        public override object ConvertFromString(TypeConverterOptions options, string text)
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            if (text.Contains("CO") || text.Contains("NCR"))
+            string investigation = string.Empty;
+
+            investigation = investigationLookup.Where(w => w.Code == text).Select(s => s.Tier).SingleOrDefault();
+
+            if (string.IsNullOrEmpty(investigation))
                 return text;
 
-            return text.PadLeft(2, '0');
+            return investigation;
+        }
+    }
+
+    internal sealed class StateCodeConverter : StringConverter
+    {
+        private readonly List<StateLookup> stateLookup;
+
+        public StateCodeConverter(List<StateLookup> stateLookup)
+        {
+            this.stateLookup = stateLookup;
+        }
+
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        {
+            string state = string.Empty;
+
+            state = stateLookup.Where(w => w.Code == text).Select(s => s.Code).SingleOrDefault();
+
+            if (string.IsNullOrEmpty(state))
+                return text;
+
+            return state;
+        }
+    }
+
+    internal sealed class CountryCodeConverter : StringConverter
+    {
+        private readonly List<CountryLookup> countryLookup;
+
+        public CountryCodeConverter(List<CountryLookup> countryLookup)
+        {
+            this.countryLookup = countryLookup;
+        }
+
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        {
+            string country = string.Empty;
+
+            country = countryLookup.Where(w => w.Code == text).Select(s => s.Code).SingleOrDefault();
+
+            if (string.IsNullOrEmpty(country))
+                return text;
+
+            return country;
         }
     }
 }
