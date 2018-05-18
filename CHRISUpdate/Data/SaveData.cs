@@ -53,11 +53,7 @@ namespace HRUpdate.Data
                         MySqlParameter[] personParameters = new MySqlParameter[]
                         {
                             new MySqlParameter { ParameterName = "persID", Value = persID, MySqlDbType = MySqlDbType.Int64},
-                            new MySqlParameter { ParameterName = "emplID", Value = hrData.Person.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},
-                            new MySqlParameter { ParameterName = "lastName", Value = hrData.Person.LastName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
-                            new MySqlParameter { ParameterName = "suffix", Value = hrData.Person.Suffix, MySqlDbType = MySqlDbType.VarChar, Size = 15},
-                            new MySqlParameter { ParameterName = "firstName", Value = hrData.Person.FirstName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
-                            new MySqlParameter { ParameterName = "middleName", Value = hrData.Person.MiddleName, MySqlDbType = MySqlDbType.VarChar, Size = 60},
+                            new MySqlParameter { ParameterName = "emplID", Value = hrData.Person.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},                            
                             new MySqlParameter { ParameterName = "cityOfBirth", Value = hrData.Birth.CityOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "stateOfBirth", Value = hrData.Birth.StateOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "countryOfBirth", Value = hrData.Birth.CountryOfBirth, MySqlDbType = MySqlDbType.TinyBlob},

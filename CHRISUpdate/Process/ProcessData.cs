@@ -126,9 +126,9 @@ namespace HRUpdate.Process
 
                             log.Info("Updating Record: " + employeeData.Person.EmployeeID);
 
-                            updatedResults = new Tuple<int, string, string>(-1, "Testing", "SQL Error");
+                            updatedResults = new Tuple<int, string, string>(-1, "Testing", "SQL Error (Testing)");
 
-                            //updatedResults = save.UpdatePersonInformation(employeeData.Person.GCIMSID, employeeData);
+                            //updatedResults = save.UpdatePersonInformation(gcimsRecord.Person.GCIMSID, employeeData);
 
                             if (updatedResults.Item1 > 0)
                             {
@@ -264,15 +264,20 @@ namespace HRUpdate.Process
             }
             else if (hrLinksMatch.Count == 0)
             {
-                log.Info("Trying to match record by FirstName, MiddleName, Lastname, Suffix, Birth Date and SSN: " + employeeData.Person.EmployeeID);
+                log.Info("Trying to match record by Lastname, Birth Date and SSN: " + employeeData.Person.EmployeeID);
 
-                var nameMatch = allGCIMSData.Where(c =>
-                    employeeData.Person.FirstName.ToLower().Trim().Equals(c.Person.FirstName.ToLower().Trim()) &&
-                    employeeData.Person.MiddleName.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.MiddleName) ? string.Empty : c.Person.MiddleName.ToLower().Trim()) &&
-                    employeeData.Person.LastName.ToLower().Trim().Equals(c.Person.LastName.ToLower().Trim()) &&
-                    employeeData.Person.Suffix.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.Suffix) ? string.Empty : c.Person.Suffix.ToLower().Trim()) &&
-                    employeeData.Person.SocialSecurityNumber.Equals(c.Person.SocialSecurityNumber) &&
-                    employeeData.Birth.DateOfBirth.Equals(c.Birth.DateOfBirth)).ToList();
+                var nameMatch = allGCIMSData.Where(w =>                    
+                    employeeData.Person.LastName.ToLower().Trim().Equals(w.Person.LastName.ToLower().Trim()) &&                    
+                    employeeData.Person.SocialSecurityNumber.Equals(w.Person.SocialSecurityNumber) &&
+                    employeeData.Birth.DateOfBirth.Equals(w.Birth.DateOfBirth)).ToList();
+
+                //var nameMatch = allGCIMSData.Where(c =>
+                //    employeeData.Person.FirstName.ToLower().Trim().Equals(c.Person.FirstName.ToLower().Trim()) &&
+                //    employeeData.Person.MiddleName.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.MiddleName) ? string.Empty : c.Person.MiddleName.ToLower().Trim()) &&
+                //    employeeData.Person.LastName.ToLower().Trim().Equals(c.Person.LastName.ToLower().Trim()) &&
+                //    employeeData.Person.Suffix.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.Suffix) ? string.Empty : c.Person.Suffix.ToLower().Trim()) &&
+                //    employeeData.Person.SocialSecurityNumber.Equals(c.Person.SocialSecurityNumber) &&
+                //    employeeData.Birth.DateOfBirth.Equals(c.Birth.DateOfBirth)).ToList();
 
                 if (nameMatch.Count == 0 || nameMatch.Count > 1)
                 {
