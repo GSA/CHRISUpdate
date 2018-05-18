@@ -49,7 +49,7 @@ namespace HRUpdate.Process
                         using (lookupData)
                         {
                             if (lookupData.HasRows)
-                                lookups = MapEmployeeLookupData(lookupData);                 
+                                lookups = MapEmployeeLookupData(lookupData);
                         }
                     }
                 }
@@ -127,7 +127,7 @@ namespace HRUpdate.Process
             while (lookupData.Read())
             {
                 lookup.stateLookup = lookupMapper.Map<IDataReader, List<StateLookup>>(lookupData);
-            }           
+            }
 
             return lookup;
         }

@@ -53,21 +53,24 @@
         public const int DUTY_LOCATION_COUNTY = 48;
         public const int AGENCY_CODE_SUBELEMENT = 49;
         public const int ORGANIZATION_CODE = 50;
-        public const int DETAIL_BEGIN_DATE = 51;
-        public const int DETAIL_END_DATE = 52;
-        public const int DETAIL_POSITION_CONTROL_NUMBER = 53;
-        public const int DETAIL_POSITION_TITLE = 54;
-        public const int DETAIL_ORGANIZATION_CODE = 55;
-        public const int DETAIL_OFFICE_SYMBOL = 56;
-        public const int DETAIL_PAY_PLAN = 57;
-        public const int DETAIL_JOB_SERIES = 58;
-        public const int DETAIL_LEVEL_GRADE = 59;
-        public const int DETAIL_WORK_SCHEDULE = 60;
-        public const int DETAIL_REGION = 61;
-        public const int DETAIL_DUTY_LOCATION_CODE = 62;
-        public const int DETAIL_DUTY_LOCATION_CITY = 63;
-        public const int DETAIL_DUTY_LOCATION_STATE = 64;
-        public const int DETAIL_DUTY_LOCATION_COUNTY = 65;
+
+        //At this time we will not be handling Detail information
+        //public const int DETAIL_BEGIN_DATE = 51;
+        //public const int DETAIL_END_DATE = 52;
+        //public const int DETAIL_POSITION_CONTROL_NUMBER = 53;
+        //public const int DETAIL_POSITION_TITLE = 54;
+        //public const int DETAIL_ORGANIZATION_CODE = 55;
+        //public const int DETAIL_OFFICE_SYMBOL = 56;
+        //public const int DETAIL_PAY_PLAN = 57;
+        //public const int DETAIL_JOB_SERIES = 58;
+        //public const int DETAIL_LEVEL_GRADE = 59;
+        //public const int DETAIL_WORK_SCHEDULE = 60;
+        //public const int DETAIL_REGION = 61;
+        //public const int DETAIL_DUTY_LOCATION_CODE = 62;
+        //public const int DETAIL_DUTY_LOCATION_CITY = 63;
+        //public const int DETAIL_DUTY_LOCATION_STATE = 64;
+        //public const int DETAIL_DUTY_LOCATION_COUNTY = 65;
+
         public const int SUPERVISOR_EMPLOYEE_ID = 66;
         public const int HOME_ADDRESS_3 = 67;
         public const int POSITION_TITLE = 68;

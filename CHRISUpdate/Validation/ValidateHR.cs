@@ -11,7 +11,7 @@ namespace HRUpdate.Validation
 {
     internal class ValidateHR
     {
-        private readonly Dictionary<string,string[]> lookups=new Dictionary<string,string[]>();
+        private readonly Dictionary<string, string[]> lookups = new Dictionary<string, string[]>();
         private readonly HRMapper map = new HRMapper();
 
         public ValidateHR()
@@ -38,6 +38,7 @@ namespace HRUpdate.Validation
             CascadeMode = CascadeMode.StopOnFirstFailure;
             
             #region Person
+
             //**********PERSON***********************************************************************************************
             RuleFor(Employee => Employee.Person.EmployeeID)
                 .NotEmpty()
@@ -166,7 +167,7 @@ namespace HRUpdate.Validation
                     });
             });    
 
-            RuleFor(Employee => Employee.Address.HomeZipCode)               
+            RuleFor(Employee => Employee.Address.HomeZipCode)
                 .MaximumLength(10)
                 .WithMessage($"{{PropertyName}} length must be 0-10");
 
@@ -176,11 +177,12 @@ namespace HRUpdate.Validation
                 //.NotEmpty()
                 //.WithMessage($"{{PropertyName}} is required")
                 .In(lookups["CountryCodes"]);
-            });            
+            });
 
             #endregion Address
 
             #region Birth
+
             //******************************Birth***********************************************************************
             Unless(e => string.IsNullOrEmpty(e.Birth.CityOfBirth), () =>
             {
@@ -213,7 +215,7 @@ namespace HRUpdate.Validation
                 //.NotEmpty()
                 //.WithMessage($"{{PropertyName}} is required")
                 .In(lookups["CountryCodes"]);
-            });            
+            });
 
             Unless(e => string.IsNullOrEmpty(e.Birth.CountryOfCitizenship), () =>
             {
@@ -221,8 +223,8 @@ namespace HRUpdate.Validation
                 //.NotEmpty()
                 //.WithMessage($"{{PropertyName}} is required")
                 .In(lookups["CountryCodes"]);
-            });          
-                        
+            });
+
             //RuleFor(Employee => Employee.Birth.Citizen)
             //    .NotNull()
             //    .WithMessage($"{{PropertyName}} is required");
@@ -239,6 +241,7 @@ namespace HRUpdate.Validation
             #endregion Birth
 
             #region Investigation
+
             //**********INVESTIGATION**************************************************************************
 
             Unless(e => string.IsNullOrEmpty(e.Investigation.PriorInvestigation), () =>
@@ -307,6 +310,7 @@ namespace HRUpdate.Validation
             #endregion Investigation
 
             #region Emergency
+
             //***********EMERGENCY*******************************************************************************
             RuleFor(Employee => Employee.Emergency.EmergencyContactName)
                 .MaximumLength(40)
@@ -373,6 +377,7 @@ namespace HRUpdate.Validation
             #endregion Emergency
 
             #region Position
+
             //**********POSITION******************************************************************************************
             RuleFor(Employee => Employee.Position.PositionControlNumber)
                 .MaximumLength(15)
@@ -441,13 +446,14 @@ namespace HRUpdate.Validation
                 .MaximumLength(4)
                 .WithMessage($"{{PropertyName}} length must be 0-4");
 
-            RuleFor(Employee => Employee.Position.SupervisorEmployeeID)
-                .MaximumLength(11)
-                .WithMessage($"{{PropertyName}} length must be 0-11");
+            //RuleFor(Employee => Employee.Position.SupervisorEmployeeID)
+            //    .MaximumLength(11)
+            //    .WithMessage($"{{PropertyName}} length must be 0-11");
 
             #endregion Position
 
             #region Phone
+
             //**********PHONE*****************************************************************************************
             Unless(e => string.IsNullOrEmpty(e.Phone.HomePhone), () =>
             {

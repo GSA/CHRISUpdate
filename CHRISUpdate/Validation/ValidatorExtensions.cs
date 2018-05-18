@@ -1,9 +1,7 @@
 ﻿using FluentValidation;
 using System;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace HRUpdate.Validation
 {
@@ -38,7 +36,7 @@ namespace HRUpdate.Validation
             return ruleBuilder
                 .Must(e => DateTime.TryParse(e.ToString(), out date))
                 .WithMessage("{PropertyName} must be a valid date");
-        }        
+        }
 
         public static IRuleBuilderOptions<T, TProperty> ValidPhone<T, TProperty>(this IRuleBuilder<T, TProperty> rulebuilder)
         {
@@ -65,10 +63,9 @@ namespace HRUpdate.Validation
         /// </summary>
         /// <param name="phoneNumber"></param>
         /// <returns></returns>
-        private static  bool IsValidPhoneNumber(string phoneNumber)
+        private static bool IsValidPhoneNumber(string phoneNumber)
         {
             return libphonenumber.PhoneNumberUtil.Instance.IsPossibleNumber(phoneNumber, "US");
-        }       
-
+        }
     }
 }

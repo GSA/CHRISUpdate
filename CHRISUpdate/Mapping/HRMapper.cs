@@ -7,7 +7,7 @@ namespace HRUpdate.Mapping
     internal class HRMapper
     {
         private MapperConfiguration lookupConfig;
-        private MapperConfiguration saveConfig;
+        private MapperConfiguration dataConfig;
 
         public void CreateLookupConfig()
         {
@@ -18,12 +18,21 @@ namespace HRUpdate.Mapping
             });
         }
 
-        public void CreateSaveConfig()
+        public void CreateDataConfig()
         {
-            saveConfig = new MapperConfiguration(cfg =>
+            dataConfig = new MapperConfiguration(cfg =>
             {
                 cfg.AddDataReaderMapping();
                 cfg.AllowNullCollections = true;
+
+                cfg.CreateMap<Employee, Person>().ReverseMap();
+                cfg.CreateMap<Employee, Address>().ReverseMap();
+                cfg.CreateMap<Employee, Birth>().ReverseMap();
+                cfg.CreateMap<Employee, Investigation>().ReverseMap();
+                cfg.CreateMap<Employee, Emergency>().ReverseMap();
+                cfg.CreateMap<Employee, Position>().ReverseMap();
+                cfg.CreateMap<Employee, Phone>().ReverseMap();
+
                 //cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SocialSecurityNumber, opt => opt.Ignore());
             });
         }
@@ -33,9 +42,9 @@ namespace HRUpdate.Mapping
             return lookupConfig.CreateMapper();
         }
 
-        public IMapper CreateSaveMapping()
+        public IMapper CreateDataMapping()
         {
-            return saveConfig.CreateMapper();
+            return dataConfig.CreateMapper();
         }
     }
 }

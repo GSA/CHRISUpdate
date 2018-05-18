@@ -24,20 +24,21 @@ namespace HRUpdate.Mapping
             Map(m => m.GCIMSID).Name("GCIMS ID");
             Map(m => m.EmployeeID).Name("Employee ID");
             Map(m => m.SeparationCode).Name("Separation Code");
-            Map(m => m.Action).Name("Action");            
+            Map(m => m.SeparationDate).Name("Separation Date");
+            Map(m => m.Action).Name("Action");
         }
     }
 
-    internal sealed class NameChangeSummaryMapping : ClassMap<NameChangeSummary>
+    internal sealed class RecordNotFoundSummaryMapping : ClassMap<RecordNotFoundSummary>
     {
-        public NameChangeSummaryMapping()
+        public RecordNotFoundSummaryMapping()
         {
             Map(m => m.GCIMSID).Name("GCIMS ID");
             Map(m => m.EmployeeID).Name("Employee ID");
             Map(m => m.FirstName).Name("First Name");
             Map(m => m.MiddleName).Name("Middle Name");
             Map(m => m.LastName).Name("Last Name");
-            Map(m => m.Status).Name("Status");
+            Map(m => m.Suffix).Name("Suffix");
         }
     }
 
