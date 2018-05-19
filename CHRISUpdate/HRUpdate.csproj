@@ -177,7 +177,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Readme\Compare-NET-Objects-Help.txt" />
     <Content Include="Templates\Summary.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
