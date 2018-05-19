@@ -7,27 +7,6 @@ using System.IO;
 
 namespace HRUpdate.Models
 {
-    internal class Summary
-    {
-        public readonly SummaryFileGenerator SummaryFileGenerator;
-        public HRSummary HRSummary;
-        public HRSeparationSummary HRSeparationSummary;
-
-
-        public Summary()
-        {
-            SummaryFileGenerator = new SummaryFileGenerator();
-
-            HRSummary = new HRSummary();
-            HRSeparationSummary = new HRSeparationSummary();
-        }
-
-        public void GenerateSummaryFile()
-        {
-
-        }
-    }
-
     internal class HRSummary
     {
         public readonly SummaryFileGenerator SummaryFileGenerator;
@@ -46,7 +25,6 @@ namespace HRUpdate.Models
             UnsuccessfulUsersProcessed = new List<ProcessedSummary>();
             RecordNotFound = new List<RecordNotFoundSummary>();
             SocialSecurityNumberChange = new List<SocialSecurityNumberChangeSummary>();
-            
         }
     }
 
