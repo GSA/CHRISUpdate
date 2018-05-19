@@ -23,7 +23,7 @@ namespace HRUpdate.Process
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
+        //private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
         private readonly RetrieveData retrieve;
         private readonly SaveData save;
 
@@ -58,14 +58,8 @@ namespace HRUpdate.Process
                 List<Employee> usersToProcess;
                 List<Employee> allGCIMSData;
 
-                Summary summary = new Summary();
-
-                List<ProcessedSummary> successfulHRUsersProcessed = new List<ProcessedSummary>();
-                List<ProcessedSummary> unsuccessfulHRUsersProcessed = new List<ProcessedSummary>();
-                List<SocialSecurityNumberChangeSummary> socialSecurityNumberChange = new List<SocialSecurityNumberChangeSummary>();
-                List<RecordNotFoundSummary> recordsNotfound = new List<RecordNotFoundSummary>();
-                List<InactiveSummary> inactiveRecords = new List<InactiveSummary>();
-
+                HRSummary summary = new HRSummary();                
+                
                 ValidateHR validate = new ValidateHR();
 
                 Helpers helper = new Helpers();
@@ -91,7 +85,7 @@ namespace HRUpdate.Process
 
                     //If there are critical errors write to the error summary and move to the next record
                     log.Info("Checking for Critical errors for user: " + employeeData.Person.EmployeeID);
-                    if (CheckForErrors(validate, employeeData, unsuccessfulHRUsersProcessed))
+                    if (CheckForErrors(validate, employeeData, summary.UnsuccessfulUsersProcessed))
                         continue;
 
                     CleanupHRData(employeeData);
@@ -114,13 +108,14 @@ namespace HRUpdate.Process
 
                             if (employeeData.Person.Status == "Inactive")
                             {
-                                inactiveRecords.Add(new InactiveSummary
+                                summary.InactiveRecords.Add(new InactiveSummary
                                 {
                                     GCIMSID = gcimsRecord.Person.GCIMSID,
                                     EmployeeID = employeeData.Person.EmployeeID,
                                     FirstName = employeeData.Person.FirstName,
                                     MiddleName = employeeData.Person.MiddleName,
                                     LastName = employeeData.Person.LastName,
+                                    Suffix = employeeData.Person.Suffix,
                                     Status = employeeData.Person.Status
                                 });
 
@@ -135,13 +130,14 @@ namespace HRUpdate.Process
 
                             if (updatedResults.Item1 > 0)
                             {
-                                successfulHRUsersProcessed.Add(new ProcessedSummary
+                                summary.SuccessfulUsersProcessed.Add(new ProcessedSummary
                                 {
                                     GCIMSID = updatedResults.Item1,
                                     EmployeeID = employeeData.Person.EmployeeID,
                                     FirstName = employeeData.Person.FirstName,
                                     MiddleName = employeeData.Person.MiddleName,
                                     LastName = employeeData.Person.LastName,
+                                    Suffix = employeeData.Person.Suffix,
                                     Action = updatedResults.Item2
                                 });
 
@@ -149,13 +145,15 @@ namespace HRUpdate.Process
                             }
                             else
                             {
-                                unsuccessfulHRUsersProcessed.Add(new ProcessedSummary
+                                summary.UnsuccessfulUsersProcessed.Add(new ProcessedSummary
                                 {
                                     GCIMSID = gcimsRecord.Person.GCIMSID,
                                     EmployeeID = employeeData.Person.EmployeeID,
                                     FirstName = employeeData.Person.FirstName,
                                     MiddleName = employeeData.Person.MiddleName,
                                     LastName = employeeData.Person.LastName,
+                                    Suffix = employeeData.Person.Suffix,
+                                    Status = employeeData.Person.Status,
                                     Action = updatedResults.Item3
                                 });
 
@@ -166,13 +164,15 @@ namespace HRUpdate.Process
                         {
                             log.Info("HR and GCIMS Data are the same: " + employeeData.Person.EmployeeID);
 
-                            successfulHRUsersProcessed.Add(new ProcessedSummary
+                            summary.SuccessfulUsersProcessed.Add(new ProcessedSummary
                             {
                                 GCIMSID = gcimsRecord.Person.GCIMSID,
                                 EmployeeID = employeeData.Person.EmployeeID,
                                 FirstName = employeeData.Person.FirstName,
                                 MiddleName = employeeData.Person.MiddleName,
                                 LastName = employeeData.Person.LastName,
+                                Suffix = employeeData.Person.Suffix,
+                                Status = employeeData.Person.Status,
                                 Action = "No update Required"
                             });
                         }
@@ -180,7 +180,7 @@ namespace HRUpdate.Process
                     else
                     {
                         //Danger Will Robinson, Danger
-                        recordsNotfound.Add(new RecordNotFoundSummary
+                        summary.RecordNotFound.Add(new RecordNotFoundSummary
                         {
                             GCIMSID = -1,
                             EmployeeID = employeeData.Person.EmployeeID,
@@ -194,17 +194,17 @@ namespace HRUpdate.Process
 
                 emailData.HRFilename = Path.GetFileName(HRFile);
                 emailData.HRAttempted = usersToProcess.Count;
-                emailData.HRSucceeded = successfulHRUsersProcessed.Count;
-                emailData.HRInactive = inactiveRecords.Count;
-                emailData.HRFailed = unsuccessfulHRUsersProcessed.Count;
-                emailData.HRHasErrors = unsuccessfulHRUsersProcessed.Count > 0 ? true : false;
+                emailData.HRSucceeded = summary.SuccessfulUsersProcessed.Count;
+                emailData.HRInactive = summary.InactiveRecords.Count;
+                emailData.HRFailed = summary.UnsuccessfulUsersProcessed.Count;
+                emailData.HRHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0 ? true : false;
 
                 //Add log entries
-                log.Info("HR Records Updated: " + String.Format("{0:#,###0}", successfulHRUsersProcessed.Count));
-                log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulHRUsersProcessed.Count));
+                log.Info("HR Records Updated: " + String.Format("{0:#,###0}", summary.SuccessfulUsersProcessed.Count));
+                log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", summary.UnsuccessfulUsersProcessed.Count));
                 log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
 
-                GenerateUsersProccessedSummaryFiles(successfulHRUsersProcessed, unsuccessfulHRUsersProcessed, socialSecurityNumberChange, inactiveRecords, recordsNotfound);
+                GenerateUsersProccessedSummaryFiles(summary);
             }
             //Catch all errors
             catch (Exception ex)
@@ -230,6 +230,7 @@ namespace HRUpdate.Process
                     FirstName = employeeData.Person.FirstName,
                     MiddleName = employeeData.Person.MiddleName,
                     LastName = employeeData.Person.LastName,
+                    Suffix = employeeData.Person.Suffix,
                     Action = GetErrors(criticalErrors.Errors, Hrlinks.Hrfile).TrimEnd(',')
                 });
 
@@ -333,9 +334,9 @@ namespace HRUpdate.Process
             try
             {
                 List<Separation> separationUsersToProcess;
-                List<SeparationSummary> successfulSeparationUsersProcessed = new List<SeparationSummary>();
-                List<SeparationSummary> unsuccessfulSeparationUsersProcessed = new List<SeparationSummary>();
 
+                HRSeparationSummary summary = new HRSeparationSummary();
+                
                 ValidateSeparation validate = new ValidateSeparation();
                 ValidationResult errors;
 
@@ -356,7 +357,7 @@ namespace HRUpdate.Process
                         {
                             log.Info("Separating User: " + separationResults.Item1);
 
-                            successfulSeparationUsersProcessed.Add(new SeparationSummary
+                            summary.SuccessfulUsersProcessed.Add(new SeparationSummary
                             {
                                 GCIMSID = separationResults.Item1,
                                 EmployeeID = separationData.EmployeeID,
@@ -369,7 +370,7 @@ namespace HRUpdate.Process
                         }
                         else
                         {
-                            unsuccessfulSeparationUsersProcessed.Add(new SeparationSummary
+                            summary.UnsuccessfulUsersProcessed.Add(new SeparationSummary
                             {
                                 GCIMSID = separationResults.Item1,
                                 EmployeeID = separationData.EmployeeID,
@@ -381,7 +382,7 @@ namespace HRUpdate.Process
                     }
                     else
                     {
-                        unsuccessfulSeparationUsersProcessed.Add(new SeparationSummary
+                        summary.UnsuccessfulUsersProcessed.Add(new SeparationSummary
                         {
                             GCIMSID = -1,
                             EmployeeID = separationData.EmployeeID,
@@ -394,15 +395,15 @@ namespace HRUpdate.Process
 
                 emailData.SEPFileName = Path.GetFileName(SEPFile);
                 emailData.SEPAttempted = separationUsersToProcess.Count;
-                emailData.SEPSucceeded = successfulSeparationUsersProcessed.Count;
-                emailData.SEPFailed = unsuccessfulSeparationUsersProcessed.Count;
-                emailData.SEPHasErrors = unsuccessfulSeparationUsersProcessed.Count > 0 ? true : false;
+                emailData.SEPSucceeded = summary.SuccessfulUsersProcessed.Count;
+                emailData.SEPFailed = summary.UnsuccessfulUsersProcessed.Count;
+                emailData.SEPHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0 ? true : false;
 
-                log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", successfulSeparationUsersProcessed.Count));
-                log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", unsuccessfulSeparationUsersProcessed.Count));
+                log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", summary.SuccessfulUsersProcessed.Count));
+                log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", summary.UnsuccessfulUsersProcessed.Count));
                 log.Info("Separation Total Records: " + String.Format("{0:#,###0}", separationUsersToProcess.Count));
 
-                GenerateSeparationSummaryFiles(successfulSeparationUsersProcessed, unsuccessfulSeparationUsersProcessed);
+                GenerateSeparationSummaryFiles(summary);
             }
             catch (Exception ex)
             {
@@ -415,35 +416,35 @@ namespace HRUpdate.Process
         /// </summary>
         /// <param name="processedSuccessSummary"></param>
         /// <param name="processedErrorSummary"></param>
-        private void GenerateUsersProccessedSummaryFiles(List<ProcessedSummary> usersProcessedSuccessSummary, List<ProcessedSummary> usersProcessedErrorSummary, List<SocialSecurityNumberChangeSummary> socialSecurityNumberChangeSummary, List<InactiveSummary> inactiveSummary, List<RecordNotFoundSummary> nameNotFoundSummary)
+        private void GenerateUsersProccessedSummaryFiles(HRSummary summary)
         {
-            if (usersProcessedSuccessSummary.Count > 0)
+            if (summary.SuccessfulUsersProcessed.Count > 0)
             {
-                emailData.HRSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), usersProcessedSuccessSummary);
+                emailData.HRSuccessfulSummaryFilename = summary.SummaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), summary.SuccessfulUsersProcessed);
                 log.Info("HR Success File: " + emailData.HRSuccessfulSummaryFilename);
             }
 
-            if (usersProcessedErrorSummary.Count > 0)
+            if (summary.UnsuccessfulUsersProcessed.Count > 0)
             {
-                emailData.HRErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), usersProcessedErrorSummary);
+                emailData.HRErrorSummaryFilename = summary.SummaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), summary.UnsuccessfulUsersProcessed);
                 log.Info("HR Error File: " + emailData.HRErrorSummaryFilename);
             }
 
-            if (socialSecurityNumberChangeSummary.Count > 0)
+            if (summary.SocialSecurityNumberChange.Count > 0)
             {
-                emailData.HRSocialSecurityNumberChangeSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SocialSecurityNumberChangeSummary, SocialSecurityNumberChangeSummaryMapping>(ConfigurationManager.AppSettings["SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME"].ToString(), socialSecurityNumberChangeSummary);
+                emailData.HRSocialSecurityNumberChangeSummaryFilename = summary.SummaryFileGenerator.GenerateSummaryFile<SocialSecurityNumberChangeSummary, SocialSecurityNumberChangeSummaryMapping>(ConfigurationManager.AppSettings["SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME"].ToString(), summary.SocialSecurityNumberChange);
                 log.Info("HR Social Security Number Change File: " + emailData.HRSocialSecurityNumberChangeSummaryFilename);
             }
 
-            if (inactiveSummary.Count > 0)
+            if (summary.InactiveRecords.Count > 0)
             {
-                emailData.HRInactiveSummaryFilename = summaryFileGenerator.GenerateSummaryFile<InactiveSummary, InactiveSummaryMapping>(ConfigurationManager.AppSettings["INACTIVESUMMARYFILENAME"].ToString(), inactiveSummary);
+                emailData.HRInactiveSummaryFilename = summary.SummaryFileGenerator.GenerateSummaryFile<InactiveSummary, InactiveSummaryMapping>(ConfigurationManager.AppSettings["INACTIVESUMMARYFILENAME"].ToString(), summary.InactiveRecords);
                 log.Info("HR Inactive File: " + emailData.HRInactiveSummaryFilename);
             }
 
-            if (nameNotFoundSummary.Count > 0)
+            if (summary.RecordNotFound.Count > 0)
             {
-                emailData.HRNameNotFoundFileName = summaryFileGenerator.GenerateSummaryFile<RecordNotFoundSummary, RecordNotFoundSummaryMapping>(ConfigurationManager.AppSettings["RECORDNOTFOUNDSUMMARYFILENAME"].ToString(), nameNotFoundSummary);
+                emailData.HRNameNotFoundFileName = summary.SummaryFileGenerator.GenerateSummaryFile<RecordNotFoundSummary, RecordNotFoundSummaryMapping>(ConfigurationManager.AppSettings["RECORDNOTFOUNDSUMMARYFILENAME"].ToString(), summary.RecordNotFound);
                 log.Info("HR Name Not Found File: " + emailData.HRInactiveSummaryFilename);
             }
         }
@@ -453,17 +454,17 @@ namespace HRUpdate.Process
         /// </summary>
         /// <param name="separationSuccessSummary"></param>
         /// <param name="separationErrorSummary"></param>
-        private void GenerateSeparationSummaryFiles(List<SeparationSummary> separationSuccessSummary, List<SeparationSummary> separationErrorSummary)
+        private void GenerateSeparationSummaryFiles(HRSeparationSummary summary)
         {
-            if (separationSuccessSummary.Count > 0)
+            if (summary.SuccessfulUsersProcessed.Count > 0)
             {
-                emailData.SeparationSuccessfulSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), separationSuccessSummary);
+                emailData.SeparationSuccessfulSummaryFilename = summary.SummaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), summary.SuccessfulUsersProcessed);
                 log.Info("Separation Success File: " + emailData.SeparationSuccessfulSummaryFilename);
             }
 
-            if (separationErrorSummary.Count > 0)
+            if (summary.UnsuccessfulUsersProcessed.Count > 0)
             {
-                emailData.SeparationErrorSummaryFilename = summaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), separationErrorSummary);
+                emailData.SeparationErrorSummaryFilename = summary.SummaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), summary.UnsuccessfulUsersProcessed);
                 log.Info("Separation Error File: " + emailData.SeparationErrorSummaryFilename);
             }
         }
