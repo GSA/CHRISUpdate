@@ -23,7 +23,6 @@ namespace HRUpdate.Process
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        //private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
         private readonly RetrieveData retrieve;
 
         private readonly SaveData save;
@@ -194,8 +193,10 @@ namespace HRUpdate.Process
 
                 emailData.HRFilename = Path.GetFileName(HRFile);
                 emailData.HRAttempted = usersToProcess.Count;
+                emailData.HRSocial = summary.SocialSecurityNumberChange.Count;
                 emailData.HRSucceeded = summary.SuccessfulUsersProcessed.Count;
                 emailData.HRInactive = summary.InactiveRecords.Count;
+                emailData.HRRecordsNotFound = summary.RecordNotFound.Count;
                 emailData.HRFailed = summary.UnsuccessfulUsersProcessed.Count;
                 emailData.HRHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0 ? true : false;
 
@@ -420,32 +421,32 @@ namespace HRUpdate.Process
         {
             if (summary.SuccessfulUsersProcessed.Count > 0)
             {
-                emailData.HRSuccessfulSummaryFilename = summary.SummaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), summary.SuccessfulUsersProcessed);
-                log.Info("HR Success File: " + emailData.HRSuccessfulSummaryFilename);
+                emailData.HRSuccessfulFilename = summary.SummaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), summary.SuccessfulUsersProcessed);
+                log.Info("HR Success File: " + emailData.HRSuccessfulFilename);
             }
 
             if (summary.UnsuccessfulUsersProcessed.Count > 0)
             {
-                emailData.HRErrorSummaryFilename = summary.SummaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), summary.UnsuccessfulUsersProcessed);
-                log.Info("HR Error File: " + emailData.HRErrorSummaryFilename);
+                emailData.HRUnsuccessfulFilename = summary.SummaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), summary.UnsuccessfulUsersProcessed);
+                log.Info("HR Error File: " + emailData.HRUnsuccessfulFilename);
             }
 
             if (summary.SocialSecurityNumberChange.Count > 0)
             {
-                emailData.HRSocialSecurityNumberChangeSummaryFilename = summary.SummaryFileGenerator.GenerateSummaryFile<SocialSecurityNumberChangeSummary, SocialSecurityNumberChangeSummaryMapping>(ConfigurationManager.AppSettings["SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME"].ToString(), summary.SocialSecurityNumberChange);
-                log.Info("HR Social Security Number Change File: " + emailData.HRSocialSecurityNumberChangeSummaryFilename);
+                emailData.HRSocialSecurityNumberChangeFilename = summary.SummaryFileGenerator.GenerateSummaryFile<SocialSecurityNumberChangeSummary, SocialSecurityNumberChangeSummaryMapping>(ConfigurationManager.AppSettings["SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME"].ToString(), summary.SocialSecurityNumberChange);
+                log.Info("HR Social Security Number Change File: " + emailData.HRSocialSecurityNumberChangeFilename);
             }
 
             if (summary.InactiveRecords.Count > 0)
             {
-                emailData.HRInactiveSummaryFilename = summary.SummaryFileGenerator.GenerateSummaryFile<InactiveSummary, InactiveSummaryMapping>(ConfigurationManager.AppSettings["INACTIVESUMMARYFILENAME"].ToString(), summary.InactiveRecords);
-                log.Info("HR Inactive File: " + emailData.HRInactiveSummaryFilename);
+                emailData.HRInactiveFilename = summary.SummaryFileGenerator.GenerateSummaryFile<InactiveSummary, InactiveSummaryMapping>(ConfigurationManager.AppSettings["INACTIVESUMMARYFILENAME"].ToString(), summary.InactiveRecords);
+                log.Info("HR Inactive File: " + emailData.HRInactiveFilename);
             }
 
             if (summary.RecordNotFound.Count > 0)
             {
-                emailData.HRNameNotFoundFileName = summary.SummaryFileGenerator.GenerateSummaryFile<RecordNotFoundSummary, RecordNotFoundSummaryMapping>(ConfigurationManager.AppSettings["RECORDNOTFOUNDSUMMARYFILENAME"].ToString(), summary.RecordNotFound);
-                log.Info("HR Name Not Found File: " + emailData.HRInactiveSummaryFilename);
+                emailData.HRRecordsNotFoundFileName = summary.SummaryFileGenerator.GenerateSummaryFile<RecordNotFoundSummary, RecordNotFoundSummaryMapping>(ConfigurationManager.AppSettings["RECORDNOTFOUNDSUMMARYFILENAME"].ToString(), summary.RecordNotFound);
+                log.Info("HR Name Not Found File: " + emailData.HRInactiveFilename);
             }
         }
 
@@ -458,14 +459,14 @@ namespace HRUpdate.Process
         {
             if (summary.SuccessfulUsersProcessed.Count > 0)
             {
-                emailData.SeparationSuccessfulSummaryFilename = summary.SummaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), summary.SuccessfulUsersProcessed);
-                log.Info("Separation Success File: " + emailData.SeparationSuccessfulSummaryFilename);
+                emailData.SeparationSuccessfulFilename = summary.SummaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), summary.SuccessfulUsersProcessed);
+                log.Info("Separation Success File: " + emailData.SeparationSuccessfulFilename);
             }
 
             if (summary.UnsuccessfulUsersProcessed.Count > 0)
             {
-                emailData.SeparationErrorSummaryFilename = summary.SummaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), summary.UnsuccessfulUsersProcessed);
-                log.Info("Separation Error File: " + emailData.SeparationErrorSummaryFilename);
+                emailData.SeparationErrorFilename = summary.SummaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), summary.UnsuccessfulUsersProcessed);
+                log.Info("Separation Error File: " + emailData.SeparationErrorFilename);
             }
         }
 
@@ -528,7 +529,7 @@ namespace HRUpdate.Process
 
                 errors.Append("<b><font color='red'>Errors were found while processing the HR file</font></b><br />");
                 errors.Append("<br />Please see the attached file: <b><font color='red'>");
-                errors.Append(emailData.HRErrorSummaryFilename);
+                errors.Append(emailData.HRUnsuccessfulFilename);
                 errors.Append("</font></b>");
 
                 template = template.Replace("[IFHRERRORS]", errors.ToString());
@@ -548,7 +549,7 @@ namespace HRUpdate.Process
 
                 errors.Append("<b><font color='red'>Errors were found while processing the separation file</font></b><br />");
                 errors.Append("<br />Please see the attached file: <b><font color='red'>");
-                errors.Append(emailData.SeparationErrorSummaryFilename);
+                errors.Append(emailData.SeparationErrorFilename);
                 errors.Append("</font></b>");
 
                 template = template.Replace("[IFSEPERRORS]", errors.ToString());
@@ -566,24 +567,24 @@ namespace HRUpdate.Process
             StringBuilder attachments = new StringBuilder();
 
             //HR Summary Files
-            if (emailData.HRSuccessfulSummaryFilename != null)
-                attachments.Append(AddAttachment(emailData.HRSuccessfulSummaryFilename));
+            if (emailData.HRSuccessfulFilename != null)
+                attachments.Append(AddAttachment(emailData.HRSuccessfulFilename));
 
-            if (emailData.HRErrorSummaryFilename != null)
-                attachments.Append(AddAttachment(emailData.HRErrorSummaryFilename));
+            if (emailData.HRUnsuccessfulFilename != null)
+                attachments.Append(AddAttachment(emailData.HRUnsuccessfulFilename));
 
-            if (emailData.HRInactiveSummaryFilename != null)
-                attachments.Append(AddAttachment(emailData.HRInactiveSummaryFilename));
+            if (emailData.HRInactiveFilename != null)
+                attachments.Append(AddAttachment(emailData.HRInactiveFilename));
 
-            if (emailData.HRNameNotFoundFileName != null)
-                attachments.Append(AddAttachment(emailData.HRNameNotFoundFileName));
+            if (emailData.HRRecordsNotFoundFileName != null)
+                attachments.Append(AddAttachment(emailData.HRRecordsNotFoundFileName));
 
             //Separation Summary Files
-            if (emailData.SeparationSuccessfulSummaryFilename != null)
-                attachments.Append(AddAttachment(emailData.SeparationSuccessfulSummaryFilename));
+            if (emailData.SeparationSuccessfulFilename != null)
+                attachments.Append(AddAttachment(emailData.SeparationSuccessfulFilename));
 
-            if (emailData.SeparationErrorSummaryFilename != null)
-                attachments.Append(AddAttachment(emailData.SeparationErrorSummaryFilename));
+            if (emailData.SeparationErrorFilename != null)
+                attachments.Append(AddAttachment(emailData.SeparationErrorFilename));
 
             return attachments.ToString();
         }

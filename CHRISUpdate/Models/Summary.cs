@@ -136,16 +136,18 @@ namespace HRUpdate.Models
         public string HRFilename { get; set; }
         public string SEPFileName { get; set; }
 
+        public Int64 HRFailed { get; set; }
+        public Int64 HRSocial { get; set; }
+        public Int64 HRInactive { get; set; }
         public Int64 HRAttempted { get; set; }
         public Int64 HRSucceeded { get; set; }
-        public Int64 HRInactive { get; set; }
-        public Int64 HRFailed { get; set; }
+        public Int64 HRRecordsNotFound { get; set; }
 
-        public string HRSuccessfulSummaryFilename { get; set; }
-        public string HRErrorSummaryFilename { get; set; }
-        public string HRSocialSecurityNumberChangeSummaryFilename { get; set; }
-        public string HRInactiveSummaryFilename { get; set; }
-        public string HRNameNotFoundFileName { get; set; }
+        public string HRSuccessfulFilename { get; set; }
+        public string HRUnsuccessfulFilename { get; set; }
+        public string HRSocialSecurityNumberChangeFilename { get; set; }
+        public string HRInactiveFilename { get; set; }
+        public string HRRecordsNotFoundFileName { get; set; }
 
         public bool HRHasErrors { get; set; }
 
@@ -153,8 +155,8 @@ namespace HRUpdate.Models
         public Int64 SEPSucceeded { get; set; }
         public Int64 SEPFailed { get; set; }
 
-        public string SeparationSuccessfulSummaryFilename { get; set; }
-        public string SeparationErrorSummaryFilename { get; set; }
+        public string SeparationSuccessfulFilename { get; set; }
+        public string SeparationErrorFilename { get; set; }
 
         public bool SEPHasErrors { get; set; }
     }
