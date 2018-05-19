@@ -25,6 +25,7 @@ namespace HRUpdate.Process
 
         //private readonly SummaryFileGenerator summaryFileGenerator = new SummaryFileGenerator();
         private readonly RetrieveData retrieve;
+
         private readonly SaveData save;
 
         private readonly EMailData emailData = new EMailData();
@@ -58,8 +59,8 @@ namespace HRUpdate.Process
                 List<Employee> usersToProcess;
                 List<Employee> allGCIMSData;
 
-                HRSummary summary = new HRSummary();                
-                
+                HRSummary summary = new HRSummary();
+
                 ValidateHR validate = new ValidateHR();
 
                 Helpers helper = new Helpers();
@@ -89,7 +90,7 @@ namespace HRUpdate.Process
                         continue;
 
                     CleanupHRData(employeeData);
-                    
+
                     //If record is found continue processing, otherwise record the issue
                     gcimsRecord = RecordFound(employeeData, allGCIMSData);
 
@@ -100,7 +101,6 @@ namespace HRUpdate.Process
 
                         if (!AreEqualGCIMSToHR(gcimsRecord, employeeData))
                         {
-
                             log.Info("Copying objects: " + employeeData.Person.EmployeeID);
                             helper.CopyValues<Employee>(employeeData, gcimsRecord);
 
@@ -241,7 +241,7 @@ namespace HRUpdate.Process
         }
 
         private void CleanupHRData(Employee employeeData)
-        {   
+        {
             employeeData.Phone.WorkFax.RemovePhoneFormatting();
             employeeData.Phone.WorkCell.RemovePhoneFormatting();
             employeeData.Phone.WorkPhone.RemovePhoneFormatting();
@@ -295,8 +295,8 @@ namespace HRUpdate.Process
             {
                 log.Info("Trying to match record by Lastname, Birth Date and SSN: " + employeeData.Person.EmployeeID);
 
-                var nameMatch = allGCIMSData.Where(w =>                    
-                    employeeData.Person.LastName.ToLower().Trim().Equals(w.Person.LastName.ToLower().Trim()) &&                    
+                var nameMatch = allGCIMSData.Where(w =>
+                    employeeData.Person.LastName.ToLower().Trim().Equals(w.Person.LastName.ToLower().Trim()) &&
                     employeeData.Person.SocialSecurityNumber.Equals(w.Person.SocialSecurityNumber) &&
                     employeeData.Birth.DateOfBirth.Equals(w.Birth.DateOfBirth)).ToList();
 
@@ -336,7 +336,7 @@ namespace HRUpdate.Process
                 List<Separation> separationUsersToProcess;
 
                 HRSeparationSummary summary = new HRSeparationSummary();
-                
+
                 ValidateSeparation validate = new ValidateSeparation();
                 ValidationResult errors;
 

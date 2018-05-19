@@ -17,7 +17,7 @@ namespace HRUpdate.Mapping
             Map(m => m.Action).Name("Action");
         }
     }
-    
+
     internal sealed class RecordNotFoundSummaryMapping : ClassMap<RecordNotFoundSummary>
     {
         public RecordNotFoundSummaryMapping()

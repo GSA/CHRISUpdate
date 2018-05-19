@@ -28,15 +28,15 @@ namespace HRUpdate.Validation
             EmployeeCriticalErrorValidator validator = new EmployeeCriticalErrorValidator(lookups);
 
             return validator.Validate(employeeInformation);
-        }        
-    }    
+        }
+    }
 
     internal class EmployeeCriticalErrorValidator : AbstractValidator<Employee>
     {
         public EmployeeCriticalErrorValidator(Dictionary<string, string[]> lookups)
         {
             CascadeMode = CascadeMode.StopOnFirstFailure;
-            
+
             #region Person
 
             //**********PERSON***********************************************************************************************
@@ -128,8 +128,9 @@ namespace HRUpdate.Validation
             });
 
             #endregion Person
-            
+
             #region Address
+
             //***************************Address*******************************************************************
             RuleFor(Employee => Employee.Address.HomeAddress1)
                 //.NotEmpty()
@@ -163,9 +164,9 @@ namespace HRUpdate.Validation
                                 //.NotEmpty()
                                 //.WithMessage($"{{PropertyName}} is required")
                                 .In(lookups["StateCodes"]);
-                        });                        
+                        });
                     });
-            });    
+            });
 
             RuleFor(Employee => Employee.Address.HomeZipCode)
                 .MaximumLength(10)
@@ -191,7 +192,7 @@ namespace HRUpdate.Validation
                 //.WithMessage($"{{PropertyName}} is required")
                 .MaximumLength(24)
                 .WithMessage($"{{PropertyName}} length must be 0-24");
-            });            
+            });
 
             Unless(e => string.IsNullOrEmpty(e.Birth.CountryOfBirth), () =>
             {
@@ -205,7 +206,7 @@ namespace HRUpdate.Validation
                                 //.NotEmpty()
                                 //.WithMessage($"{{PropertyName}} is required")
                                 .In(lookups["StateCodes"]);
-                        });                        
+                        });
                     });
             });
 
@@ -302,7 +303,7 @@ namespace HRUpdate.Validation
                     .ValidDate()
                     .WithMessage($"{{PropertyName}} must be a valid date");
             });
-            
+
             RuleFor(Employee => Employee.Investigation.AdjudicatorEmployeeID)
                 .MaximumLength(11)
                 .WithMessage($"{{PropertyName}} length must be 0-11");
@@ -346,7 +347,7 @@ namespace HRUpdate.Validation
             RuleFor(Employee => Employee.Emergency.OutOfAreaContactName)
                 .MaximumLength(40)
                 .WithMessage($"{{PropertyName}} length must be 0-40");
-            
+
             Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.OutOfAreaContactHomePhone), () =>
             {
                 RuleFor(Employee => Employee.Emergency.OutOfAreaContactHomePhone)
@@ -363,7 +364,7 @@ namespace HRUpdate.Validation
                 .WithMessage($"{{PropertyName}} length must be 0-24")
                 .ValidPhone()
                 .WithMessage($"{{PropertyName}} must be a valid phone number");
-            });            
+            });
 
             Unless(Employee => string.IsNullOrEmpty(Employee.Emergency.OutOfAreaContactCellPhone), () =>
             {
@@ -439,7 +440,7 @@ namespace HRUpdate.Validation
             Unless(Employee => Employee.Position.PositionStartDate.Equals(null), () =>
             {
                 RuleFor(Employee => Employee.Position.PositionStartDate)
-                .ValidDate();                
+                .ValidDate();
             });
 
             RuleFor(Employee => Employee.Position.AgencyCodeSubelement)
@@ -480,7 +481,6 @@ namespace HRUpdate.Validation
                 .WithMessage($"{{PropertyName}} length must be 0-24")
                 .ValidPhone()
                 .WithMessage($"{{PropertyName}} must be a valid phone number");
-
             });
 
             Unless(e => string.IsNullOrEmpty(e.Phone.WorkFax), () =>
@@ -513,6 +513,6 @@ namespace HRUpdate.Validation
             #endregion Phone
 
             //Detail - Not currently needed
-        }       
-    }   
+        }
+    }
 }
