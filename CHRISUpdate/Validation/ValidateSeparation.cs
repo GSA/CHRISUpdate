@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using HRUpdate.Data;
 using HRUpdate.Lookups;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
-using HRUpdate.Process;
 using System.Linq;
 
 namespace HRUpdate.Validation

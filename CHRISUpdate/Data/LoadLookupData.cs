@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 
-namespace HRUpdate.Process
+namespace HRUpdate.Data
 {
     internal class LoadLookupData
     {

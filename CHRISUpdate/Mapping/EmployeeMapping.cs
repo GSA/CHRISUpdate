@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using CsvHelper.Configuration;
+using HRUpdate.Data;
 using HRUpdate.Lookups;
 using HRUpdate.Models;
-using HRUpdate.Process;
 using System.Collections.Generic;
 
 namespace HRUpdate.Mapping

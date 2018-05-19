@@ -135,7 +135,7 @@
     <Compile Include="Lookups\RegionLookup.cs" />
     <Compile Include="Models\Separation.cs" />
     <Compile Include="Models\Summary.cs" />
-    <Compile Include="Process\LoadLookupData.cs" />
+    <Compile Include="Data\LoadLookupData.cs" />
     <Compile Include="Process\ProcessData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
