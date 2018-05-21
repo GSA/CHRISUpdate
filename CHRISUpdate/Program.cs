@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HRUpdate.Mapping;
+using HRUpdate.Models;
 using HRUpdate.Process;
 using System;
 using System.Configuration;
@@ -27,6 +28,8 @@ namespace HRUpdate
 
         private static IMapper dataMapper;
 
+        private static EMailData emailData = new EMailData();
+
         /// <summary>
         /// Entrance into processing the HR File
         /// </summary>
@@ -44,8 +47,9 @@ namespace HRUpdate
 
             CreateMaps();
 
-            //Instantiate object that does processing
-            ProcessData processData = new ProcessData(dataMapper);
+            ProcessHR processHR = new ProcessHR(dataMapper, ref emailData);
+            ProcessSeparation processSeparation = new ProcessSeparation(ref emailData);
+            SendSummary sendSummary = new SendSummary(ref emailData);
 
             //Log action
             log.Info("Processing HR Files:" + DateTime.Now);
@@ -56,7 +60,7 @@ namespace HRUpdate
                 log.Info("Starting Processing HR File: " + DateTime.Now);
 
                 timeForProcess.Start();
-                processData.ProcessHRFile(hrFilePath);
+                processHR.ProcessHRFile(hrFilePath);
                 timeForProcess.Stop();
 
                 log.Info("Done Processing HR File: " + DateTime.Now);
@@ -73,7 +77,7 @@ namespace HRUpdate
                 log.Info("Starting Processing Separation File: " + DateTime.Now);
 
                 timeForProcess.Start();
-                processData.ProcessSeparationFile(separationFilePath);
+                processSeparation.ProcessSeparationFile(separationFilePath);
                 timeForProcess.Stop();
 
                 log.Info("Done Processing Separation File: " + DateTime.Now);
@@ -86,7 +90,7 @@ namespace HRUpdate
 
             log.Info("Done Processing HR Links File(s):" + DateTime.Now);
 
-            processData.SendSummaryEMail();
+            sendSummary.SendSummaryEMail();
 
             //Stop second timer
             timeForApp.Stop();

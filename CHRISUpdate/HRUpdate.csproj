@@ -125,6 +125,7 @@
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Birth.cs" />
     <Compile Include="Models\Detail.cs" />
+    <Compile Include="Models\EMailData.cs" />
     <Compile Include="Models\Emergency.cs" />
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\Investigation.cs" />
@@ -135,13 +136,18 @@
     <Compile Include="Lookups\RegionLookup.cs" />
     <Compile Include="Models\Separation.cs" />
     <Compile Include="Models\Summary.cs" />
+    <Compile Include="Process\ProcessSummary.cs" />
     <Compile Include="Data\LoadLookupData.cs" />
-    <Compile Include="Process\ProcessData.cs" />
+    <Compile Include="Process\ProcessHR.cs" />
+    <Compile Include="Process\ProcessSeparation.cs" />
+    <Compile Include="Process\SendSummary.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\CSVHelper.cs" />
     <Compile Include="Utilities\EMail.cs" />
     <Compile Include="Utilities\ExtensionMethods.cs" />
     <Compile Include="Utilities\Helpers.cs" />
+    <Compile Include="Utilities\ValidationHelper.cs" />
     <Compile Include="Validation\ValidateSeparation.cs" />
     <Compile Include="Validation\ValidateHR.cs" />
     <Compile Include="Validation\ValidatorExtensions.cs" />
