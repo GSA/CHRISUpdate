@@ -55,8 +55,7 @@ namespace HRUpdate.Process
 
                 HRSummary summary = new HRSummary();
                 FileReader fileReader = new FileReader();
-                ValidationHelper validationHelper = new ValidationHelper();
-
+               
                 ValidateHR validate = new ValidateHR();
 
                 Helpers helper = new Helpers();
@@ -93,6 +92,21 @@ namespace HRUpdate.Process
 
                         if (!AreEqualGCIMSToHR(gcimsRecord, employeeData))
                         {
+                            //Checking if the SSN are different
+                            if (employeeData.Person.SocialSecurityNumber != gcimsRecord.Person.SocialSecurityNumber)
+                            {
+                                summary.SocialSecurityNumberChange.Add(new SocialSecurityNumberChangeSummary
+                                {
+                                    GCIMSID = gcimsRecord.Person.GCIMSID,
+                                    EmployeeID = employeeData.Person.EmployeeID,
+                                    FirstName = employeeData.Person.FirstName,
+                                    MiddleName = employeeData.Person.MiddleName,
+                                    LastName = employeeData.Person.LastName,
+                                    Suffix = employeeData.Person.Suffix,
+                                    Status = gcimsRecord.Person.Status
+                                });
+                            }
+
                             log.Info("Copying objects: " + employeeData.Person.EmployeeID);
                             helper.CopyValues<Employee>(employeeData, gcimsRecord);
 
@@ -199,8 +213,6 @@ namespace HRUpdate.Process
                 log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
 
                 summary.GenerateSummaryFiles(emailData);
-
-                //GenerateUsersProccessedSummaryFiles(summary);
             }
             //Catch all errors
             catch (Exception ex)
@@ -239,20 +251,20 @@ namespace HRUpdate.Process
 
         private void CleanupHRData(Employee employeeData)
         {
-            employeeData.Phone.WorkFax.RemovePhoneFormatting();
-            employeeData.Phone.WorkCell.RemovePhoneFormatting();
-            employeeData.Phone.WorkPhone.RemovePhoneFormatting();
-            employeeData.Phone.WorkTextTelephone.RemovePhoneFormatting();
+            employeeData.Phone.WorkFax = employeeData.Phone.WorkFax.RemovePhoneFormatting();
+            employeeData.Phone.WorkCell = employeeData.Phone.WorkCell.RemovePhoneFormatting();
+            employeeData.Phone.WorkPhone = employeeData.Phone.WorkPhone.RemovePhoneFormatting();
+            employeeData.Phone.WorkTextTelephone = employeeData.Phone.WorkTextTelephone.RemovePhoneFormatting();
             employeeData.Phone.HomeCell = employeeData.Phone.HomeCell.RemovePhoneFormatting();
             employeeData.Phone.HomePhone = employeeData.Phone.HomePhone.RemovePhoneFormatting();
 
-            employeeData.Emergency.EmergencyContactHomePhone.RemovePhoneFormatting();
-            employeeData.Emergency.EmergencyContactWorkPhone.RemovePhoneFormatting();
-            employeeData.Emergency.EmergencyContactCellPhone.RemovePhoneFormatting();
+            employeeData.Emergency.EmergencyContactHomePhone = employeeData.Emergency.EmergencyContactHomePhone.RemovePhoneFormatting();
+            employeeData.Emergency.EmergencyContactWorkPhone = employeeData.Emergency.EmergencyContactWorkPhone.RemovePhoneFormatting();
+            employeeData.Emergency.EmergencyContactCellPhone = employeeData.Emergency.EmergencyContactCellPhone.RemovePhoneFormatting();
 
-            employeeData.Emergency.OutOfAreaContactHomePhone.RemovePhoneFormatting();
-            employeeData.Emergency.OutOfAreaContactWorkPhone.RemovePhoneFormatting();
-            employeeData.Emergency.OutOfAreaContactCellPhone.RemovePhoneFormatting();
+            employeeData.Emergency.OutOfAreaContactHomePhone = employeeData.Emergency.OutOfAreaContactHomePhone.RemovePhoneFormatting();
+            employeeData.Emergency.OutOfAreaContactWorkPhone = employeeData.Emergency.OutOfAreaContactWorkPhone.RemovePhoneFormatting();
+            employeeData.Emergency.OutOfAreaContactCellPhone = employeeData.Emergency.OutOfAreaContactCellPhone.RemovePhoneFormatting();
         }
 
         private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
