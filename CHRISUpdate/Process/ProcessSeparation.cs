@@ -104,8 +104,6 @@ namespace HRUpdate.Process
                 log.Info("Separation Total Records: " + String.Format("{0:#,###0}", separationUsersToProcess.Count));
 
                 summary.GenerateSummaryFiles(emailData);
-
-                //GenerateSeparationSummaryFiles(summary);
             }
             catch (Exception ex)
             {

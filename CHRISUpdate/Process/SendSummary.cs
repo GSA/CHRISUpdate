@@ -12,7 +12,7 @@ namespace HRUpdate.Process
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private EMailData emailData = new EMailData();
+        private readonly EMailData emailData = new EMailData();
 
         public SendSummary(ref EMailData emailData)
         {
