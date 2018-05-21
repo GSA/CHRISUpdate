@@ -19,9 +19,7 @@ namespace HRUpdate.Process
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly RetrieveData retrieve;
-
-        private readonly SaveData save;
-
+        
         private readonly EMailData emailData;
 
         private enum Hrlinks { Separation = 1, Hrfile = 2 };
@@ -30,7 +28,6 @@ namespace HRUpdate.Process
         public ProcessHR(IMapper dataMapper, ref EMailData emailData)
         {
             retrieve = new RetrieveData(dataMapper);
-            save = new SaveData();
 
             this.emailData = emailData;
         }
@@ -60,6 +57,8 @@ namespace HRUpdate.Process
 
                 Helpers helper = new Helpers();
 
+                SaveData save = new SaveData();
+                
                 log.Info("Loading HR Links File");
                 usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile);
 
@@ -130,9 +129,9 @@ namespace HRUpdate.Process
 
                             log.Info("Updating Record: " + employeeData.Person.EmployeeID);
 
-                            updatedResults = new Tuple<int, string, string>(-1, "Testing", "SQL Error (Testing)");
+                            //updatedResults = new Tuple<int, string, string>(-1, "Testing", "SQL Error (Testing)");
 
-                            //updatedResults = save.UpdatePersonInformation(gcimsRecord.Person.GCIMSID, employeeData);
+                            updatedResults = save.UpdatePersonInformation(gcimsRecord.Person.GCIMSID, employeeData);
 
                             if (updatedResults.Item1 > 0)
                             {
