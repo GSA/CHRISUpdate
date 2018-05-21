@@ -16,12 +16,10 @@ namespace HRUpdate
 
         //File paths from config file
         private static string hrFilePath = ConfigurationManager.AppSettings["HRFILE"].ToString();
-
         private static string separationFilePath = ConfigurationManager.AppSettings["SEPARATIONFILE"].ToString();
 
         //Stopwatch objects
         private static Stopwatch timeForApp = new Stopwatch();
-
         private static Stopwatch timeForProcess = new Stopwatch();
 
         private static HRMapper map = new HRMapper();
@@ -90,7 +88,9 @@ namespace HRUpdate
 
             log.Info("Done Processing HR Links File(s):" + DateTime.Now);
 
+            log.Info("Sending Summary File");
             sendSummary.SendSummaryEMail();
+            log.Info("Summary file sent");
 
             //Stop second timer
             timeForApp.Stop();
