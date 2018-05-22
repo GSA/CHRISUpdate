@@ -76,7 +76,7 @@ namespace HRUpdate.Process
                                 EmployeeID = separationData.EmployeeID,
                                 SeparationCode = separationData.SeparationCode,
                                 SeparationDate = separationData.SeparationDate,
-                                Action = separationResults.Item3
+                                Action = separationResults.Item4
                             });
                         }
                     }

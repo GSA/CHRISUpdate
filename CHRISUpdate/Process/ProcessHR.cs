@@ -129,9 +129,9 @@ namespace HRUpdate.Process
 
                             log.Info("Updating Record: " + employeeData.Person.EmployeeID);
 
-                            //updatedResults = new Tuple<int, string, string>(-1, "Testing", "SQL Error (Testing)");
+                            updatedResults = new Tuple<int, string, string>(-1, "Testing", "SQL Error (Testing)");
 
-                            updatedResults = save.UpdatePersonInformation(gcimsRecord.Person.GCIMSID, employeeData);
+                            //updatedResults = save.UpdatePersonInformation(gcimsRecord.Person.GCIMSID, employeeData);
 
                             if (updatedResults.Item1 > 0)
                             {
