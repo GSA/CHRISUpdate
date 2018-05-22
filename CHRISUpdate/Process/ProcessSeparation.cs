@@ -78,6 +78,8 @@ namespace HRUpdate.Process
                                 SeparationDate = separationData.SeparationDate,
                                 Action = separationResults.Item4
                             });
+
+                            log.Info("Unsuccessfully Separated Record: " + separationData.EmployeeID);
                         }
                     }
                     else
@@ -90,6 +92,8 @@ namespace HRUpdate.Process
                             SeparationDate = separationData.SeparationDate,
                             Action = validationHelper.GetErrors(errors.Errors, ValidationHelper.Hrlinks.Separation).TrimEnd(',')
                         });
+
+                        log.Info("Unsuccessfully Separated Record: " + separationData.EmployeeID);
                     }
                 }
 
