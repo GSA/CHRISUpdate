@@ -45,7 +45,7 @@ namespace HRUpdate.Validation
                 .In(separationTypes);
             RuleFor(s => s.SeparationDate)
                 .NotNull()
-                .WithMessage($"{{PropertyName}} is not null")
+                .WithMessage($"{{PropertyName}} should not be null")
                 .ValidDate();
         }
     }
