@@ -384,9 +384,9 @@ namespace HRUpdate.Validation
                 .MaximumLength(15)
                 .WithMessage($"{{PropertyName}} length must be 0-15");
 
-            RuleFor(Employee => Employee.Position.PositionTitle)
-                .MaximumLength(70)
-                .WithMessage($"{{PropertyName}} length must be 0-70");
+            //RuleFor(Employee => Employee.Position.PositionTitle)
+            //    .MaximumLength(70)
+            //    .WithMessage($"{{PropertyName}} length must be 0-70");
 
             RuleFor(Employee => Employee.Position.PositionOrganization)
                 .MaximumLength(18)

@@ -73,7 +73,7 @@
 
         public const int SUPERVISOR_EMPLOYEE_ID = 66;
         public const int HOME_ADDRESS_3 = 67;
-        public const int POSITION_TITLE = 68;
+        //public const int POSITION_TITLE = 68;
         public const int POSITION_ORGANIZATION = 69;
         public const int PERSONAL_HOME_PHONE = 70;
         public const int PERSONAL_CELL_PHONE = 71;

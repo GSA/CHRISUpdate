@@ -19,6 +19,46 @@ namespace HRUpdate.Data
 
         public SaveData()
         {
+
+        }
+
+        public string InsertEmployeeID(Int64 persID, Int64 employeeID)
+        {
+            try
+            {
+                using (conn)
+                {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
+
+                    using (cmd)
+                    {
+                        cmd.Connection = conn;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = "HR_InsertEmplID";
+
+                        cmd.Parameters.Clear();
+
+                        MySqlParameter[] personParameters = new MySqlParameter[]
+                        {
+                            new MySqlParameter { ParameterName = "persID", Value = persID, MySqlDbType = MySqlDbType.Int64},
+                            new MySqlParameter { ParameterName = "emplID", Value = employeeID, MySqlDbType = MySqlDbType.VarChar, Size = 12},
+                            new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
+                        };
+
+                        cmd.Parameters.AddRange(personParameters);
+
+                        cmd.ExecuteNonQuery();
+
+                        return cmd.Parameters["SQLExceptionWarning"].Value.ToString();
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                log.Error("Updating EmployeeID: " + ex.Message + " - " + ex.InnerException);
+                return ex.Message.ToString();
+            }
         }
 
         /// <summary>
@@ -77,7 +117,7 @@ namespace HRUpdate.Data
                             new MySqlParameter { ParameterName = "finalResultDate", Value = hrData.Investigation.FinalResultDate?.ToString("yyyy-M-dd"), MySqlDbType = MySqlDbType.Date},
                             new MySqlParameter { ParameterName = "adjudicatorEmplID", Value = hrData.Investigation.AdjudicatorEmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},
                             new MySqlParameter { ParameterName = "pcn", Value = hrData.Position.PositionControlNumber, MySqlDbType = MySqlDbType.VarChar, Size = 15},
-                            new MySqlParameter { ParameterName = "jobTitle", Value = hrData.Position.PositionTitle, MySqlDbType = MySqlDbType.VarChar, Size = 70},
+                            new MySqlParameter { ParameterName = "jobTitle", Value = hrData.Person.JobTitle, MySqlDbType = MySqlDbType.VarChar, Size = 70},
                             new MySqlParameter { ParameterName = "supervisoryStatus", Value = hrData.Position.SupervisoryStatus, MySqlDbType = MySqlDbType.VarChar, Size = 2},
                             new MySqlParameter { ParameterName = "payPlan", Value = hrData.Position.PayPlan, MySqlDbType = MySqlDbType.VarChar, Size = 3},
                             new MySqlParameter { ParameterName = "jobSeries", Value = hrData.Position.JobSeries, MySqlDbType = MySqlDbType.VarChar, Size = 8},
@@ -97,7 +137,7 @@ namespace HRUpdate.Data
                             new MySqlParameter { ParameterName = "organizationCode", Value = hrData.Person.OrganizationCode, MySqlDbType = MySqlDbType.VarChar, Size = 2},
                             new MySqlParameter { ParameterName = "supervisorEmplId", Value = hrData.Position.SupervisorEmployeeID, MySqlDbType = MySqlDbType.Int64},
                             new MySqlParameter { ParameterName = "homeAddress3", Value = hrData.Address.HomeAddress3, MySqlDbType = MySqlDbType.TinyBlob},
-                            new MySqlParameter { ParameterName = "positionTitle", Value = hrData.Position.PositionTitle, MySqlDbType = MySqlDbType.VarChar, Size = 60},
+                            //new MySqlParameter { ParameterName = "positionTitle", Value = hrData.Position.PositionTitle, MySqlDbType = MySqlDbType.VarChar, Size = 60},
                             new MySqlParameter { ParameterName = "positionOrganization", Value = hrData.Position.PositionOrganization, MySqlDbType = MySqlDbType.VarChar, Size = 18},
                             new MySqlParameter { ParameterName = "homePhone", Value = hrData.Phone.HomePhone, MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "homeCell", Value = hrData.Phone.HomeCell, MySqlDbType = MySqlDbType.TinyBlob},

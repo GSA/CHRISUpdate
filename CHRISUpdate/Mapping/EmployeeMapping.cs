@@ -97,7 +97,7 @@ namespace HRUpdate.Mapping
             var stateCodeConverter = new StateCodeConverter(stateLookup);
 
             Map(m => m.PositionControlNumber).Index(HRConstants.POSITION_CONTROL_NUMBER);
-            Map(m => m.PositionTitle).Index(HRConstants.POSITION_TITLE);
+            //Map(m => m.PositionTitle).Index(HRConstants.POSITION_TITLE);
             Map(m => m.PositionOrganization).Index(HRConstants.POSITION_ORGANIZATION);
             Map(m => m.SupervisoryStatus).Index(HRConstants.SUPERVISORY_STATUS);
             Map(m => m.PayPlan).Index(HRConstants.PAY_PLAN);
