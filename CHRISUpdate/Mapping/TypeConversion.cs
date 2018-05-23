@@ -99,9 +99,12 @@ namespace HRUpdate.Mapping
     internal sealed class RegionConverter : StringConverter
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
-        {
-            if (text.Contains("CO") || text.Contains("NCR"))
-                return text;
+        {  
+            if (text.Equals("11"))
+                return "NCR";
+
+            if (text.Equals("0"))
+                return "10";
 
             return text.PadLeft(2, '0');
         }
