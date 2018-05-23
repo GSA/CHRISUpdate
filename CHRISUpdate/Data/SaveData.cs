@@ -1,4 +1,5 @@
 ﻿using HRUpdate.Models;
+using HRUpdate.Utilities;
 using MySql.Data.MySqlClient;
 using System;
 using System.Configuration;
@@ -28,6 +29,8 @@ namespace HRUpdate.Data
         /// Change to person data
         public Tuple<int, string, string> UpdatePersonInformation(Int64 persID, Employee hrData)
         {
+            Helpers helper = new Helpers();
+           
             try
             {
                 using (conn)
@@ -42,13 +45,14 @@ namespace HRUpdate.Data
                         cmd.CommandText = "HR_UpdatePerson";
 
                         cmd.Parameters.Clear();
-
-                        //If Detail select detail object values
-
+                        
                         MySqlParameter[] personParameters = new MySqlParameter[]
                         {
                             new MySqlParameter { ParameterName = "persID", Value = persID, MySqlDbType = MySqlDbType.Int64},
                             new MySqlParameter { ParameterName = "emplID", Value = hrData.Person.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},
+                            new MySqlParameter { ParameterName = "SSN", Value = hrData.Person.SocialSecurityNumber, MySqlDbType = MySqlDbType.TinyBlob },
+                            new MySqlParameter { ParameterName = "HashedSSN", Value = helper.HashSSN(hrData.Person.SocialSecurityNumber), MySqlDbType = MySqlDbType.Binary, Size = 32 },
+                            new MySqlParameter { ParameterName = "HashedSSNLast4", Value = helper.HashSSN(hrData.Person.SocialSecurityNumber.Substring(5,4)), MySqlDbType = MySqlDbType.Binary, Size = 32 },
                             new MySqlParameter { ParameterName = "cityOfBirth", Value = hrData.Birth.CityOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "stateOfBirth", Value = hrData.Birth.StateOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
                             new MySqlParameter { ParameterName = "countryOfBirth", Value = hrData.Birth.CountryOfBirth, MySqlDbType = MySqlDbType.TinyBlob},
