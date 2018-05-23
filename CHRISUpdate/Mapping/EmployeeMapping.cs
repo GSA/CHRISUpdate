@@ -66,7 +66,7 @@ namespace HRUpdate.Mapping
 
             Map(m => m.HomeAddress1).Index(HRConstants.HOME_ADDRESS_1);
             Map(m => m.HomeAddress2).Index(HRConstants.HOME_ADDRESS_2);
-            Map(m => m.HomeAddress2).Index(HRConstants.HOME_ADDRESS_2);
+            Map(m => m.HomeAddress3).Index(HRConstants.HOME_ADDRESS_3);
             Map(m => m.HomeCity).Index(HRConstants.HOME_CITY);
             Map(m => m.HomeState).Index(HRConstants.HOME_STATE).TypeConverter(stateCodeConverter);
             Map(m => m.HomeZipCode).Index(HRConstants.HOME_ZIP_CODE);
@@ -105,6 +105,7 @@ namespace HRUpdate.Mapping
             Map(m => m.PayGrade).Index(HRConstants.LEVEL_GRADE);
             Map(m => m.WorkSchedule).Index(HRConstants.WORK_SCHEDULE);
             Map(m => m.PositionTeleworkEligibility).Index(HRConstants.POSITION_TELEWORK_ELIGIBLE).TypeConverter<PositionTeleworkEligibilityConverter>();
+            Map(m => m.PositionSensitivity).Index(HRConstants.POSITION_SENSITIVITY);
             Map(m => m.PositionStartDate).Index(HRConstants.POSITION_START_DATE).TypeConverter<DateConverter>();
             Map(m => m.DutyLocationCode).Index(HRConstants.DUTY_LOCATION_CODE);
             Map(m => m.DutyLocationCity).Index(HRConstants.DUTY_LOCATION_CITY);

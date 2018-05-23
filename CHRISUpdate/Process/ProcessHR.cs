@@ -129,15 +129,15 @@ namespace HRUpdate.Process
 
                             log.Info("Updating Record: " + employeeData.Person.EmployeeID);
 
-                            updatedResults = new Tuple<int, string, string>(-1, "Testing", "SQL Error (Testing)");
+                            //updatedResults = new Tuple<int, string, string>(-1, "Testing", "SQL Error (Testing)");
 
-                            //updatedResults = save.UpdatePersonInformation(gcimsRecord.Person.GCIMSID, employeeData);
+                            updatedResults = save.UpdatePersonInformation(gcimsRecord.Person.GCIMSID, employeeData);
 
                             if (updatedResults.Item1 > 0)
                             {
                                 summary.SuccessfulUsersProcessed.Add(new ProcessedSummary
                                 {
-                                    GCIMSID = updatedResults.Item1,
+                                    GCIMSID = gcimsRecord.Person.GCIMSID,
                                     EmployeeID = employeeData.Person.EmployeeID,
                                     FirstName = employeeData.Person.FirstName,
                                     MiddleName = employeeData.Person.MiddleName,
