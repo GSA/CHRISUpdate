@@ -52,7 +52,7 @@
         public const int DUTY_LOCATION_STATE = 47;
         public const int DUTY_LOCATION_COUNTY = 48;
         public const int AGENCY_CODE_SUBELEMENT = 49;
-        public const int ORGANIZATION_CODE = 50;
+        //public const int ORGANIZATION_CODE = 50;
 
         //At this time we will not be handling Detail information
         //public const int DETAIL_BEGIN_DATE = 51;

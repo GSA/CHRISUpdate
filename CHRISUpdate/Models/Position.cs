@@ -6,7 +6,12 @@ namespace HRUpdate.Models
     {
         public string PositionControlNumber { get; set; }
         //public string PositionTitle { get; set; }
+
+        /// <summary>
+        /// Office Symbol
+        /// </summary>
         public string PositionOrganization { get; set; }
+
         public string SupervisoryStatus { get; set; }
         public string PayPlan { get; set; }
         public string JobSeries { get; set; }

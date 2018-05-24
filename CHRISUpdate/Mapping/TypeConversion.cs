@@ -5,6 +5,7 @@ using HRUpdate.Lookups;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace HRUpdate.Mapping
 {
@@ -44,6 +45,31 @@ namespace HRUpdate.Mapping
                 return false;
 
             return false;
+        }
+    }
+
+    /// <summary>
+    /// If first letter equals O return A, if W return P, otherwise return first letter
+    /// </summary>
+    internal sealed class MajorOrgConverter : StringConverter
+    {
+        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+        {
+            string officeSymbol = string.Empty;
+
+            officeSymbol = Regex.Match(text, "[A-Za-z]").Value;
+
+            switch (officeSymbol)
+            {
+                case "O":
+                    return "A";
+
+                case "W":
+                    return "P";
+
+                default:
+                    return officeSymbol;
+            }
         }
     }
 

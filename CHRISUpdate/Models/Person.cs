@@ -16,7 +16,11 @@ namespace HRUpdate.Models
         public bool? FederalEmergencyResponseOfficial { get; set; }
         public bool? LawEnforcementOfficer { get; set; }
         public string Region { get; set; }
-        public string OrganizationCode { get; set; }
+
+        /// <summary>
+        /// Major Org
+        /// </summary>
+        public string MajorOrg { get; set; }
         public string JobTitle { get; set; }
         public string HomeEmail { get; set; }
         public string Status { get; set; }

@@ -104,11 +104,11 @@ namespace HRUpdate.Validation
                 .MaximumLength(3)
                 .WithMessage($"{{PropertyName}} length must be 0-3");
 
-            RuleFor(Employee => Employee.Person.OrganizationCode)
-                //.NotEmpty()
-                //.WithMessage($"{{PropertyName}} is required")
-                .MaximumLength(4)
-                .WithMessage($"{{PropertyName}} length must be 0-4");
+            //RuleFor(Employee => Employee.Person.OrganizationCode)
+            //    //.NotEmpty()
+            //    //.WithMessage($"{{PropertyName}} is required")
+            //    .MaximumLength(4)
+            //    .WithMessage($"{{PropertyName}} length must be 0-4");
 
             RuleFor(Employee => Employee.Person.JobTitle)
                 .MaximumLength(70)
