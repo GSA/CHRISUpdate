@@ -52,7 +52,7 @@ namespace HRUpdate.Mapping
             Map(m => m.LawEnforcementOfficer).Index(HRConstants.LAW_ENFORCEMENT_OFFICER).TypeConverter<LawEnforcementOfficerConverter>();
             Map(m => m.Region).Index(HRConstants.REGION).TypeConverter<RegionConverter>();
             Map(m => m.MajorOrg).Index(HRConstants.POSITION_ORGANIZATION).TypeConverter<MajorOrgConverter>();
-            Map(m => m.JobTitle).Index(HRConstants.JOB_TITLE);
+            Map(m => m.JobTitle).Index(HRConstants.POSITION_TITLE);
             Map(m => m.HomeEmail).Index(HRConstants.PERSONAL_EMAIL_ADDRESS);
         }
     }

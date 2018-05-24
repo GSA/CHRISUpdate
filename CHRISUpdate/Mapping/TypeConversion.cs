@@ -23,12 +23,12 @@ namespace HRUpdate.Mapping
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            switch (text)
+            switch (text.ToLower())
             {
-                case "Y":
+                case "y":
                     return true;
 
-                case "N":
+                case "n":
                     return false;
 
                 default:
@@ -59,12 +59,12 @@ namespace HRUpdate.Mapping
 
             officeSymbol = Regex.Match(text, "[A-Za-z]").Value;
 
-            switch (officeSymbol)
+            switch (officeSymbol.ToLower())
             {
-                case "O":
+                case "o":
                     return "A";
 
-                case "W":
+                case "w":
                     return "P";
 
                 default:

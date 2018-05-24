@@ -75,15 +75,37 @@ namespace HRUpdate.Process
 
                     Console.WriteLine("Processing HR User: " + employeeData.Person.EmployeeID);
 
+                    CleanupHRData(employeeData);
+
+                    //Looking for matching record.
+                    log.Info("Looking for matching record: " + employeeData.Person.EmployeeID);
+                    gcimsRecord = RecordFound(employeeData, allGCIMSData);
+
+                    if ((gcimsRecord != null && (gcimsRecord.Person.EmployeeID != employeeData.Person.EmployeeID) && (!Convert.ToBoolean(ConfigurationManager.AppSettings["DEBUG"].ToString()))))
+                    {
+                        log.Info("Adding HR Links ID to record: " + gcimsRecord.Person.GCIMSID);
+                        save.InsertEmployeeID(gcimsRecord.Person.GCIMSID, employeeData.Person.EmployeeID);
+                    }
+
+                    //If no record found write to the record not found summary file
+                    if (gcimsRecord == null)
+                    {
+                        //Danger Will Robinson, Danger
+                        summary.RecordNotFound.Add(new RecordNotFoundSummary
+                        {
+                            GCIMSID = -1,
+                            EmployeeID = employeeData.Person.EmployeeID,
+                            FirstName = employeeData.Person.FirstName,
+                            MiddleName = employeeData.Person.MiddleName,
+                            LastName = employeeData.Person.LastName,
+                            Suffix = employeeData.Person.Suffix
+                        });
+                    }
+
                     //If there are critical errors write to the error summary and move to the next record
                     log.Info("Checking for Critical errors for user: " + employeeData.Person.EmployeeID);
                     if (CheckForErrors(validate, employeeData, summary.UnsuccessfulUsersProcessed))
-                        continue;
-
-                    CleanupHRData(employeeData);
-
-                    //If record is found continue processing, otherwise record the issue
-                    gcimsRecord = RecordFound(employeeData, allGCIMSData);
+                        continue;                   
 
                     //If DB Record is not null them check if we need to update record
                     if (gcimsRecord != null)
@@ -188,19 +210,19 @@ namespace HRUpdate.Process
                             });
                         }
                     }
-                    else
-                    {
-                        //Danger Will Robinson, Danger
-                        summary.RecordNotFound.Add(new RecordNotFoundSummary
-                        {
-                            GCIMSID = -1,
-                            EmployeeID = employeeData.Person.EmployeeID,
-                            FirstName = employeeData.Person.FirstName,
-                            MiddleName = employeeData.Person.MiddleName,
-                            LastName = employeeData.Person.LastName,
-                            Suffix = employeeData.Person.Suffix
-                        });
-                    }
+                    //else
+                    //{
+                    //    //Danger Will Robinson, Danger
+                    //    summary.RecordNotFound.Add(new RecordNotFoundSummary
+                    //    {
+                    //        GCIMSID = -1,
+                    //        EmployeeID = employeeData.Person.EmployeeID,
+                    //        FirstName = employeeData.Person.FirstName,
+                    //        MiddleName = employeeData.Person.MiddleName,
+                    //        LastName = employeeData.Person.LastName,
+                    //        Suffix = employeeData.Person.Suffix
+                    //    });
+                    //}
                 }
 
                 emailData.HRFilename = Path.GetFileName(HRFile);

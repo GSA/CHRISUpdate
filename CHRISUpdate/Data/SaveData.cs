@@ -22,7 +22,7 @@ namespace HRUpdate.Data
 
         }
 
-        public string InsertEmployeeID(Int64 persID, Int64 employeeID)
+        public string InsertEmployeeID(Int64 persID, string employeeID)
         {
             try
             {

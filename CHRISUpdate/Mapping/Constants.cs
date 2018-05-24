@@ -35,7 +35,7 @@
         public const int FINAL_RESULT_DATE = 30;
         public const int ADJUDICATION_EMPLOYEE_ID = 31;
         public const int POSITION_CONTROL_NUMBER = 32;
-        public const int JOB_TITLE = 33;
+        //public const int JOB_TITLE = 33;
         public const int SUPERVISORY_STATUS = 34;
         public const int PAY_PLAN = 35;
         public const int JOB_SERIES = 36;
@@ -73,7 +73,11 @@
 
         public const int SUPERVISOR_EMPLOYEE_ID = 66;
         public const int HOME_ADDRESS_3 = 67;
-        //public const int POSITION_TITLE = 68;
+
+        /// <summary>
+        /// Job Title (This is not truncated like Job Title is in the file)
+        /// </summary>
+        public const int POSITION_TITLE = 68;
         public const int POSITION_ORGANIZATION = 69;
         public const int PERSONAL_HOME_PHONE = 70;
         public const int PERSONAL_CELL_PHONE = 71;
