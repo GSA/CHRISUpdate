@@ -6,6 +6,7 @@ using HRUpdate.Utilities;
 using HRUpdate.Validation;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 
 namespace HRUpdate.Process
@@ -51,7 +52,14 @@ namespace HRUpdate.Process
 
                     if (errors.IsValid)
                     {
-                        separationResults = save.SeparateUser(separationData);
+                        if (Convert.ToBoolean(ConfigurationManager.AppSettings["DEBUG"].ToString()))
+                        {
+                            separationResults = new Tuple<int, int, string, string>(-1, -1, "Testing", "SQL Error (Testing)");
+                        }
+                        else
+                        {
+                            separationResults = save.SeparateUser(separationData);
+                        }
 
                         if (separationResults.Item1 > 0)
                         {

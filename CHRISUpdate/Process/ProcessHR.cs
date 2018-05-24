@@ -8,6 +8,7 @@ using HRUpdate.Validation;
 using KellermanSoftware.CompareNetObjects;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 
@@ -129,9 +130,14 @@ namespace HRUpdate.Process
 
                             log.Info("Updating Record: " + employeeData.Person.EmployeeID);
 
-                            //updatedResults = new Tuple<int, string, string>(-1, "Testing", "SQL Error (Testing)");
-
-                            updatedResults = save.UpdatePersonInformation(gcimsRecord.Person.GCIMSID, employeeData);
+                            if (Convert.ToBoolean(ConfigurationManager.AppSettings["DEBUG"].ToString()))
+                            {
+                                updatedResults = new Tuple<int, string, string>(-1, "Testing", "SQL Error (Testing)");
+                            }
+                            else
+                            {
+                                updatedResults = save.UpdatePersonInformation(gcimsRecord.Person.GCIMSID, employeeData);
+                            }
 
                             if (updatedResults.Item1 > 0)
                             {
