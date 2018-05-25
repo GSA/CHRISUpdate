@@ -47,9 +47,7 @@ namespace HRUpdate.Utilities
                 string summaryFileName;
 
                 summaryFileName = fileName + "_" + DateTime.Now.ToString("yyyyMMddHHmmss_FFFF") + ".csv";
-
-                summaryData.Sort();
-
+                
                 //Creates the summary file
                 using (CsvWriter csvWriter = new CsvWriter(new StreamWriter(ConfigurationManager.AppSettings["SUMMARYFILEPATH"] + summaryFileName, false)))
                 {

@@ -3,6 +3,7 @@ using HRUpdate.Models;
 using HRUpdate.Utilities;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 
 namespace HRUpdate.Process
 {
@@ -33,34 +34,44 @@ namespace HRUpdate.Process
         {
             if (SuccessfulUsersProcessed.Count > 0)
             {
+                SuccessfulUsersProcessed = SuccessfulUsersProcessed.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();            
+
                 emailData.HRSuccessfulFilename = SummaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), SuccessfulUsersProcessed);
                 log.Info("HR Success File: " + emailData.HRSuccessfulFilename);
             }
 
             if (UnsuccessfulUsersProcessed.Count > 0)
             {
+                UnsuccessfulUsersProcessed = UnsuccessfulUsersProcessed.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();
+
                 emailData.HRUnsuccessfulFilename = SummaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["ERRORSUMMARYFILENAME"].ToString(), UnsuccessfulUsersProcessed);
                 log.Info("HR Error File: " + emailData.HRUnsuccessfulFilename);
             }
 
             if (SocialSecurityNumberChange.Count > 0)
             {
+                SocialSecurityNumberChange = SocialSecurityNumberChange.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();
+
                 emailData.HRSocialSecurityNumberChangeFilename = SummaryFileGenerator.GenerateSummaryFile<SocialSecurityNumberChangeSummary, SocialSecurityNumberChangeSummaryMapping>(ConfigurationManager.AppSettings["SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME"].ToString(), SocialSecurityNumberChange);
                 log.Info("HR Social Security Number Change File: " + emailData.HRSocialSecurityNumberChangeFilename);
             }
 
             if (InactiveRecords.Count > 0)
             {
+                InactiveRecords = InactiveRecords.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();
+
                 emailData.HRInactiveFilename = SummaryFileGenerator.GenerateSummaryFile<InactiveSummary, InactiveSummaryMapping>(ConfigurationManager.AppSettings["INACTIVESUMMARYFILENAME"].ToString(), InactiveRecords);
                 log.Info("HR Inactive File: " + emailData.HRInactiveFilename);
             }
 
             if (RecordNotFound.Count > 0)
             {
+                RecordNotFound = RecordNotFound.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();
+
                 emailData.HRRecordsNotFoundFileName = SummaryFileGenerator.GenerateSummaryFile<RecordNotFoundSummary, RecordNotFoundSummaryMapping>(ConfigurationManager.AppSettings["RECORDNOTFOUNDSUMMARYFILENAME"].ToString(), RecordNotFound);
                 log.Info("HR Name Not Found File: " + emailData.HRInactiveFilename);
             }
-        }
+        }           
     }
 
     internal class HRSeparationSummary
@@ -84,15 +95,19 @@ namespace HRUpdate.Process
         {
             if (SuccessfulUsersProcessed.Count > 0)
             {
+                SuccessfulUsersProcessed = SuccessfulUsersProcessed.OrderBy(o => o.EmployeeID).ToList();
+
                 emailData.SeparationSuccessfulFilename = SummaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), SuccessfulUsersProcessed);
                 log.Info("Separation Success File: " + emailData.SeparationSuccessfulFilename);
             }
 
             if (UnsuccessfulUsersProcessed.Count > 0)
             {
+                UnsuccessfulUsersProcessed = UnsuccessfulUsersProcessed.OrderBy(o => o.EmployeeID).ToList();
+
                 emailData.SeparationErrorFilename = SummaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), UnsuccessfulUsersProcessed);
                 log.Info("Separation Error File: " + emailData.SeparationErrorFilename);
             }
         }
-    }
+    }    
 }
