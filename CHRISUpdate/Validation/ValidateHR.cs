@@ -21,6 +21,7 @@ namespace HRUpdate.Validation
             lookups.Add("InvestigationTypes", lookup.investigationLookup.Select(e => e.Tier).Distinct().ToArray());
             lookups.Add("StateCodes", lookup.stateLookup.Select(s => s.Code).Distinct().ToArray());
             lookups.Add("CountryCodes", lookup.countryLookup.Select(c => c.Code).Distinct().ToArray());
+            lookups.Add("RegionCodes", lookup.regionLookup.Select(c => c.Code).Distinct().ToArray());
         }
 
         public ValidationResult ValidateEmployeeCriticalInfo(Employee employeeInformation)
@@ -101,6 +102,7 @@ namespace HRUpdate.Validation
             RuleFor(Employee => Employee.Person.Region)
                 //.NotEmpty()
                 //.WithMessage($"{{PropertyName}} is required")
+                .In(lookups["RegionCodes"])
                 .MaximumLength(3)
                 .WithMessage($"{{PropertyName}} length must be 0-3");
 

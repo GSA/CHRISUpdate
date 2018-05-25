@@ -23,6 +23,8 @@ namespace HRUpdate.Data
         public LoadLookupData(IMapper mapper)
         {
             lookupMapper = mapper;
+
+            lookupMapper.ConfigurationProvider.CompileMappings();
         }
 
         public Lookup GetEmployeeLookupData()
@@ -127,6 +129,14 @@ namespace HRUpdate.Data
             while (lookupData.Read())
             {
                 lookup.stateLookup = lookupMapper.Map<IDataReader, List<StateLookup>>(lookupData);
+            }
+
+            //lookup_region
+            lookupData.NextResult();
+
+            while (lookupData.Read())
+            {
+                lookup.regionLookup = lookupMapper.Map<IDataReader, List<RegionLookup>>(lookupData);
             }
 
             return lookup;
