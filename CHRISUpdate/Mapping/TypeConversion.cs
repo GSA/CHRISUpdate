@@ -59,6 +59,9 @@ namespace HRUpdate.Mapping
 
             officeSymbol = Regex.Match(text, "[A-Za-z]").Value;
 
+            if (officeSymbol.ToLower().Equals("o").ToString().Length == 1)
+                return officeSymbol;
+
             switch (officeSymbol.ToLower())
             {
                 case "o":

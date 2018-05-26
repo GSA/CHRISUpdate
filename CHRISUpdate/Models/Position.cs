@@ -11,7 +11,6 @@ namespace HRUpdate.Models
         /// Office Symbol
         /// </summary>
         public string PositionOrganization { get; set; }
-
         public string SupervisoryStatus { get; set; }
         public string PayPlan { get; set; }
         public string JobSeries { get; set; }

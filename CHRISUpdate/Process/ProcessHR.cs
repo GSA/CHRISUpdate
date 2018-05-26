@@ -298,6 +298,8 @@ namespace HRUpdate.Process
         {
             CompareLogic compareLogic = new CompareLogic();
 
+            compareLogic.Config.MaxDifferences = 1000;
+
             compareLogic.Config.TreatStringEmptyAndNullTheSame = true;
 
             compareLogic.Config.MembersToIgnore.Add("Person.GCIMSID");
@@ -305,6 +307,7 @@ namespace HRUpdate.Process
             compareLogic.Config.MembersToIgnore.Add("Person.MiddleName");
             compareLogic.Config.MembersToIgnore.Add("Person.LastName");
             compareLogic.Config.MembersToIgnore.Add("Person.Suffix");
+            compareLogic.Config.MembersToIgnore.Add("Person.Status");
 
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
