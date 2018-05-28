@@ -16,10 +16,12 @@ namespace HRUpdate
 
         //File paths from config file
         private static string hrFilePath = ConfigurationManager.AppSettings["HRFILE"].ToString();
+
         private static string separationFilePath = ConfigurationManager.AppSettings["SEPARATIONFILE"].ToString();
 
         //Stopwatch objects
         private static Stopwatch timeForApp = new Stopwatch();
+
         private static Stopwatch timeForProcess = new Stopwatch();
 
         private static HRMapper map = new HRMapper();

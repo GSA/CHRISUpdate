@@ -19,7 +19,6 @@ namespace HRUpdate.Data
 
         public SaveData()
         {
-
         }
 
         public string InsertEmployeeID(Int64 persID, string employeeID)
@@ -54,7 +53,7 @@ namespace HRUpdate.Data
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 log.Error("Updating EmployeeID: " + ex.Message + " - " + ex.InnerException);
                 return ex.Message.ToString();
@@ -70,7 +69,7 @@ namespace HRUpdate.Data
         public Tuple<int, string, string> UpdatePersonInformation(Int64 persID, Employee hrData)
         {
             Helpers helper = new Helpers();
-           
+
             try
             {
                 using (conn)
@@ -85,7 +84,7 @@ namespace HRUpdate.Data
                         cmd.CommandText = "HR_UpdatePerson";
 
                         cmd.Parameters.Clear();
-                        
+
                         MySqlParameter[] personParameters = new MySqlParameter[]
                         {
                             new MySqlParameter { ParameterName = "persID", Value = persID, MySqlDbType = MySqlDbType.Int64},
