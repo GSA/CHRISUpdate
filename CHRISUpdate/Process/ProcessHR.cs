@@ -73,8 +73,6 @@ namespace HRUpdate.Process
                 {
                     log.Info("Processing HR User: " + employeeData.Person.EmployeeID);
 
-                    Console.WriteLine("Processing HR User: " + employeeData.Person.EmployeeID);
-
                     CleanupHRData(employeeData);
 
                     //Looking for matching record.
