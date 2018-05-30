@@ -5,7 +5,6 @@ namespace HRUpdate.Models
     public class Position
     {
         public string PositionControlNumber { get; set; }
-        //public string PositionTitle { get; set; }
 
         /// <summary>
         /// Office Symbol

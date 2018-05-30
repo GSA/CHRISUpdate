@@ -210,19 +210,6 @@ namespace HRUpdate.Process
                             });
                         }
                     }
-                    //else
-                    //{
-                    //    //Danger Will Robinson, Danger
-                    //    summary.RecordNotFound.Add(new RecordNotFoundSummary
-                    //    {
-                    //        GCIMSID = -1,
-                    //        EmployeeID = employeeData.Person.EmployeeID,
-                    //        FirstName = employeeData.Person.FirstName,
-                    //        MiddleName = employeeData.Person.MiddleName,
-                    //        LastName = employeeData.Person.LastName,
-                    //        Suffix = employeeData.Person.Suffix
-                    //    });
-                    //}
                 }
 
                 emailData.HRFilename = Path.GetFileName(HRFile);
@@ -338,15 +325,7 @@ namespace HRUpdate.Process
                     employeeData.Person.LastName.ToLower().Trim().Equals(w.Person.LastName.ToLower().Trim()) &&
                     employeeData.Person.SocialSecurityNumber.Equals(w.Person.SocialSecurityNumber) &&
                     employeeData.Birth.DateOfBirth.Equals(w.Birth.DateOfBirth)).ToList();
-
-                //var nameMatch = allGCIMSData.Where(c =>
-                //    employeeData.Person.FirstName.ToLower().Trim().Equals(c.Person.FirstName.ToLower().Trim()) &&
-                //    employeeData.Person.MiddleName.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.MiddleName) ? string.Empty : c.Person.MiddleName.ToLower().Trim()) &&
-                //    employeeData.Person.LastName.ToLower().Trim().Equals(c.Person.LastName.ToLower().Trim()) &&
-                //    employeeData.Person.Suffix.ToLower().Trim().Equals(string.IsNullOrEmpty(c.Person.Suffix) ? string.Empty : c.Person.Suffix.ToLower().Trim()) &&
-                //    employeeData.Person.SocialSecurityNumber.Equals(c.Person.SocialSecurityNumber) &&
-                //    employeeData.Birth.DateOfBirth.Equals(c.Birth.DateOfBirth)).ToList();
-
+                
                 if (nameMatch.Count == 0 || nameMatch.Count > 1)
                 {
                     log.Info("Match not found by name for user: " + employeeData.Person.EmployeeID);

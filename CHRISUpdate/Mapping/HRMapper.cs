@@ -32,8 +32,6 @@ namespace HRUpdate.Mapping
                 cfg.CreateMap<Employee, Emergency>().ReverseMap();
                 cfg.CreateMap<Employee, Position>().ReverseMap();
                 cfg.CreateMap<Employee, Phone>().ReverseMap();
-
-                //cfg.CreateMap<Employee, Person>().ForMember(dest => dest.SocialSecurityNumber, opt => opt.Ignore());
             });
         }
 

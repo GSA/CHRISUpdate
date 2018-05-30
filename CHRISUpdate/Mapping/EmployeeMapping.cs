@@ -30,9 +30,6 @@ namespace HRUpdate.Mapping
             References<PhoneMap>(r => r.Phone);
             References<EmergencyMap>(r => r.Emergency);
             References<InvestigationMap>(r => r.Investigation, lookups.investigationLookup);
-
-            //At this time we will not be handling Detail information
-            //References<DetailMap>(r => r.Detail, lookups.stateLookup);
         }
     }
 
@@ -160,29 +157,4 @@ namespace HRUpdate.Mapping
             Map(m => m.AdjudicatorEmployeeID).Index(HRConstants.ADJUDICATION_EMPLOYEE_ID);
         }
     }
-
-    //At this time we will not be handling Detail information
-    //public sealed class DetailMap : ClassMap<Detail>
-    //{
-    //    public DetailMap(List<StateLookup> stateLookup)
-    //    {
-    //        var stateCodeConverter = new StateCodeConverter(stateLookup);
-
-    //        Map(m => m.DetailBeginDate).Index(HRConstants.DETAIL_BEGIN_DATE).TypeConverter<DateConverter>();
-    //        Map(m => m.DetialEndDate).Index(HRConstants.DETAIL_END_DATE).TypeConverter<DateConverter>();
-    //        Map(m => m.DetailPositionControlNumber).Index(HRConstants.DETAIL_POSITION_CONTROL_NUMBER);
-    //        Map(m => m.DetailPositionTitle).Index(HRConstants.DETAIL_POSITION_TITLE);
-    //        Map(m => m.DetailOrganizationCode).Index(HRConstants.DETAIL_ORGANIZATION_CODE);
-    //        Map(m => m.DetailOfficeSymbol).Index(HRConstants.DETAIL_OFFICE_SYMBOL);
-    //        Map(m => m.DetailPayPlan).Index(HRConstants.DETAIL_PAY_PLAN);
-    //        Map(m => m.DetailJobSeries).Index(HRConstants.DETAIL_JOB_SERIES);
-    //        Map(m => m.DetailLevelGrade).Index(HRConstants.DETAIL_LEVEL_GRADE);
-    //        Map(m => m.DetailWorkSchedule).Index(HRConstants.DETAIL_WORK_SCHEDULE);
-    //        Map(m => m.DetailRegion).Index(HRConstants.DETAIL_REGION);
-    //        Map(m => m.DetailDutyLocationCode).Index(HRConstants.DETAIL_DUTY_LOCATION_CODE);
-    //        Map(m => m.DetailDutyLocationCity).Index(HRConstants.DETAIL_DUTY_LOCATION_CITY);
-    //        Map(m => m.DetailDutyLocationState).Index(HRConstants.DETAIL_DUTY_LOCATION_STATE).TypeConverter(stateCodeConverter); ;
-    //        Map(m => m.DetailDutyLocationCounty).Index(HRConstants.DETAIL_DUTY_LOCATION_COUNTY);
-    //    }
-    //}
 }

@@ -1,6 +1,6 @@
 ﻿namespace HRUpdate.Mapping
 {
-    public static class HRConstants
+    internal static class HRConstants
     {
         public const int EMPLOYEE_NUMBER = 0;
         public const int EMPLOYEE_LAST_NAME = 1;
@@ -34,11 +34,8 @@
         public const int FINAL_RESULT_OFFER = 29;
         public const int FINAL_RESULT_DATE = 30;
         public const int ADJUDICATION_EMPLOYEE_ID = 31;
-        public const int POSITION_CONTROL_NUMBER = 32;
-
-        //public const int JOB_TITLE = 33;
+        public const int POSITION_CONTROL_NUMBER = 32;        
         public const int SUPERVISORY_STATUS = 34;
-
         public const int PAY_PLAN = 35;
         public const int JOB_SERIES = 36;
         public const int LEVEL_GRADE = 37;
@@ -54,33 +51,12 @@
         public const int DUTY_LOCATION_STATE = 47;
         public const int DUTY_LOCATION_COUNTY = 48;
         public const int AGENCY_CODE_SUBELEMENT = 49;
-        //public const int ORGANIZATION_CODE = 50;
-
-        //At this time we will not be handling Detail information
-        //public const int DETAIL_BEGIN_DATE = 51;
-        //public const int DETAIL_END_DATE = 52;
-        //public const int DETAIL_POSITION_CONTROL_NUMBER = 53;
-        //public const int DETAIL_POSITION_TITLE = 54;
-        //public const int DETAIL_ORGANIZATION_CODE = 55;
-        //public const int DETAIL_OFFICE_SYMBOL = 56;
-        //public const int DETAIL_PAY_PLAN = 57;
-        //public const int DETAIL_JOB_SERIES = 58;
-        //public const int DETAIL_LEVEL_GRADE = 59;
-        //public const int DETAIL_WORK_SCHEDULE = 60;
-        //public const int DETAIL_REGION = 61;
-        //public const int DETAIL_DUTY_LOCATION_CODE = 62;
-        //public const int DETAIL_DUTY_LOCATION_CITY = 63;
-        //public const int DETAIL_DUTY_LOCATION_STATE = 64;
-        //public const int DETAIL_DUTY_LOCATION_COUNTY = 65;
-
         public const int SUPERVISOR_EMPLOYEE_ID = 66;
         public const int HOME_ADDRESS_3 = 67;
-
         /// <summary>
         /// Job Title (This is not truncated like Job Title is in the file)
         /// </summary>
         public const int POSITION_TITLE = 68;
-
         public const int POSITION_ORGANIZATION = 69;
         public const int PERSONAL_HOME_PHONE = 70;
         public const int PERSONAL_CELL_PHONE = 71;
@@ -99,12 +75,8 @@
         public const int WORK_PHONE_NUMBER_TEXT_TELEPHONE = 89;
     }
 
-    public class SeparationConstants
-    {
-        private SeparationConstants()
-        {
-        }
-
+    internal static class SeparationConstants
+    {       
         public const int EMPLOYEE_ID = 0;
         public const int SEPARATION_CODE = 1;
         public const int SEPARATION_DATE = 2;
