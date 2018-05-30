@@ -128,7 +128,7 @@ namespace HRUpdate.Process
                             }
 
                             log.Info("Copying objects: " + employeeData.Person.EmployeeID);
-                            helper.CopyValues<Employee>(employeeData, gcimsRecord);
+                            helper.CopyValues<Employee>(employeeData, gcimsRecord,new string[] { "InitialResult","InitialResultDate","FinalResult","FinalResultDate"});
 
                             log.Info("Checking if inactive record: " + employeeData.Person.EmployeeID);
 
