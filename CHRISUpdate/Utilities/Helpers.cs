@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -29,7 +30,7 @@ namespace HRUpdate.Utilities
             return hashedFullSSN;
         }
 
-        public void CopyValues<T>(T target, T source)
+        public void CopyValues<T>(T target, T source, params string [] excluded  )
         {
             if (target == null) return;
             Type t = typeof(T);
@@ -46,29 +47,44 @@ namespace HRUpdate.Utilities
 
                 for (int y = 0; y < childTargetProperties.Count(); y++)
                 {
-                    var sourcevalue = childSourceProperties[y].GetValue(properties[x].GetValue(source, null), null);
-                    var targetValue = childTargetProperties[y].GetValue(properties[x].GetValue(target, null), null);
-
-                    if (falsy(targetValue))
+                    if(!excluded.Any(a => a==childSourceProperties[y].Name))
                     {
-                        childTargetProperties[y].SetValue(properties[x].GetValue(target, null), sourcevalue);
+                        var sourcevalue = childSourceProperties[y].GetValue(properties[x].GetValue(source, null), null);
+                        var targetValue = childTargetProperties[y].GetValue(properties[x].GetValue(target, null), null);
+
+                        if (falsy(targetValue, sourcevalue))
+                        {
+                            childTargetProperties[y].SetValue(properties[x].GetValue(target, null), sourcevalue);
+                        }
                     }
+                    
                 }
             }
         }
 
-        private bool falsy(object val)
+        private bool falsy(object target, object source)
         {
             string t;
-            if (val != null)
-                t = val.GetType().ToString();
+            if (target != null)
+                t = target.GetType().ToString();
             else
                 t = null;
             switch (t)
             {
-                case "System.String": return string.IsNullOrEmpty((string)val);
-                case "System.DateTime": return (DateTime)val == null || (DateTime)val == DateTime.MinValue;
-                case "System.Boolean": return (bool?)val == null;
+                case "System.String":
+                    {
+                        string targetObj = target as string;
+                        string sourceObj = source as string;
+                        targetObj = targetObj == null ? "" : targetObj;
+                        sourceObj = sourceObj == null ? "" : sourceObj;
+                        if( targetObj.ToLower().Equals(sourceObj.ToLower()) )
+                        {
+                            return false;
+                        }
+                        return string.IsNullOrEmpty((string)target);
+                    } 
+                case "System.DateTime": return (DateTime)target == null || (DateTime)target == DateTime.MinValue;
+                case "System.Boolean": return (bool?)target == null;
                 case "System.Int64": return false;
                 default: return true;
             }
