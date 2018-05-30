@@ -31,6 +31,20 @@ namespace HRUpdate.Mapping
         }
     }
 
+    internal sealed class IdenticalRecordSummaryMapping : ClassMap<IdenticalRecordSummary>
+    {
+        public IdenticalRecordSummaryMapping()
+        {
+            Map(m => m.GCIMSID).Name("GCIMS ID");
+            Map(m => m.EmployeeID).Name("Employee ID");
+            Map(m => m.FirstName).Name("First Name");
+            Map(m => m.MiddleName).Name("Middle Name");
+            Map(m => m.LastName).Name("Last Name");
+            Map(m => m.Suffix).Name("Suffix");
+            Map(m => m.Status).Name("Status");
+        }
+    }
+
     internal sealed class SocialSecurityNumberChangeSummaryMapping : ClassMap<SocialSecurityNumberChangeSummary>
     {
         public SocialSecurityNumberChangeSummaryMapping()

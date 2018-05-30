@@ -89,7 +89,7 @@ namespace HRUpdate.Process
                     if (gcimsRecord == null)
                     {
                         //Danger Will Robinson, Danger
-                        summary.RecordNotFound.Add(new RecordNotFoundSummary
+                        summary.RecordsNotFound.Add(new RecordNotFoundSummary
                         {
                             GCIMSID = -1,
                             EmployeeID = employeeData.Person.EmployeeID,
@@ -115,7 +115,7 @@ namespace HRUpdate.Process
                             //Checking if the SSN are different
                             if (employeeData.Person.SocialSecurityNumber != gcimsRecord.Person.SocialSecurityNumber)
                             {
-                                summary.SocialSecurityNumberChange.Add(new SocialSecurityNumberChangeSummary
+                                summary.SocialSecurityNumberChanges.Add(new SocialSecurityNumberChangeSummary
                                 {
                                     GCIMSID = gcimsRecord.Person.GCIMSID,
                                     EmployeeID = employeeData.Person.EmployeeID,
@@ -212,10 +212,11 @@ namespace HRUpdate.Process
 
                 emailData.HRFilename = Path.GetFileName(HRFile);
                 emailData.HRAttempted = usersToProcess.Count;
-                emailData.HRSocial = summary.SocialSecurityNumberChange.Count;
+                emailData.HRIdentical = summary.IdenticalRecords.Count;
+                emailData.HRSocial = summary.SocialSecurityNumberChanges.Count;
                 emailData.HRSucceeded = summary.SuccessfulUsersProcessed.Count;
                 emailData.HRInactive = summary.InactiveRecords.Count;
-                emailData.HRRecordsNotFound = summary.RecordNotFound.Count;
+                emailData.HRRecordsNotFound = summary.RecordsNotFound.Count;
                 emailData.HRFailed = summary.UnsuccessfulUsersProcessed.Count;
                 emailData.HRHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0 ? true : false;
 

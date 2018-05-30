@@ -10,12 +10,14 @@ namespace HRUpdate.Models
         public Int64 HRFailed { get; set; }
         public Int64 HRSocial { get; set; }
         public Int64 HRInactive { get; set; }
+        public Int64 HRIdentical { get; set; }
         public Int64 HRAttempted { get; set; }
         public Int64 HRSucceeded { get; set; }
         public Int64 HRRecordsNotFound { get; set; }
 
         public string HRSuccessfulFilename { get; set; }
         public string HRUnsuccessfulFilename { get; set; }
+        public string HRIdenticalFilename { get; set; }
         public string HRSocialSecurityNumberChangeFilename { get; set; }
         public string HRInactiveFilename { get; set; }
         public string HRRecordsNotFoundFileName { get; set; }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.Data;
+using HRUpdate.Lookups;
 using HRUpdate.Models;
 
 namespace HRUpdate.Mapping
@@ -13,6 +14,12 @@ namespace HRUpdate.Mapping
         {
             lookupConfig = new MapperConfiguration(cfg =>
             {
+                cfg.CreateMap<Lookup, InvestigationLookup>().ReverseMap();
+                cfg.CreateMap<Lookup, CountryLookup>().ReverseMap();
+                cfg.CreateMap<Lookup, StateLookup>().ReverseMap();
+                cfg.CreateMap<Lookup, RegionLookup>().ReverseMap();
+                cfg.CreateMap<Lookup, SeparationLookup>().ReverseMap();
+                
                 cfg.AddDataReaderMapping();
                 cfg.AllowNullCollections = true;
             });

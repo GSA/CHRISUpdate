@@ -24,6 +24,17 @@ namespace HRUpdate.Models
         public string Suffix { get; set; }        
     }
 
+    internal class IdenticalRecordSummary
+    {
+        public Int64 GCIMSID { get; set; }
+        public string EmployeeID { get; set; }
+        public string FirstName { get; set; }
+        public string MiddleName { get; set; }
+        public string LastName { get; set; }
+        public string Suffix { get; set; }
+        public string Status { get; set; }
+    }
+
     internal class SocialSecurityNumberChangeSummary
     {
         public Int64 GCIMSID { get; set; }

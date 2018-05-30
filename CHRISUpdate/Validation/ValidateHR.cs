@@ -18,10 +18,10 @@ namespace HRUpdate.Validation
         {
             map.CreateLookupConfig();
             Lookup lookup = new LoadLookupData(map.CreateLookupMapping()).GetEmployeeLookupData();
-            lookups.Add("InvestigationTypes", lookup.investigationLookup.Select(e => e.Tier).Distinct().ToArray());
-            lookups.Add("StateCodes", lookup.stateLookup.Select(s => s.Code).Distinct().ToArray());
-            lookups.Add("CountryCodes", lookup.countryLookup.Select(c => c.Code).Distinct().ToArray());
-            lookups.Add("RegionCodes", lookup.regionLookup.Select(c => c.Code).Distinct().ToArray());
+            lookups.Add("InvestigationTypes", lookup.investigationLookup.Select(e => e.Tier).ToArray());
+            lookups.Add("StateCodes", lookup.stateLookup.Select(s => s.Code).ToArray());
+            lookups.Add("CountryCodes", lookup.countryLookup.Select(c => c.Code).ToArray());
+            lookups.Add("RegionCodes", lookup.regionLookup.Select(c => c.Code).ToArray());
         }
 
         public ValidationResult ValidateEmployeeCriticalInfo(Employee employeeInformation)

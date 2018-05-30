@@ -128,14 +128,18 @@ namespace HRUpdate.Mapping
     internal sealed class RegionConverter : StringConverter
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
-        {  
-            if (text.Equals("11"))
-                return "NCR";
-
-            if (text.Equals("0"))
-                return "10";
-
-            return text.PadLeft(2, '0');
+        {
+            switch (text.ToLower())
+            {
+                case "0":
+                    return "CO";
+                case "A":
+                    return "10";
+                case "W":
+                    return "NCR";
+                default:
+                    return text.PadLeft(2, '0');
+            }
         }
     }
 

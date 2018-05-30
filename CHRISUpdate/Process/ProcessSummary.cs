@@ -14,10 +14,11 @@ namespace HRUpdate.Process
 
         public readonly SummaryFileGenerator SummaryFileGenerator;
         public List<InactiveSummary> InactiveRecords { get; set; }
-        public List<RecordNotFoundSummary> RecordNotFound { get; set; }
+        public List<RecordNotFoundSummary> RecordsNotFound { get; set; }
+        public List<IdenticalRecordSummary> IdenticalRecords { get; set; }
         public List<ProcessedSummary> SuccessfulUsersProcessed { get; set; }
         public List<ProcessedSummary> UnsuccessfulUsersProcessed { get; set; }
-        public List<SocialSecurityNumberChangeSummary> SocialSecurityNumberChange { get; set; }
+        public List<SocialSecurityNumberChangeSummary> SocialSecurityNumberChanges { get; set; }
 
         public HRSummary()
         {
@@ -26,8 +27,8 @@ namespace HRUpdate.Process
             InactiveRecords = new List<InactiveSummary>();
             SuccessfulUsersProcessed = new List<ProcessedSummary>();
             UnsuccessfulUsersProcessed = new List<ProcessedSummary>();
-            RecordNotFound = new List<RecordNotFoundSummary>();
-            SocialSecurityNumberChange = new List<SocialSecurityNumberChangeSummary>();
+            RecordsNotFound = new List<RecordNotFoundSummary>();
+            SocialSecurityNumberChanges = new List<SocialSecurityNumberChangeSummary>();
         }
 
         public void GenerateSummaryFiles(EMailData emailData)
@@ -48,11 +49,19 @@ namespace HRUpdate.Process
                 log.Info("HR Error File: " + emailData.HRUnsuccessfulFilename);
             }
 
-            if (SocialSecurityNumberChange.Count > 0)
+            if (IdenticalRecords.Count > 0)
             {
-                SocialSecurityNumberChange = SocialSecurityNumberChange.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();
+                IdenticalRecords = IdenticalRecords.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();
 
-                emailData.HRSocialSecurityNumberChangeFilename = SummaryFileGenerator.GenerateSummaryFile<SocialSecurityNumberChangeSummary, SocialSecurityNumberChangeSummaryMapping>(ConfigurationManager.AppSettings["SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME"].ToString(), SocialSecurityNumberChange);
+                emailData.HRIdenticalFilename = SummaryFileGenerator.GenerateSummaryFile<IdenticalRecordSummary, IdenticalRecordSummaryMapping>(ConfigurationManager.AppSettings["IDENTICALSUMMARYFILENAME"].ToString(), IdenticalRecords);
+                log.Info("HR Identical File:" + emailData.HRIdenticalFilename);
+            }
+
+            if (SocialSecurityNumberChanges.Count > 0)
+            {
+                SocialSecurityNumberChanges = SocialSecurityNumberChanges.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();
+
+                emailData.HRSocialSecurityNumberChangeFilename = SummaryFileGenerator.GenerateSummaryFile<SocialSecurityNumberChangeSummary, SocialSecurityNumberChangeSummaryMapping>(ConfigurationManager.AppSettings["SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME"].ToString(), SocialSecurityNumberChanges);
                 log.Info("HR Social Security Number Change File: " + emailData.HRSocialSecurityNumberChangeFilename);
             }
 
@@ -64,11 +73,11 @@ namespace HRUpdate.Process
                 log.Info("HR Inactive File: " + emailData.HRInactiveFilename);
             }
 
-            if (RecordNotFound.Count > 0)
+            if (RecordsNotFound.Count > 0)
             {
-                RecordNotFound = RecordNotFound.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();
+                RecordsNotFound = RecordsNotFound.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();
 
-                emailData.HRRecordsNotFoundFileName = SummaryFileGenerator.GenerateSummaryFile<RecordNotFoundSummary, RecordNotFoundSummaryMapping>(ConfigurationManager.AppSettings["RECORDNOTFOUNDSUMMARYFILENAME"].ToString(), RecordNotFound);
+                emailData.HRRecordsNotFoundFileName = SummaryFileGenerator.GenerateSummaryFile<RecordNotFoundSummary, RecordNotFoundSummaryMapping>(ConfigurationManager.AppSettings["RECORDNOTFOUNDSUMMARYFILENAME"].ToString(), RecordsNotFound);
                 log.Info("HR Name Not Found File: " + emailData.HRInactiveFilename);
             }
         }           

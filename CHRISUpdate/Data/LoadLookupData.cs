@@ -109,36 +109,21 @@ namespace HRUpdate.Data
         {
             Lookup lookup = new Lookup();
 
-            //lookup_investigation
-            while (lookupData.Read())
-            {
-                lookup.investigationLookup = lookupMapper.Map<IDataReader, List<InvestigationLookup>>(lookupData);
-            }
-
+            //lookup_investigation            
+            lookup.investigationLookup = lookupMapper.Map<IDataReader, List<InvestigationLookup>>(lookupData);
+            
             //lookup_country
             lookupData.NextResult();
-
-            while (lookupData.Read())
-            {
-                lookup.countryLookup = lookupMapper.Map<IDataReader, List<CountryLookup>>(lookupData);
-            }
+            lookup.countryLookup = lookupMapper.Map<IDataReader, List<CountryLookup>>(lookupData);
 
             //lookup_state
             lookupData.NextResult();
-
-            while (lookupData.Read())
-            {
-                lookup.stateLookup = lookupMapper.Map<IDataReader, List<StateLookup>>(lookupData);
-            }
+            lookup.stateLookup = lookupMapper.Map<IDataReader, List<StateLookup>>(lookupData);
 
             //lookup_region
             lookupData.NextResult();
-
-            while (lookupData.Read())
-            {
-                lookup.regionLookup = lookupMapper.Map<IDataReader, List<RegionLookup>>(lookupData);
-            }
-
+            lookup.regionLookup = lookupMapper.Map<IDataReader, List<RegionLookup>>(lookupData);
+            
             return lookup;
         }
 
