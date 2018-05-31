@@ -35,18 +35,7 @@ namespace HRUpdate.Mapping
                     return false;
             }
         }
-    }
-
-    internal sealed class FederalEmergencyResponseOfficialConverter : BooleanConverter
-    {
-        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
-        {
-            if (text.Contains("N"))
-                return false;
-
-            return false;
-        }
-    }
+    }    
 
     /// <summary>
     /// If first letter equals O return A, if W return P, otherwise return first letter

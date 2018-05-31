@@ -44,8 +44,7 @@ namespace HRUpdate.Mapping
             Map(m => m.MiddleName).Index(HRConstants.EMPLOYEE_MIDDLE_NAME);
             Map(m => m.SocialSecurityNumber).Index(HRConstants.SOCIAL_SECURITY_NUMBER);
             Map(m => m.Gender).Index(HRConstants.GENDER);
-            Map(m => m.ServiceComputationDateLeave).Index(HRConstants.SERVICE_COMPUTATION_DATE_LEAVE);
-            Map(m => m.FederalEmergencyResponseOfficial).Index(HRConstants.FEDERAL_EMERGENCY_RESPONSE_OFFICIAL).TypeConverter<FederalEmergencyResponseOfficialConverter>();
+            Map(m => m.ServiceComputationDateLeave).Index(HRConstants.SERVICE_COMPUTATION_DATE_LEAVE);            
             Map(m => m.LawEnforcementOfficer).Index(HRConstants.LAW_ENFORCEMENT_OFFICER).TypeConverter<LawEnforcementOfficerConverter>();
             Map(m => m.Region).Index(HRConstants.REGION).TypeConverter<RegionConverter>();
             Map(m => m.MajorOrg).Index(HRConstants.POSITION_ORGANIZATION).TypeConverter<MajorOrgConverter>();

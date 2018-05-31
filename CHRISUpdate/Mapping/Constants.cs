@@ -39,8 +39,7 @@
         public const int PAY_PLAN = 35;
         public const int JOB_SERIES = 36;
         public const int LEVEL_GRADE = 37;
-        public const int WORK_SCHEDULE = 38;
-        public const int FEDERAL_EMERGENCY_RESPONSE_OFFICIAL = 39;
+        public const int WORK_SCHEDULE = 38;        
         public const int LAW_ENFORCEMENT_OFFICER = 40;
         public const int POSITION_TELEWORK_ELIGIBLE = 41;
         public const int POSITION_SENSITIVITY = 42;

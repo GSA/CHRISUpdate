@@ -12,8 +12,7 @@ namespace HRUpdate.Models
         public string Suffix { get; set; }
         public string SocialSecurityNumber { get; set; }
         public string Gender { get; set; }
-        public DateTime? ServiceComputationDateLeave { get; set; }
-        public bool? FederalEmergencyResponseOfficial { get; set; }
+        public DateTime? ServiceComputationDateLeave { get; set; }        
         public bool? LawEnforcementOfficer { get; set; }
         public string Region { get; set; }
         public string MajorOrg { get; set; }
