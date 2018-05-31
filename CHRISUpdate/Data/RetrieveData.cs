@@ -76,6 +76,7 @@ namespace HRUpdate.Data
                 Employee employee = new Employee();
 
                 employee.Address = retrieveMapper.Map<IDataReader, Address>(gcimsData);
+                employee.Building = retrieveMapper.Map<IDataReader, Building>(gcimsData);
                 employee.Birth = retrieveMapper.Map<IDataReader, Birth>(gcimsData);
                 employee.Emergency = retrieveMapper.Map<IDataReader, Emergency>(gcimsData);
                 employee.Investigation = retrieveMapper.Map<IDataReader, Investigation>(gcimsData);

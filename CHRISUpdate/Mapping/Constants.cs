@@ -68,6 +68,11 @@
         public const int EMERGENCY_OUT_OF_AREA_HOME_PHONE_NUMBER = 78;
         public const int EMERGENCY_OUT_OF_AREA_HOME_WORK_PHONE_NUMBER = 79;
         public const int EMERGENCY_OUT_OF_AREA_CELL_NUMBER = 80;
+        public const int WORK_BUILDING_NUMBER = 81;
+        public const int WORK_BUILDING_ADDRESS_LINE_1 = 82;
+        public const int WORK_BUILDING_ADDRESS_CITY = 83;
+        public const int WORK_BUIDLING_ADDRESS_STATE = 84;
+        public const int WORK_BUILDING_ADDRESS_ZIPCODE = 85;
         public const int WORK_PHONE_NUMBER = 86;
         public const int WORK_FAX_NUMBER = 87;
         public const int WORK_CELL_NUMBER = 88;

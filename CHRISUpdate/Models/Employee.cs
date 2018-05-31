@@ -4,6 +4,7 @@
     {
         public Person Person { get; set; }
         public Address Address { get; set; }
+        public Building Building { get; set; }
         public Birth Birth { get; set; }
         public Investigation Investigation { get; set; }
         public Emergency Emergency { get; set; }

@@ -25,6 +25,7 @@ namespace HRUpdate.Mapping
 
             References<PersonMap>(r => r.Person);
             References<AddressMap>(r => r.Address, lookups.stateLookup, lookups.countryLookup);
+            References<BuildingMap>(r => r.Building, lookups.stateLookup);
             References<BirthMap>(r => r.Birth, lookups.stateLookup, lookups.countryLookup);
             References<PositionMap>(r => r.Position, lookups.stateLookup);
             References<PhoneMap>(r => r.Phone);
@@ -67,6 +68,20 @@ namespace HRUpdate.Mapping
             Map(m => m.HomeState).Index(HRConstants.HOME_STATE).TypeConverter(stateCodeConverter);
             Map(m => m.HomeZipCode).Index(HRConstants.HOME_ZIP_CODE);
             Map(m => m.HomeCountry).Index(HRConstants.HOME_COUNTRY).TypeConverter(countryCodeConverter);
+        }
+    }
+
+    public sealed class BuildingMap : ClassMap<Building>
+    {
+        public BuildingMap(List<StateLookup> stateLookup)
+        {
+            var stateCodeConverter = new StateCodeConverter(stateLookup);
+
+            Map(m => m.BuildingNumber).Index(HRConstants.WORK_BUILDING_NUMBER);
+            Map(m => m.BuildingAddress1).Index(HRConstants.WORK_BUILDING_ADDRESS_LINE_1);
+            Map(m => m.BuildingCity).Index(HRConstants.WORK_BUILDING_ADDRESS_CITY);
+            Map(m => m.BuildingState).Index(HRConstants.WORK_BUIDLING_ADDRESS_STATE).TypeConverter(stateCodeConverter);
+            Map(m => m.BuildingZipCode).Index(HRConstants.WORK_BUILDING_ADDRESS_ZIPCODE);
         }
     }
 

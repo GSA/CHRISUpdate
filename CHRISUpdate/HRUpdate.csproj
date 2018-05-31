@@ -124,6 +124,7 @@
     <Compile Include="Mapping\TypeConversion.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Birth.cs" />
+    <Compile Include="Models\Building.cs" />
     <Compile Include="Models\Detail.cs" />
     <Compile Include="Models\EMailData.cs" />
     <Compile Include="Models\Emergency.cs" />
