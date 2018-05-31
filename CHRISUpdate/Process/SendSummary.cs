@@ -69,6 +69,7 @@ namespace HRUpdate.Process
 
             template = template.Replace("[HRATTEMPTED]", emailData.HRAttempted.ToString());
             template = template.Replace("[HRSUCCEEDED]", emailData.HRSucceeded.ToString());
+            template = template.Replace("[HRIDENTICAL]", emailData.HRIdentical.ToString());
             template = template.Replace("[HRINACTIVE]", emailData.HRInactive.ToString());
             template = template.Replace("[HRRECORDSNOTFOUND]", emailData.HRRecordsNotFound.ToString());
             template = template.Replace("[HRFAILED]", emailData.HRFailed.ToString());

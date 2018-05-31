@@ -133,9 +133,9 @@ namespace HRUpdate.Mapping
             {
                 case "0":
                     return "CO";
-                case "A":
+                case "a":
                     return "10";
-                case "W":
+                case "w":
                     return "NCR";
                 default:
                     return text.PadLeft(2, '0');
