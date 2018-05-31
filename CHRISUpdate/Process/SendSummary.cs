@@ -124,6 +124,9 @@ namespace HRUpdate.Process
             if (emailData.HRUnsuccessfulFilename != null)
                 attachments.Append(AddAttachment(emailData.HRUnsuccessfulFilename));
 
+            if (emailData.HRIdenticalFilename != null)
+                attachments.Append(AddAttachment(emailData.HRIdenticalFilename));
+
             if (emailData.HRInactiveFilename != null)
                 attachments.Append(AddAttachment(emailData.HRInactiveFilename));
 
