@@ -18,6 +18,6 @@
   <add key="RECORDNOTFOUNDSUMMARYFILENAME" value="[filename]" />
   <add key="SOCIALSECURITYNUMBERCHANGESUMMARYFILENAME" value="[filename]" />
   <add key="INACTIVESUMMARYFILENAME" value="[filename]" />
-  <add key="IDENTICALSUMMARYFILENAME" value="[filename" />
+  <add key="IDENTICALSUMMARYFILENAME" value="[filename]" />
 </appSettings>
   

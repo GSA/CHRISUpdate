@@ -194,8 +194,8 @@ namespace HRUpdate.Process
                         else
                         {
                             log.Info("HR and GCIMS Data are the same: " + employeeData.Person.EmployeeID);
-
-                            summary.SuccessfulUsersProcessed.Add(new ProcessedSummary
+                            
+                            summary.IdenticalRecords.Add(new IdenticalRecordSummary
                             {
                                 GCIMSID = gcimsRecord.Person.GCIMSID,
                                 EmployeeID = employeeData.Person.EmployeeID,
@@ -203,8 +203,7 @@ namespace HRUpdate.Process
                                 MiddleName = employeeData.Person.MiddleName,
                                 LastName = employeeData.Person.LastName,
                                 Suffix = employeeData.Person.Suffix,
-                                Status = employeeData.Person.Status,
-                                Action = "No update Required"
+                                Status = gcimsRecord.Person.Status
                             });
                         }
                     }

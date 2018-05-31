@@ -26,6 +26,7 @@ namespace HRUpdate.Process
 
             InactiveRecords = new List<InactiveSummary>();
             SuccessfulUsersProcessed = new List<ProcessedSummary>();
+            IdenticalRecords = new List<IdenticalRecordSummary>();
             UnsuccessfulUsersProcessed = new List<ProcessedSummary>();
             RecordsNotFound = new List<RecordNotFoundSummary>();
             SocialSecurityNumberChanges = new List<SocialSecurityNumberChangeSummary>();
