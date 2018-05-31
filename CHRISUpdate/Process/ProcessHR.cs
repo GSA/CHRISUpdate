@@ -130,6 +130,8 @@ namespace HRUpdate.Process
                             log.Info("Copying objects: " + employeeData.Person.EmployeeID);
                             helper.CopyValues<Employee>(employeeData, gcimsRecord,new string[] { "InitialResult","InitialResultDate","FinalResult","FinalResultDate"});
 
+                            InvestigationCopy(employeeData, gcimsRecord);
+
                             log.Info("Checking if inactive record: " + employeeData.Person.EmployeeID);
 
                             if (employeeData.Person.Status == "Inactive")
@@ -230,6 +232,31 @@ namespace HRUpdate.Process
             catch (Exception ex)
             {
                 log.Error("Process HR Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);
+            }
+        }
+
+        private void InvestigationCopy(Employee hr, Employee db)
+        {
+            bool? hrValue = hr.Investigation.InitialResult;
+            DateTime? hrdate = hr.Investigation.InitialResultDate;
+            bool? dbValue = db.Investigation.InitialResult;
+            DateTime? dbdate = db.Investigation.InitialResultDate;
+
+            if( hrValue == false || (hrdate==null || hrdate==DateTime.MinValue) )
+            {
+                hr.Investigation.InitialResult = dbValue;
+                hr.Investigation.InitialResultDate = dbdate;
+            }
+
+            hrValue = hr.Investigation.FinalResult;
+            hrdate = hr.Investigation.FinalResultDate;
+            dbValue = db.Investigation.FinalResult;
+            dbdate = db.Investigation.FinalResultDate;
+            
+            if (hrValue == false || (hrdate == null || hrdate == DateTime.MinValue))
+            {
+                hr.Investigation.FinalResult = dbValue;
+                hr.Investigation.FinalResultDate = dbdate;
             }
         }
 
