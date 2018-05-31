@@ -13,11 +13,6 @@ namespace HRUpdate.Data
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        //Set up connection
-        private readonly MySqlConnection conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["GCIMS"].ToString());
-
-        private readonly MySqlCommand cmd = new MySqlCommand();
-
         private readonly IMapper retrieveMapper;
 
         public RetrieveData(IMapper mapper)
@@ -30,7 +25,11 @@ namespace HRUpdate.Data
         public List<Employee> AllGCIMSData()
         {
             try
-            {
+            {                
+                MySqlConnection conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["GCIMS"].ToString());
+
+                MySqlCommand cmd = new MySqlCommand();
+
                 List<Employee> allGCIMSData = new List<Employee>();
 
                 using (conn)
