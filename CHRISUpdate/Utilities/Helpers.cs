@@ -79,7 +79,7 @@ namespace HRUpdate.Utilities
                         sourceObj = sourceObj == null ? "" : sourceObj;
                         if( targetObj.ToLower().Equals(sourceObj.ToLower()) )
                         {
-                            return false;
+                            return true;
                         }
                         return string.IsNullOrEmpty((string)target);
                     } 
