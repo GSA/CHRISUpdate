@@ -77,7 +77,7 @@ namespace HRUpdate.Utilities
                         string sourceObj = source as string;
                         targetObj = targetObj == null ? "" : targetObj;
                         sourceObj = sourceObj == null ? "" : sourceObj;
-                        if( targetObj.ToLower().Equals(sourceObj.ToLower()) )
+                        if( targetObj.ToLower().Trim().Equals(sourceObj.ToLower().Trim()) )
                         {
                             return true;
                         }
