@@ -69,12 +69,12 @@ namespace HRUpdate.Mapping
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            switch (text)
+            switch (text.ToLower())
             {
-                case "1":
+                case "5":
                     return true;
 
-                case "0":
+                case "n":
                     return false;
 
                 default:
