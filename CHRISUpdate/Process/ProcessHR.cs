@@ -72,9 +72,7 @@ namespace HRUpdate.Process
                 foreach (Employee employeeData in usersToProcess)
                 {
                     log.Info("Processing HR User: " + employeeData.Person.EmployeeID);
-
-                    CleanupHRData(employeeData);
-
+                    
                     //Looking for matching record.
                     log.Info("Looking for matching record: " + employeeData.Person.EmployeeID);
                     gcimsRecord = RecordFound(employeeData, allGCIMSData);
@@ -103,7 +101,9 @@ namespace HRUpdate.Process
                     //If there are critical errors write to the error summary and move to the next record
                     log.Info("Checking for Critical errors for user: " + employeeData.Person.EmployeeID);
                     if (CheckForErrors(validate, employeeData, summary.UnsuccessfulUsersProcessed))
-                        continue;                   
+                        continue;
+
+                    CleanupHRData(employeeData);
 
                     //If DB Record is not null them check if we need to update record
                     if (gcimsRecord != null)
