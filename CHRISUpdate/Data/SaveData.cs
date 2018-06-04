@@ -21,7 +21,7 @@ namespace HRUpdate.Data
         {
         }
 
-        public string InsertEmployeeID(Int64 persID, string employeeID)
+        public string InsertEmployeeID(Int64 persID, Int64 employeeID)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace HRUpdate.Data
                         MySqlParameter[] personParameters = new MySqlParameter[]
                         {
                             new MySqlParameter { ParameterName = "persID", Value = persID, MySqlDbType = MySqlDbType.Int64},
-                            new MySqlParameter { ParameterName = "emplID", Value = employeeID, MySqlDbType = MySqlDbType.VarChar, Size = 12},
+                            new MySqlParameter { ParameterName = "emplID", Value = employeeID, MySqlDbType = MySqlDbType.Int64},
                             new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
                         };
 
@@ -88,7 +88,7 @@ namespace HRUpdate.Data
                         MySqlParameter[] personParameters = new MySqlParameter[]
                         {
                             new MySqlParameter { ParameterName = "persID", Value = persID, MySqlDbType = MySqlDbType.Int64},
-                            new MySqlParameter { ParameterName = "emplID", Value = hrData.Person.EmployeeID, MySqlDbType = MySqlDbType.VarChar, Size = 11},
+                            new MySqlParameter { ParameterName = "emplID", Value = hrData.Person.EmployeeID, MySqlDbType = MySqlDbType.Int64},
                             new MySqlParameter { ParameterName = "SSN", Value = hrData.Person.SocialSecurityNumber, MySqlDbType = MySqlDbType.TinyBlob },
                             new MySqlParameter { ParameterName = "HashedSSN", Value = helper.HashSSN(hrData.Person.SocialSecurityNumber), MySqlDbType = MySqlDbType.Binary, Size = 32 },
                             new MySqlParameter { ParameterName = "HashedSSNLast4", Value = helper.HashSSN(hrData.Person.SocialSecurityNumber.Substring(5,4)), MySqlDbType = MySqlDbType.Binary, Size = 32 },

@@ -326,7 +326,7 @@ namespace HRUpdate.Process
 
         private Employee RecordFound(Employee employeeData, List<Employee> allGCIMSData)
         {
-            var hrLinksMatch = allGCIMSData.Where(w => employeeData.Person.EmployeeID.Equals(string.IsNullOrEmpty(w.Person.EmployeeID) ? string.Empty : w.Person.EmployeeID)).ToList();
+            var hrLinksMatch = allGCIMSData.Where(w => employeeData.Person.EmployeeID == w.Person.EmployeeID).ToList();
 
             if (hrLinksMatch.Count > 1)
             {

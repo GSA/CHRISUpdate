@@ -43,9 +43,7 @@ namespace HRUpdate.Validation
             //**********PERSON***********************************************************************************************
             RuleFor(Employee => Employee.Person.EmployeeID)
                 .NotEmpty()
-                .WithMessage($"{{PropertyName}} is required")
-                .MaximumLength(11)
-                .WithMessage($"{{PropertyName}} length must be 0-11");
+                .WithMessage($"{{PropertyName}} is required");                
 
             RuleFor(Employee => Employee.Person.FirstName)
                 .NotEmpty()
