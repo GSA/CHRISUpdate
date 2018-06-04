@@ -267,10 +267,6 @@ namespace HRUpdate.Validation
                     .WithMessage($"{{PropertyName}} must be a valid date");
             });
 
-            RuleFor(Employee => Employee.Investigation.AdjudicatorEmployeeID)
-                .MaximumLength(11)
-                .WithMessage($"{{PropertyName}} length must be 0-11");
-
             #endregion Investigation
 
             #region Emergency
