@@ -310,8 +310,6 @@ namespace HRUpdate.Process
         {
             CompareLogic compareLogic = new CompareLogic();
 
-            compareLogic.Config.MaxDifferences = 1000;
-
             compareLogic.Config.TreatStringEmptyAndNullTheSame = true;
 
             compareLogic.Config.MembersToIgnore.Add("Person.GCIMSID");
