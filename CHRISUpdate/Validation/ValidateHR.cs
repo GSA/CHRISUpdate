@@ -93,7 +93,7 @@ namespace HRUpdate.Validation
                 .MaximumLength(70)
                 .WithMessage($"{{PropertyName}} length must be 0-70");
 
-            RuleFor(Employee => Employee.Person.HomeEmail)                
+            RuleFor(Employee => Employee.Person.HomeEmail)
                 .MaximumLength(64)
                 .WithMessage($"{{PropertyName}}l must be between 0-64");
 
@@ -101,7 +101,9 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Person.HomeEmail)
                     .EmailAddress()
-                    .WithMessage($"{{PropertyName}} must be a valid email address");
+                    .WithMessage($"{{PropertyName}} must be a valid email address")
+                    .Matches(@"(?i)^((?!gsa(ig)?.gov).)*$")
+                    .WithMessage("Home email cannot end in gsa.gov. (Case Ignored)");
             });
 
             #endregion Person
