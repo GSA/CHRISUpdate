@@ -396,7 +396,7 @@ namespace HRUpdate.Process
 
                 for (int y = 0; y < childTargetProperties.Count(); y++)
                 {
-                    var dbvalue = childSourceProperties[y].GetValue(properties[x].GetValue(db, null), null);
+                    var dbValue = childSourceProperties[y].GetValue(properties[x].GetValue(db, null), null);
                     var hrValue = childTargetProperties[y].GetValue(properties[x].GetValue(hr, null), null);
 
                     string t;
@@ -408,7 +408,7 @@ namespace HRUpdate.Process
                     {
                         case "System.String":
                             {
-                                string targetObj = dbvalue as string;
+                                string targetObj = dbValue as string;
                                 string sourceObj = hrValue as string;
                                 targetObj = targetObj == null ? "" : targetObj;
                                 sourceObj = sourceObj == null ? "" : sourceObj;
@@ -417,8 +417,8 @@ namespace HRUpdate.Process
                                     Difference difference = new Difference
                                     {
                                         PropertyName = childSourceProperties[y].Name,
-                                        Object1Value = dbvalue.ToString(),
-                                        Object2Value = hrValue.ToString()
+                                        Object1Value = dbValue == null ? "" : dbValue.ToString(),
+                                        Object2Value = hrValue == null ? "" : hrValue.ToString()
                                     };
                                     parms.Result.Differences.Add(difference);
                                     
@@ -427,15 +427,15 @@ namespace HRUpdate.Process
                             break;
                         case "System.DateTime":
                             {
-                                var targetObj = dbvalue as DateTime?;
+                                var targetObj = dbValue as DateTime?;
                                 var sourceObj = hrValue as DateTime?;
                                 if ((!(targetObj == sourceObj)) && (sourceObj == null || !(sourceObj == DateTime.MinValue)))
                                 {
                                     Difference difference = new Difference
                                     {
                                         PropertyName = childSourceProperties[y].Name,
-                                        Object1Value = dbvalue.ToString(),
-                                        Object2Value = hrValue.ToString()
+                                        Object1Value = dbValue == null ? "" : dbValue.ToString(),
+                                        Object2Value = hrValue == null ? "" : hrValue.ToString()
                                     };
                                     parms.Result.Differences.Add(difference);
                                 }
@@ -443,15 +443,15 @@ namespace HRUpdate.Process
                             break;
                         case "System.Boolean":
                             {
-                                var targetObj = dbvalue as bool?;
+                                var targetObj = dbValue as bool?;
                                 var sourceObj = hrValue as bool?;
                                 if (!((bool?)targetObj == (bool?)sourceObj))
                                 {
                                     Difference difference = new Difference
                                     {
                                         PropertyName = childSourceProperties[y].Name,
-                                        Object1Value = targetObj.ToString(),
-                                        Object2Value = sourceObj.ToString()
+                                        Object1Value = dbValue == null ? "" : dbValue.ToString(),
+                                        Object2Value = hrValue == null ? "" : hrValue.ToString()
                                     };
                                     parms.Result.Differences.Add(difference);
                                 }
@@ -459,15 +459,15 @@ namespace HRUpdate.Process
                             break;
                         case "System.Int64":
                             {
-                                var targetObj = dbvalue as Int64?;
+                                var targetObj = dbValue as Int64?;
                                 var sourceObj = hrValue as Int64?;
                                 if (!(targetObj == sourceObj) && !(sourceObj == 0))
                                 {
                                     Difference difference = new Difference
                                     {
                                         PropertyName = childSourceProperties[y].Name,
-                                        Object1Value = dbvalue.ToString(),
-                                        Object2Value = hrValue.ToString()
+                                        Object1Value = dbValue == null ? "" : dbValue.ToString(),
+                                        Object2Value = hrValue == null ? "" : hrValue.ToString()
                                     };
                                     parms.Result.Differences.Add(difference);
                                 }
@@ -481,8 +481,8 @@ namespace HRUpdate.Process
                                 Difference difference = new Difference
                                 {
                                     PropertyName = childSourceProperties[y].Name,
-                                    Object1Value = dbvalue.ToString(),
-                                    Object2Value = hrValue.ToString()
+                                    Object1Value = dbValue == null ? "" : dbValue.ToString(),
+                                    Object2Value = hrValue == null ? "" : hrValue.ToString()
                                 };
                                 parms.Result.Differences.Add(difference);
                             }
