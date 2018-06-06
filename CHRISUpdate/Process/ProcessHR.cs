@@ -97,6 +97,7 @@ namespace HRUpdate.Process
                             LastName = employeeData.Person.LastName,
                             Suffix = employeeData.Person.Suffix
                         });
+                        //continue;
                     }
 
                     //If there are critical errors write to the error summary and move to the next record
@@ -104,11 +105,13 @@ namespace HRUpdate.Process
                     if (CheckForErrors(validate, employeeData, summary.UnsuccessfulUsersProcessed))
                         continue;
 
-                    CleanupHRData(employeeData);
+                    CleanupHRData(employeeData);                    
 
                     //If DB Record is not null them check if we need to update record
                     if (gcimsRecord != null)
                     {
+                        InvestigationCopy(employeeData, gcimsRecord);
+
                         log.Info("Comparing HR and GCIMS Data: " + employeeData.Person.EmployeeID);
 
                         if (!AreEqualGCIMSToHR(gcimsRecord, employeeData))
@@ -131,7 +134,7 @@ namespace HRUpdate.Process
                             log.Info("Copying objects: " + employeeData.Person.EmployeeID);
                             helper.CopyValues<Employee>(employeeData, gcimsRecord,new string[] { "InitialResult","InitialResultDate","FinalResult","FinalResultDate"});
 
-                            InvestigationCopy(employeeData, gcimsRecord);
+                            
 
                             log.Info("Checking if inactive record: " + employeeData.Person.EmployeeID);
 
@@ -381,6 +384,9 @@ namespace HRUpdate.Process
 
         public override void CompareType(CompareParms parms)
         {
+
+            string[] included = { "FinalResult","InitialResult","FinalResultDate","InitialResultDate"};
+            string[] excluded = { "GCIMSID", "FirstName", "MiddleName", "LastName", "Suffix", "Status" };
             var db = (Employee)parms.Object1;
             var hr = (Employee)parms.Object2;
 
@@ -399,96 +405,110 @@ namespace HRUpdate.Process
                     var dbValue = childSourceProperties[y].GetValue(properties[x].GetValue(db, null), null);
                     var hrValue = childTargetProperties[y].GetValue(properties[x].GetValue(hr, null), null);
 
-                    string t;
-                    if (hrValue != null)
-                        t = hrValue.GetType().ToString();
-                    else
-                        t = null;
-                    switch (t)
+                    if(included.Any(q => q==childSourceProperties[y].Name))
                     {
-                        case "System.String":
-                            {
-                                string targetObj = dbValue as string;
-                                string sourceObj = hrValue as string;
-                                targetObj = targetObj == null ? "" : targetObj;
-                                sourceObj = sourceObj == null ? "" : sourceObj;
-                                if ((!targetObj.ToLower().Trim().Equals(sourceObj.ToLower().Trim())) && !string.IsNullOrWhiteSpace(sourceObj))
-                                {
-                                    Difference difference = new Difference
-                                    {
-                                        PropertyName = childSourceProperties[y].Name,
-                                        Object1Value = dbValue == null ? "" : dbValue.ToString(),
-                                        Object2Value = hrValue == null ? "" : hrValue.ToString()
-                                    };
-                                    parms.Result.Differences.Add(difference);
-                                    
-                                }
-                            }
-                            break;
-                        case "System.DateTime":
-                            {
-                                var targetObj = dbValue as DateTime?;
-                                var sourceObj = hrValue as DateTime?;
-                                if ((!(targetObj == sourceObj)) && (sourceObj == null || !(sourceObj == DateTime.MinValue)))
-                                {
-                                    Difference difference = new Difference
-                                    {
-                                        PropertyName = childSourceProperties[y].Name,
-                                        Object1Value = dbValue == null ? "" : dbValue.ToString(),
-                                        Object2Value = hrValue == null ? "" : hrValue.ToString()
-                                    };
-                                    parms.Result.Differences.Add(difference);
-                                }
-                            }
-                            break;
-                        case "System.Boolean":
-                            {
-                                var targetObj = dbValue as bool?;
-                                var sourceObj = hrValue as bool?;
-                                if (!((bool?)targetObj == (bool?)sourceObj))
-                                {
-                                    Difference difference = new Difference
-                                    {
-                                        PropertyName = childSourceProperties[y].Name,
-                                        Object1Value = dbValue == null ? "" : dbValue.ToString(),
-                                        Object2Value = hrValue == null ? "" : hrValue.ToString()
-                                    };
-                                    parms.Result.Differences.Add(difference);
-                                }
-                            }
-                            break;
-                        case "System.Int64":
-                            {
-                                var targetObj = dbValue as Int64?;
-                                var sourceObj = hrValue as Int64?;
-                                if (!(targetObj == sourceObj) && !(sourceObj == 0))
-                                {
-                                    Difference difference = new Difference
-                                    {
-                                        PropertyName = childSourceProperties[y].Name,
-                                        Object1Value = dbValue == null ? "" : dbValue.ToString(),
-                                        Object2Value = hrValue == null ? "" : hrValue.ToString()
-                                    };
-                                    parms.Result.Differences.Add(difference);
-                                }
-                            }
-                            break;
-                        case null:
-                            //nothing
-                            break;
-                        default:
-                            {
-                                Difference difference = new Difference
-                                {
-                                    PropertyName = childSourceProperties[y].Name,
-                                    Object1Value = dbValue == null ? "" : dbValue.ToString(),
-                                    Object2Value = hrValue == null ? "" : hrValue.ToString()
-                                };
-                                parms.Result.Differences.Add(difference);
-                            }
-                            break;
-
+                        //code for initial/final investigations
                     }
+                    else
+                    {
+                        if (!excluded.Any(z => z == childSourceProperties[y].Name))
+                        {
+                            string t;
+                            if (hrValue != null)
+                                t = hrValue.GetType().ToString();
+                            else
+                                t = null;
+                            switch (t)
+                            {
+                                case "System.String":
+                                    {
+                                        string targetObj = dbValue as string;
+                                        string sourceObj = hrValue as string;
+                                        targetObj = targetObj == null ? "" : targetObj;
+                                        sourceObj = sourceObj == null ? "" : sourceObj;
+                                        if ((!targetObj.ToLower().Trim().Equals(sourceObj.ToLower().Trim())) && !string.IsNullOrWhiteSpace(sourceObj))
+                                        {
+                                            Difference difference = new Difference
+                                            {
+                                                PropertyName = childSourceProperties[y].Name,
+                                                Object1Value = dbValue == null ? "" : dbValue.ToString(),
+                                                Object2Value = hrValue == null ? "" : hrValue.ToString()
+                                            };
+                                            parms.Result.Differences.Add(difference);
+
+                                        }
+                                    }
+                                    break;
+                                case "System.DateTime":
+                                    {
+                                        var targetObj = dbValue as DateTime?;
+                                        var sourceObj = hrValue as DateTime?;
+                                        if (targetObj != sourceObj && (sourceObj == null || sourceObj != DateTime.MinValue))
+                                        {
+                                            Difference difference = new Difference
+                                            {
+                                                PropertyName = childSourceProperties[y].Name,
+                                                Object1Value = dbValue == null ? "" : dbValue.ToString(),
+                                                Object2Value = hrValue == null ? "" : hrValue.ToString()
+                                            };
+                                            parms.Result.Differences.Add(difference);
+                                        }
+                                    }
+                                    break;
+                                case "System.Boolean":
+                                    {
+                                        var targetObj = dbValue as bool?;
+                                        var sourceObj = hrValue as bool?;
+                                        if (targetObj != sourceObj)
+                                        {
+                                            Difference difference = new Difference
+                                            {
+                                                PropertyName = childSourceProperties[y].Name,
+                                                Object1Value = dbValue == null ? "" : dbValue.ToString(),
+                                                Object2Value = hrValue == null ? "" : hrValue.ToString()
+                                            };
+                                            parms.Result.Differences.Add(difference);
+                                        }
+                                    }
+                                    break;
+                                case "System.Int64":
+                                    {
+                                        var targetObj = dbValue as Int64?;
+                                        var sourceObj = hrValue as Int64?;
+                                        if (targetObj != sourceObj && (sourceObj != 0))
+                                        {
+                                            Difference difference = new Difference
+                                            {
+                                                PropertyName = childSourceProperties[y].Name,
+                                                Object1Value = dbValue == null ? "" : dbValue.ToString(),
+                                                Object2Value = hrValue == null ? "" : hrValue.ToString()
+                                            };
+                                            parms.Result.Differences.Add(difference);
+                                        }
+                                    }
+                                    break;
+                                case null:
+                                    //nothing
+                                    break;
+                                default:
+                                    {
+                                        Difference difference = new Difference
+                                        {
+                                            PropertyName = childSourceProperties[y].Name,
+                                            Object1Value = dbValue == null ? "" : dbValue.ToString(),
+                                            Object2Value = hrValue == null ? "" : hrValue.ToString()
+                                        };
+                                        parms.Result.Differences.Add(difference);
+                                    }
+                                    break;
+
+                            }
+                        }
+                    }
+
+                   
+
+                    
                 }
 
             }
