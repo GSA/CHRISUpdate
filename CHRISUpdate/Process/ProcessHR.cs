@@ -311,6 +311,7 @@ namespace HRUpdate.Process
             CompareLogic compareLogic = new CompareLogic();
 
             compareLogic.Config.TreatStringEmptyAndNullTheSame = true;
+            compareLogic.Config.CaseSensitive = false;
 
             compareLogic.Config.MembersToIgnore.Add("Person.GCIMSID");
             compareLogic.Config.MembersToIgnore.Add("Person.FirstName");
