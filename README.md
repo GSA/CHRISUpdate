@@ -10,7 +10,6 @@ Recieves daily CSV file from HRLinks, validates and maps data, inserts acceptibl
 * CsvHelper (https://www.nuget.org/packages/CsvHelper/)
 * FluentValidation (https://www.nuget.org/packages/FluentValidation/)
 * CompareNETObjects (https://www.nuget.org/packages/CompareNETObjects/)
-* libphonenumber-csharp (https://www.nuget.org/packages/libphonenumber-csharp/)
 * log4net (https://www.nuget.org/packages/log4net/)
 * MySQL.Data (https://www.nuget.org/packages/MySql.Data/)
 
