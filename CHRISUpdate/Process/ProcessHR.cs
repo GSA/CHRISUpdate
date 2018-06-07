@@ -223,7 +223,7 @@ namespace HRUpdate.Process
                 emailData.HRInactive = summary.InactiveRecords.Count;
                 emailData.HRRecordsNotFound = summary.RecordsNotFound.Count;
                 emailData.HRFailed = summary.UnsuccessfulUsersProcessed.Count;
-                emailData.HRHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0 ? true : false;
+                emailData.HRHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0;
 
                 //Add log entries
                 log.Info("HR Records Updated: " + String.Format("{0:#,###0}", summary.SuccessfulUsersProcessed.Count));
