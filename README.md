@@ -50,7 +50,6 @@ The repository may contains an app config that points to external config files. 
   <!-- CHRISData.dat -->
   <add key="SEPARATIONFILE" value=""/>
   <!-- SeparationData.dat -->
-  <!--smtp.gsa.gov-->
   <add key="SMTPSERVER" value=""/>
   <add key="EMAILSUBJECT" value =""/>
   <add key="DEFAULTEMAIL" value="" />
