@@ -84,7 +84,7 @@ namespace HRUpdate.Process
                                 EmployeeID = separationData.EmployeeID,
                                 SeparationCode = separationData.SeparationCode,
                                 SeparationDate = separationData.SeparationDate,
-                                Action = separationResults.Item4
+                                Action = separationResults.Item3
                             });
 
                             log.Info("Unsuccessfully Separated Record: " + separationData.EmployeeID);
