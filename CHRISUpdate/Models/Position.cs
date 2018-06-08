@@ -24,6 +24,6 @@ namespace HRUpdate.Models
         public string DutyLocationCounty { get; set; }
         public DateTime? PositionStartDate { get; set; }
         public string AgencyCodeSubelement { get; set; }
-        public Int64 SupervisorEmployeeID { get; set; }
+        public string SupervisorEmployeeID { get; set; }
     }
 }
