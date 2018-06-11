@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace HRUpdate.Utilities
 {
@@ -18,15 +19,16 @@ namespace HRUpdate.Utilities
             where TClass : class
             where TMap : ClassMap<TClass>
         {
-            CsvParser csvParser = new CsvParser(new StreamReader(filePath));
-            CsvReader csvReader = new CsvReader(csvParser);
+            using (StreamReader SR = new StreamReader(filePath, Encoding.UTF7))
+            using (CsvParser csvParser = new CsvParser(SR, true))
+            {
+                CsvReader csvReader = new CsvReader(csvParser);
+                csvReader.Configuration.Delimiter = "~";
+                csvReader.Configuration.HasHeaderRecord = false;
+                csvReader.Configuration.RegisterClassMap<TMap>();
 
-            csvReader.Configuration.Delimiter = "~";
-            csvReader.Configuration.HasHeaderRecord = false;
-
-            csvReader.Configuration.RegisterClassMap<TMap>();
-
-            return csvReader.GetRecords<TClass>().ToList();
+                return csvReader.GetRecords<TClass>().ToList();
+            }
         }
     }
 
