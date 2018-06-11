@@ -168,7 +168,7 @@ namespace HRUpdate.Mapping
             Map(m => m.InitialResultDate).Index(HRConstants.INITIAL_RESULT_FINAL_DATE).TypeConverter<DateConverter>();
             Map(m => m.FinalResult).Index(HRConstants.FINAL_RESULT_OFFER).TypeConverter<InvistigationResultConverter>();
             Map(m => m.FinalResultDate).Index(HRConstants.FINAL_RESULT_DATE).TypeConverter<DateConverter>();
-            Map(m => m.AdjudicatorEmployeeID).Index(HRConstants.ADJUDICATION_EMPLOYEE_ID).Default(0);
+            Map(m => m.AdjudicatorEmployeeID).Index(HRConstants.ADJUDICATION_EMPLOYEE_ID);
         }
     }
 }

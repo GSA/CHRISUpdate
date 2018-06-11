@@ -97,7 +97,6 @@ namespace HRUpdate.Process
                             LastName = employeeData.Person.LastName,
                             Suffix = employeeData.Person.Suffix
                         });
-                        //continue;
                     }
 
                     //If there are critical errors write to the error summary and move to the next record
