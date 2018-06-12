@@ -1,6 +1,5 @@
 <appSettings>
   <add key="DEBUG" value="[TRUE/FALSE]" />
-  <add key="KEY" value="REPLACEME" />
   <add key="HRFILE" value="[path]" />
   <add key="SEPARATIONFILE" value="[path]" />
   <add key="SMTPSERVER" value="" />

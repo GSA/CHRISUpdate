@@ -19,15 +19,17 @@ namespace HRUpdate.Utilities
             where TClass : class
             where TMap : ClassMap<TClass>
         {
-            using (StreamReader SR = new StreamReader(filePath, Encoding.UTF7))
-            using (CsvParser csvParser = new CsvParser(SR, true))
+            using (StreamReader SR = new StreamReader(filePath))
             {
-                CsvReader csvReader = new CsvReader(csvParser);
-                csvReader.Configuration.Delimiter = "~";
-                csvReader.Configuration.HasHeaderRecord = false;
-                csvReader.Configuration.RegisterClassMap<TMap>();
+                using (CsvParser csvParser = new CsvParser(SR, true))
+                {
+                    CsvReader csvReader = new CsvReader(csvParser);
+                    csvReader.Configuration.Delimiter = "~";
+                    csvReader.Configuration.HasHeaderRecord = false;
+                    csvReader.Configuration.RegisterClassMap<TMap>();
 
-                return csvReader.GetRecords<TClass>().ToList();
+                    return csvReader.GetRecords<TClass>().ToList();
+                }
             }
         }
     }
