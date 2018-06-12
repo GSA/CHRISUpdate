@@ -96,7 +96,6 @@ namespace HRUpdate.Process
                             LastName = employeeData.Person.LastName,
                             Suffix = employeeData.Person.Suffix
                         });
-                        //continue;
                     }
 
                     //If there are critical errors write to the error summary and move to the next record
@@ -222,7 +221,7 @@ namespace HRUpdate.Process
                 emailData.HRInactive = summary.InactiveRecords.Count;
                 emailData.HRRecordsNotFound = summary.RecordsNotFound.Count;
                 emailData.HRFailed = summary.UnsuccessfulUsersProcessed.Count;
-                emailData.HRHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0 ? true : false;
+                emailData.HRHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0;
 
                 //Add log entries
                 log.Info("HR Records Updated: " + String.Format("{0:#,###0}", summary.SuccessfulUsersProcessed.Count));
