@@ -109,9 +109,9 @@ namespace HRUpdate.Data
         {
             Lookup lookup = new Lookup();
 
-            //lookup_investigation            
+            //lookup_investigation
             lookup.investigationLookup = lookupMapper.Map<IDataReader, List<InvestigationLookup>>(lookupData);
-            
+
             //lookup_country
             lookupData.NextResult();
             lookup.countryLookup = lookupMapper.Map<IDataReader, List<CountryLookup>>(lookupData);
@@ -123,7 +123,7 @@ namespace HRUpdate.Data
             //lookup_region
             lookupData.NextResult();
             lookup.regionLookup = lookupMapper.Map<IDataReader, List<RegionLookup>>(lookupData);
-            
+
             return lookup;
         }
 

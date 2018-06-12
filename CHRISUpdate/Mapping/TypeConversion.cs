@@ -35,7 +35,7 @@ namespace HRUpdate.Mapping
                     return false;
             }
         }
-    }    
+    }
 
     /// <summary>
     /// If first letter equals O return A, if W return P, otherwise return first letter
@@ -122,10 +122,13 @@ namespace HRUpdate.Mapping
             {
                 case "0":
                     return "CO";
+
                 case "a":
                     return "10";
+
                 case "w":
                     return "NCR";
+
                 default:
                     return text.PadLeft(2, '0');
             }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -30,7 +29,7 @@ namespace HRUpdate.Utilities
             return hashedFullSSN;
         }
 
-        public void CopyValues<T>(T target, T source, params string [] excluded  )
+        public void CopyValues<T>(T target, T source, params string[] excluded)
         {
             if (target == null) return;
             Type t = typeof(T);
@@ -47,7 +46,7 @@ namespace HRUpdate.Utilities
 
                 for (int y = 0; y < childTargetProperties.Count(); y++)
                 {
-                    if(!excluded.Any(a => a==childSourceProperties[y].Name))
+                    if (!excluded.Any(a => a == childSourceProperties[y].Name))
                     {
                         var sourcevalue = childSourceProperties[y].GetValue(properties[x].GetValue(source, null), null);
                         var targetValue = childTargetProperties[y].GetValue(properties[x].GetValue(target, null), null);
@@ -57,7 +56,6 @@ namespace HRUpdate.Utilities
                             childTargetProperties[y].SetValue(properties[x].GetValue(target, null), sourcevalue);
                         }
                     }
-                    
                 }
             }
         }
@@ -77,12 +75,12 @@ namespace HRUpdate.Utilities
                         string sourceObj = source as string;
                         targetObj = targetObj == null ? "" : targetObj;
                         sourceObj = sourceObj == null ? "" : sourceObj;
-                        if( targetObj.ToLower().Trim().Equals(sourceObj.ToLower().Trim()) )
+                        if (targetObj.ToLower().Trim().Equals(sourceObj.ToLower().Trim()))
                         {
                             return true;
                         }
                         return string.IsNullOrEmpty((string)target);
-                    } 
+                    }
                 case "System.DateTime": return (DateTime)target == null || (DateTime)target == DateTime.MinValue;
                 case "System.Boolean": return (bool?)target == null;
                 case "System.Int64": return false;

@@ -19,7 +19,7 @@ namespace HRUpdate.Mapping
                 cfg.CreateMap<Lookup, StateLookup>().ReverseMap();
                 cfg.CreateMap<Lookup, RegionLookup>().ReverseMap();
                 cfg.CreateMap<Lookup, SeparationLookup>().ReverseMap();
-                
+
                 cfg.AddDataReaderMapping();
                 cfg.AllowNullCollections = true;
             });

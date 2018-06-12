@@ -34,12 +34,12 @@
         public const int FINAL_RESULT_OFFER = 29;
         public const int FINAL_RESULT_DATE = 30;
         public const int ADJUDICATION_EMPLOYEE_ID = 31;
-        public const int POSITION_CONTROL_NUMBER = 32;        
+        public const int POSITION_CONTROL_NUMBER = 32;
         public const int SUPERVISORY_STATUS = 34;
         public const int PAY_PLAN = 35;
         public const int JOB_SERIES = 36;
         public const int LEVEL_GRADE = 37;
-        public const int WORK_SCHEDULE = 38;        
+        public const int WORK_SCHEDULE = 38;
         public const int LAW_ENFORCEMENT_OFFICER = 40;
         public const int POSITION_TELEWORK_ELIGIBLE = 41;
         public const int POSITION_SENSITIVITY = 42;
@@ -52,10 +52,12 @@
         public const int AGENCY_CODE_SUBELEMENT = 49;
         public const int SUPERVISOR_EMPLOYEE_ID = 66;
         public const int HOME_ADDRESS_3 = 67;
+
         /// <summary>
         /// Job Title (This is not truncated like Job Title is in the file)
         /// </summary>
         public const int POSITION_TITLE = 68;
+
         public const int POSITION_ORGANIZATION = 69;
         public const int PERSONAL_HOME_PHONE = 70;
         public const int PERSONAL_CELL_PHONE = 71;
@@ -80,7 +82,7 @@
     }
 
     internal static class SeparationConstants
-    {       
+    {
         public const int EMPLOYEE_ID = 0;
         public const int SEPARATION_CODE = 1;
         public const int SEPARATION_DATE = 2;

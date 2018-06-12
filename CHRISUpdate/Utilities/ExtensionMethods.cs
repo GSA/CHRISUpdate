@@ -12,6 +12,6 @@ namespace HRUpdate.Utilities
         public static string RemoveSocialFormatting(this string s)
         {
             return Regex.Replace(s, "[^0-9]", string.Empty);
-        }        
+        }
     }
 }

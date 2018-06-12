@@ -43,7 +43,7 @@ namespace HRUpdate.Validation
             //**********PERSON***********************************************************************************************
             RuleFor(Employee => Employee.Person.EmployeeID)
                 .NotEmpty()
-                .WithMessage($"{{PropertyName}} is required");                
+                .WithMessage($"{{PropertyName}} is required");
 
             RuleFor(Employee => Employee.Person.FirstName)
                 .NotEmpty()
@@ -64,7 +64,7 @@ namespace HRUpdate.Validation
             RuleFor(Employee => Employee.Person.Suffix)
                 .MaximumLength(15)
                 .WithMessage($"{{PropertyName}} length must be 0-15");
-                        
+
             RuleFor(Employee => Employee.Person.SocialSecurityNumber)
                 .NotEmpty()
                 .WithMessage($"{{PropertyName}} is required")
@@ -83,17 +83,17 @@ namespace HRUpdate.Validation
                 RuleFor(Employee => Employee.Person.ServiceComputationDateLeave)
                     .ValidDate();
             });
-            
+
             RuleFor(Employee => Employee.Person.Region)
                 .In(lookups["RegionCodes"])
                 .MaximumLength(3)
-                .WithMessage($"{{PropertyName}} length must be 0-3");            
+                .WithMessage($"{{PropertyName}} length must be 0-3");
 
             RuleFor(Employee => Employee.Person.JobTitle)
                 .MaximumLength(70)
                 .WithMessage($"{{PropertyName}} length must be 0-70");
 
-            RuleFor(Employee => Employee.Person.HomeEmail)                
+            RuleFor(Employee => Employee.Person.HomeEmail)
                 .MaximumLength(64)
                 .WithMessage($"{{PropertyName}}l must be between 0-64");
 
@@ -164,7 +164,7 @@ namespace HRUpdate.Validation
             //******************************Birth***********************************************************************
             Unless(e => string.IsNullOrEmpty(e.Birth.CityOfBirth), () =>
             {
-                RuleFor(Employee => Employee.Birth.CityOfBirth)                
+                RuleFor(Employee => Employee.Birth.CityOfBirth)
                 .MaximumLength(24)
                 .WithMessage($"{{PropertyName}} length must be 0-24");
             });
@@ -177,7 +177,7 @@ namespace HRUpdate.Validation
                     {
                         Unless(e => string.IsNullOrEmpty(e.Birth.StateOfBirth), () =>
                         {
-                            RuleFor(Employee => Employee.Birth.StateOfBirth)                                
+                            RuleFor(Employee => Employee.Birth.StateOfBirth)
                                 .In(lookups["StateCodes"]);
                         });
                     });
@@ -185,19 +185,19 @@ namespace HRUpdate.Validation
 
             Unless(e => string.IsNullOrEmpty(e.Birth.CountryOfBirth), () =>
             {
-                RuleFor(Employee => Employee.Birth.CountryOfBirth)                
+                RuleFor(Employee => Employee.Birth.CountryOfBirth)
                 .In(lookups["CountryCodes"]);
             });
 
             Unless(e => string.IsNullOrEmpty(e.Birth.CountryOfCitizenship), () =>
             {
-                RuleFor(Employee => Employee.Birth.CountryOfCitizenship)                
+                RuleFor(Employee => Employee.Birth.CountryOfCitizenship)
                 .In(lookups["CountryCodes"]);
             });
-                        
+
             Unless(e => e.Birth.DateOfBirth.Equals(null), () =>
             {
-                RuleFor(Employee => Employee.Birth.DateOfBirth)                
+                RuleFor(Employee => Employee.Birth.DateOfBirth)
                 .ValidDate()
                 .WithMessage($"{{PropertyName}} must be valid date");
             });
@@ -342,7 +342,7 @@ namespace HRUpdate.Validation
             RuleFor(Employee => Employee.Position.PositionControlNumber)
                 .MaximumLength(15)
                 .WithMessage($"{{PropertyName}} length must be 0-15");
-            
+
             RuleFor(Employee => Employee.Position.PositionOrganization)
                 .MaximumLength(18)
                 .WithMessage($"{{PropertyName}} length must be between 0-18");
@@ -366,7 +366,7 @@ namespace HRUpdate.Validation
             RuleFor(Employee => Employee.Position.WorkSchedule)
                 .MaximumLength(1)
                 .WithMessage($"{{PropertyName}} must be 0-1");
-                        
+
             RuleFor(Employee => Employee.Position.PositionSensitivity)
                 .MaximumLength(4)
                 .WithMessage($"{{PropertyName}} length must be 0-4");
@@ -398,7 +398,7 @@ namespace HRUpdate.Validation
             RuleFor(Employee => Employee.Position.AgencyCodeSubelement)
                 .MaximumLength(4)
                 .WithMessage($"{{PropertyName}} length must be 0-4");
-                        
+
             #endregion Position
 
             #region Phone

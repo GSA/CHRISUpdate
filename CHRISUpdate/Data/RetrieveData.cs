@@ -25,7 +25,7 @@ namespace HRUpdate.Data
         public List<Employee> AllGCIMSData()
         {
             try
-            {                
+            {
                 MySqlConnection conn = new MySqlConnection(ConfigurationManager.ConnectionStrings["GCIMS"].ToString());
 
                 MySqlCommand cmd = new MySqlCommand();

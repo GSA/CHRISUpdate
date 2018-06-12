@@ -40,7 +40,7 @@ namespace HRUpdate
             timeForApp.Start();
 
             //Log start of application
-            log.Info("Application Started: " + DateTime.Now);            
+            log.Info("Application Started: " + DateTime.Now);
 
             CreateMaps();
 
@@ -93,12 +93,12 @@ namespace HRUpdate
 
             //Stop second timer
             timeForApp.Stop();
-            
+
             //Log total time
             log.Info(string.Format("Application Completed in {0} milliseconds", timeForApp.ElapsedMilliseconds));
 
             //Log application end
-            log.Info("Application Done: " + DateTime.Now);            
+            log.Info("Application Done: " + DateTime.Now);
         }
 
         private static void CreateMaps()

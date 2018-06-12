@@ -8,7 +8,9 @@ namespace HRUpdate.Utilities
 {
     public class EmployeeComparer : BaseTypeComparer
     {
-        public EmployeeComparer(RootComparer rootComparer) : base(rootComparer){}
+        public EmployeeComparer(RootComparer rootComparer) : base(rootComparer)
+        {
+        }
 
         public override bool IsTypeMatch(Type type1, Type type2)
         {
@@ -69,6 +71,7 @@ namespace HRUpdate.Utilities
                                         }
                                     }
                                     break;
+
                                 case "System.DateTime":
                                     {
                                         var targetObj = dbValue as DateTime?;
@@ -85,6 +88,7 @@ namespace HRUpdate.Utilities
                                         }
                                     }
                                     break;
+
                                 case "System.Boolean":
                                     {
                                         var targetObj = dbValue as bool?;
@@ -101,6 +105,7 @@ namespace HRUpdate.Utilities
                                         }
                                     }
                                     break;
+
                                 case "System.Int64":
                                     {
                                         var targetObj = dbValue as Int64?;
@@ -117,9 +122,11 @@ namespace HRUpdate.Utilities
                                         }
                                     }
                                     break;
+
                                 case null:
                                     //nothing
                                     break;
+
                                 default:
                                     {
                                         Difference difference = new Difference

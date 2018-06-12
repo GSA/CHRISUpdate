@@ -34,7 +34,7 @@ namespace HRUpdate.Validation
 
             RuleFor(s => s.EmployeeID)
                 .NotEmpty()
-                .WithMessage($"{{PropertyName}} is required");                
+                .WithMessage($"{{PropertyName}} is required");
             RuleFor(s => s.SeparationCode)
                 .NotEmpty()
                 .WithMessage($"{{PropertyName}} is required")

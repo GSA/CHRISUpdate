@@ -20,7 +20,7 @@ namespace HRUpdate.Process
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly RetrieveData retrieve;
-        
+
         private readonly EMailData emailData;
 
         private enum Hrlinks { Separation = 1, Hrfile = 2 };
@@ -53,13 +53,13 @@ namespace HRUpdate.Process
 
                 HRSummary summary = new HRSummary();
                 FileReader fileReader = new FileReader();
-               
+
                 ValidateHR validate = new ValidateHR();
 
                 Helpers helper = new Helpers();
 
                 SaveData save = new SaveData();
-                
+
                 log.Info("Loading HR Links File");
                 usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile);
 
@@ -72,7 +72,7 @@ namespace HRUpdate.Process
                 foreach (Employee employeeData in usersToProcess)
                 {
                     log.Info("Processing HR User: " + employeeData.Person.EmployeeID);
-                    
+
                     //Looking for matching record.
                     log.Info("Looking for matching record: " + employeeData.Person.EmployeeID);
                     gcimsRecord = RecordFound(employeeData, allGCIMSData);
@@ -103,7 +103,7 @@ namespace HRUpdate.Process
                     if (CheckForErrors(validate, employeeData, summary.UnsuccessfulUsersProcessed))
                         continue;
 
-                    CleanupHRData(employeeData);                    
+                    CleanupHRData(employeeData);
 
                     //If DB Record is not null them check if we need to update record
                     if (gcimsRecord != null)
@@ -130,9 +130,7 @@ namespace HRUpdate.Process
                             }
 
                             log.Info("Copying objects: " + employeeData.Person.EmployeeID);
-                            helper.CopyValues<Employee>(employeeData, gcimsRecord,new string[] { "InitialResult","InitialResultDate","FinalResult","FinalResultDate"});
-
-                            
+                            helper.CopyValues<Employee>(employeeData, gcimsRecord, new string[] { "InitialResult", "InitialResultDate", "FinalResult", "FinalResultDate" });
 
                             log.Info("Checking if inactive record: " + employeeData.Person.EmployeeID);
 
@@ -198,7 +196,7 @@ namespace HRUpdate.Process
                         else
                         {
                             log.Info("HR and GCIMS Data are the same: " + employeeData.Person.EmployeeID);
-                            
+
                             summary.IdenticalRecords.Add(new IdenticalRecordSummary
                             {
                                 GCIMSID = gcimsRecord.Person.GCIMSID,
@@ -244,7 +242,7 @@ namespace HRUpdate.Process
             bool? dbValue = db.Investigation.InitialResult;
             DateTime? dbdate = db.Investigation.InitialResultDate;
 
-            if( hrValue == false || (hrdate==null || hrdate==DateTime.MinValue) )
+            if (hrValue == false || (hrdate == null || hrdate == DateTime.MinValue))
             {
                 hr.Investigation.InitialResult = dbValue;
                 hr.Investigation.InitialResultDate = dbdate;
@@ -254,7 +252,7 @@ namespace HRUpdate.Process
             hrdate = hr.Investigation.FinalResultDate;
             dbValue = db.Investigation.FinalResult;
             dbdate = db.Investigation.FinalResultDate;
-            
+
             if (hrValue == false || (hrdate == null || hrdate == DateTime.MinValue))
             {
                 hr.Investigation.FinalResult = dbValue;
@@ -353,7 +351,7 @@ namespace HRUpdate.Process
                     employeeData.Person.LastName.ToLower().Trim().Equals(w.Person.LastName.ToLower().Trim()) &&
                     employeeData.Person.SocialSecurityNumber.Equals(w.Person.SocialSecurityNumber) &&
                     employeeData.Birth.DateOfBirth.Equals(w.Birth.DateOfBirth)).ToList();
-                
+
                 if (nameMatch.Count == 0 || nameMatch.Count > 1)
                 {
                     log.Info("Match not found by name for user: " + employeeData.Person.EmployeeID);
@@ -368,5 +366,5 @@ namespace HRUpdate.Process
 
             return null;
         }
-    }    
+    }
 }

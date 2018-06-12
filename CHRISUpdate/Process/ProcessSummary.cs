@@ -36,7 +36,7 @@ namespace HRUpdate.Process
         {
             if (SuccessfulUsersProcessed.Count > 0)
             {
-                SuccessfulUsersProcessed = SuccessfulUsersProcessed.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();            
+                SuccessfulUsersProcessed = SuccessfulUsersProcessed.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();
 
                 emailData.HRSuccessfulFilename = SummaryFileGenerator.GenerateSummaryFile<ProcessedSummary, ProcessedSummaryMapping>(ConfigurationManager.AppSettings["SUCCESSSUMMARYFILENAME"].ToString(), SuccessfulUsersProcessed);
                 log.Info("HR Success File: " + emailData.HRSuccessfulFilename);
@@ -81,7 +81,7 @@ namespace HRUpdate.Process
                 emailData.HRRecordsNotFoundFileName = SummaryFileGenerator.GenerateSummaryFile<RecordNotFoundSummary, RecordNotFoundSummaryMapping>(ConfigurationManager.AppSettings["RECORDNOTFOUNDSUMMARYFILENAME"].ToString(), RecordsNotFound);
                 log.Info("HR Name Not Found File: " + emailData.HRInactiveFilename);
             }
-        }           
+        }
     }
 
     internal class HRSeparationSummary
@@ -119,5 +119,5 @@ namespace HRUpdate.Process
                 log.Info("Separation Error File: " + emailData.SeparationErrorFilename);
             }
         }
-    }    
+    }
 }

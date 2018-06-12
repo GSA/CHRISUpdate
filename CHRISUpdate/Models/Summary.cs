@@ -11,7 +11,7 @@ namespace HRUpdate.Models
         public string LastName { get; set; }
         public string Suffix { get; set; }
         public string Status { get; set; }
-        public string Action { get; set; }        
+        public string Action { get; set; }
     }
 
     internal class RecordNotFoundSummary
@@ -21,7 +21,7 @@ namespace HRUpdate.Models
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
-        public string Suffix { get; set; }        
+        public string Suffix { get; set; }
     }
 
     internal class IdenticalRecordSummary
@@ -54,7 +54,7 @@ namespace HRUpdate.Models
         public string MiddleName { get; set; }
         public string LastName { get; set; }
         public string Suffix { get; set; }
-        public string Status { get; set; }      
+        public string Status { get; set; }
     }
 
     internal class SeparationSummary

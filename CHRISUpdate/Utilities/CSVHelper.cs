@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace HRUpdate.Utilities
 {
@@ -51,7 +50,7 @@ namespace HRUpdate.Utilities
                 string summaryFileName;
 
                 summaryFileName = fileName + "_" + DateTime.Now.ToString("yyyyMMddHHmmss_FFFF") + ".csv";
-                
+
                 //Creates the summary file
                 using (CsvWriter csvWriter = new CsvWriter(new StreamWriter(ConfigurationManager.AppSettings["SUMMARYFILEPATH"] + summaryFileName, false)))
                 {
