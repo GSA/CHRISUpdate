@@ -66,7 +66,7 @@ namespace HRUpdate.Process
                 log.Info("Loading GCIMS Data");
                 allGCIMSData = retrieve.AllGCIMSData();
 
-                Tuple<int, string, string> updatedResults;
+                ProcessResult updatedResults;
 
                 //Start Processing the HR Data
                 foreach (Employee employeeData in usersToProcess)
@@ -154,14 +154,19 @@ namespace HRUpdate.Process
 
                             if (Convert.ToBoolean(ConfigurationManager.AppSettings["DEBUG"].ToString()))
                             {
-                                updatedResults = new Tuple<int, string, string>(-1, "Testing", "SQL Error (Testing)");
+                                updatedResults = new ProcessResult
+                                {
+                                    Result = -1,
+                                    Action = "Testing",
+                                    Error = "SQL Error (Testing)"
+                                };
                             }
                             else
                             {
                                 updatedResults = save.UpdatePersonInformation(gcimsRecord.Person.GCIMSID, employeeData);
                             }
 
-                            if (updatedResults.Item1 > 0)
+                            if (updatedResults.Result > 0)
                             {
                                 summary.SuccessfulUsersProcessed.Add(new ProcessedSummary
                                 {
@@ -171,7 +176,7 @@ namespace HRUpdate.Process
                                     MiddleName = employeeData.Person.MiddleName,
                                     LastName = employeeData.Person.LastName,
                                     Suffix = employeeData.Person.Suffix,
-                                    Action = updatedResults.Item2
+                                    Action = updatedResults.Action
                                 });
 
                                 log.Info("Successfully Updated Record: " + employeeData.Person.EmployeeID);
@@ -187,7 +192,7 @@ namespace HRUpdate.Process
                                     LastName = employeeData.Person.LastName,
                                     Suffix = employeeData.Person.Suffix,
                                     Status = employeeData.Person.Status,
-                                    Action = updatedResults.Item3
+                                    Action = updatedResults.Error
                                 });
 
                                 log.Error("Unable to update: " + employeeData.Person.EmployeeID);

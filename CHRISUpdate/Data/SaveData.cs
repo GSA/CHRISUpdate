@@ -66,7 +66,7 @@ namespace HRUpdate.Data
         /// <param name="saveData"></param>
         /// <returns></returns>
         /// Change to person data
-        public Tuple<int, string, string> UpdatePersonInformation(Int64 persID, Employee hrData)
+        public ProcessResult UpdatePersonInformation(Int64 persID, Employee hrData)
         {
             Helpers helper = new Helpers();
 
@@ -166,7 +166,12 @@ namespace HRUpdate.Data
 
                         cmd.ExecuteNonQuery();
 
-                        return new Tuple<int, string, string>((int)cmd.Parameters["result"].Value, cmd.Parameters["actionMsg"].Value.ToString(), cmd.Parameters["SQLExceptionWarning"].Value.ToString());
+                        return new ProcessResult
+                        {
+                            Result = (int)cmd.Parameters["result"].Value,
+                            Action = cmd.Parameters["actionMsg"].Value.ToString(),
+                            Error = cmd.Parameters["SQLExceptionWarning"].Value.ToString()
+                        };
                     }
                 }
             }
@@ -174,7 +179,12 @@ namespace HRUpdate.Data
             catch (Exception ex)
             {
                 log.Error("Updating GCIMS Record: " + ex.Message + " - " + ex.InnerException);
-                return new Tuple<int, string, string>(-1, "-1", ex.Message.ToString());
+                return new ProcessResult
+                {
+                    Result = -1,
+                    Action = "-1",
+                    Error = ex.Message.ToString()
+                };                   
             }
         }
 
