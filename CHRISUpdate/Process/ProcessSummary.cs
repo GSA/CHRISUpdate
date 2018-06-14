@@ -115,7 +115,7 @@ namespace HRUpdate.Process
             {
                 UnsuccessfulUsersProcessed = UnsuccessfulUsersProcessed.OrderBy(o => o.EmployeeID).ToList();
 
-                emailData.SeparationErrorFilename = SummaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), UnsuccessfulUsersProcessed);
+                emailData.SeparationErrorFilename = SummaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationErrorMapping>(ConfigurationManager.AppSettings["SEPARATIONERRORSUMMARYFILENAME"].ToString(), UnsuccessfulUsersProcessed);
                 log.Info("Separation Error File: " + emailData.SeparationErrorFilename);
             }
         }

@@ -183,7 +183,7 @@ namespace HRUpdate.Data
         /// </summary>
         /// <param name="separationData"></param>
         /// <returns></returns>
-        public Tuple<int, int, string, string> SeparateUser(Separation separationData)
+        public SeparationResult SeparateUser(Separation separationData)
         {
             try
             {
@@ -206,22 +206,44 @@ namespace HRUpdate.Data
                             new MySqlParameter { ParameterName = "separationDate", Value = separationData.SeparationDate, MySqlDbType = MySqlDbType.Date},
                             new MySqlParameter { ParameterName = "persID", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
                             new MySqlParameter { ParameterName = "result", MySqlDbType = MySqlDbType.Int32, Direction = ParameterDirection.Output},
+                            new MySqlParameter { ParameterName = "firstName", MySqlDbType = MySqlDbType.VarChar, Size=60, Direction=ParameterDirection.Output },
+                            new MySqlParameter { ParameterName = "middleName", MySqlDbType = MySqlDbType.VarChar, Size=60, Direction=ParameterDirection.Output },
+                            new MySqlParameter { ParameterName = "lastName", MySqlDbType = MySqlDbType.VarChar, Size=60, Direction=ParameterDirection.Output },
+                            new MySqlParameter { ParameterName = "suffix", MySqlDbType = MySqlDbType.VarChar, Size=15, Direction=ParameterDirection.Output },
                             new MySqlParameter { ParameterName = "actionMsg", MySqlDbType = MySqlDbType.VarChar, Size = 50, Direction = ParameterDirection.Output },
                             new MySqlParameter { ParameterName = "SQLExceptionWarning", MySqlDbType=MySqlDbType.VarChar, Size=4000, Direction = ParameterDirection.Output },
+                            
                         };
 
                         cmd.Parameters.AddRange(employeeParameters);
 
                         cmd.ExecuteNonQuery();
 
-                        return new Tuple<int, int, string, string>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["actionMsg"].Value.ToString(), cmd.Parameters["SQLExceptionWarning"].Value.ToString());
+                        //persid, result, action, sqlerror, firstname, middlename, lastname, suffix
+                        return new SeparationResult
+                        {
+                            GCIMSID = (int)cmd.Parameters["persID"].Value,
+                            Result = (int)cmd.Parameters["result"].Value,
+                            Action = cmd.Parameters["actionMsg"].Value.ToString(),
+                            SqlError = cmd.Parameters["SQLExceptionWarning"].Value.ToString(),
+                            FirstName = cmd.Parameters["firstName"].Value.ToString(),
+                            MiddleName = cmd.Parameters["middleName"].Value.ToString(),
+                            LastName = cmd.Parameters["lastName"].Value.ToString(),
+                            Suffix = cmd.Parameters["suffix"].Value.ToString()
+                        };        
                     }
                 }
             }
             catch (Exception ex)
             {
                 log.Error("SaveSeparationInformation: " + separationData.EmployeeID + " - " + ex.Message + " - " + ex.InnerException);
-                return new Tuple<int, int, string, string>(-1, -1, "Unknown Error", "Unknown SQL Exception Warning");
+                return new SeparationResult
+                {
+                    GCIMSID = -1,
+                    Result = -1,
+                    Action = "Unknown Error",
+                    SqlError = "Unknown SQL Exception Warning"
+                };
             }
         }
     }
