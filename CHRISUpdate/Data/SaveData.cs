@@ -183,7 +183,7 @@ namespace HRUpdate.Data
         /// </summary>
         /// <param name="separationData"></param>
         /// <returns></returns>
-        public Tuple<int, int, string, string, string, string, string, Tuple<string>> SeparateUser(Separation separationData)
+        public SeparationResult SeparateUser(Separation separationData)
         {
             try
             {
@@ -220,14 +220,30 @@ namespace HRUpdate.Data
                         cmd.ExecuteNonQuery();
 
                         //persid, result, action, sqlerror, firstname, middlename, lastname, suffix
-                        return new Tuple<int, int, string, string, string, string, string, Tuple<string>>((int)cmd.Parameters["persID"].Value, (int)cmd.Parameters["result"].Value, cmd.Parameters["actionMsg"].Value.ToString(), cmd.Parameters["SQLExceptionWarning"].Value.ToString(), cmd.Parameters["firstName"].Value.ToString(), cmd.Parameters["middleName"].Value.ToString(), cmd.Parameters["lastName"].Value.ToString(), new Tuple<string>(cmd.Parameters["suffix"].Value.ToString()));
+                        return new SeparationResult
+                        {
+                            GCIMSID = (int)cmd.Parameters["persID"].Value,
+                            Result = (int)cmd.Parameters["result"].Value,
+                            Action = cmd.Parameters["actionMsg"].Value.ToString(),
+                            SqlError = cmd.Parameters["SQLExceptionWarning"].Value.ToString(),
+                            FirstName = cmd.Parameters["firstName"].Value.ToString(),
+                            MiddleName = cmd.Parameters["middleName"].Value.ToString(),
+                            LastName = cmd.Parameters["lastName"].Value.ToString(),
+                            Suffix = cmd.Parameters["suffix"].Value.ToString()
+                        };        
                     }
                 }
             }
             catch (Exception ex)
             {
                 log.Error("SaveSeparationInformation: " + separationData.EmployeeID + " - " + ex.Message + " - " + ex.InnerException);
-                return new Tuple<int, int, string, string, string, string, string, Tuple<string>>(-1, -1, "Unknown Error", "Unknown SQL Exception Warning","","","",new Tuple<string>(""));
+                return new SeparationResult
+                {
+                    GCIMSID = -1,
+                    Result = -1,
+                    Action = "Unknown Error",
+                    SqlError = "Unknown SQL Exception Warning"
+                };
             }
         }
     }

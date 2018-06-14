@@ -142,6 +142,7 @@
     <Compile Include="Models\Position.cs" />
     <Compile Include="Lookups\RegionLookup.cs" />
     <Compile Include="Models\Separation.cs" />
+    <Compile Include="Models\SeparationResult.cs" />
     <Compile Include="Models\Summary.cs" />
     <Compile Include="Process\ProcessSummary.cs" />
     <Compile Include="Data\LoadLookupData.cs" />
