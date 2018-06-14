@@ -41,7 +41,7 @@ namespace HRUpdate.Process
                 ValidateSeparation validate = new ValidateSeparation();
                 ValidationResult errors;
 
-                Tuple<int, int, string, string> separationResults;
+                Tuple<int, int, string, string, string, string, string, Tuple<string>> separationResults;
 
                 separationUsersToProcess = fileReader.GetFileData<Separation, SeparationMapping>(SEPFile);
 
@@ -54,7 +54,7 @@ namespace HRUpdate.Process
                     {
                         if (Convert.ToBoolean(ConfigurationManager.AppSettings["DEBUG"].ToString()))
                         {
-                            separationResults = new Tuple<int, int, string, string>(-1, -1, "Testing", "SQL Error (Testing)");
+                            separationResults = new Tuple<int, int, string, string, string, string, string, Tuple<string>>(-1, -1, "Testing", "SQL Error (Testing)","","","",new Tuple<string>(""));
                         }
                         else
                         {
@@ -69,6 +69,10 @@ namespace HRUpdate.Process
                             {
                                 GCIMSID = separationResults.Item1,
                                 EmployeeID = separationData.EmployeeID,
+                                FirstName = separationResults.Item5,
+                                MiddleName = separationResults.Item6,
+                                LastName = separationResults.Item7,
+                                Suffix = separationResults.Rest.Item1,
                                 SeparationCode = separationData.SeparationCode,
                                 SeparationDate = separationData.SeparationDate,
                                 Action = separationResults.Item3
@@ -109,7 +113,7 @@ namespace HRUpdate.Process
                 emailData.SEPAttempted = separationUsersToProcess.Count;
                 emailData.SEPSucceeded = summary.SuccessfulUsersProcessed.Count;
                 emailData.SEPFailed = summary.UnsuccessfulUsersProcessed.Count;
-                emailData.SEPHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0 ? true : false;
+                emailData.SEPHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0;
 
                 log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", summary.SuccessfulUsersProcessed.Count));
                 log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", summary.UnsuccessfulUsersProcessed.Count));
