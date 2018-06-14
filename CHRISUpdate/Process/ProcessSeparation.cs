@@ -41,7 +41,7 @@ namespace HRUpdate.Process
                 ValidateSeparation validate = new ValidateSeparation();
                 ValidationResult errors;
 
-                Tuple<int, int, string, string> separationResults;
+                SeparationResult separationResults;
 
                 separationUsersToProcess = fileReader.GetFileData<Separation, SeparationMapping>(SEPFile);
 
@@ -54,37 +54,47 @@ namespace HRUpdate.Process
                     {
                         if (Convert.ToBoolean(ConfigurationManager.AppSettings["DEBUG"].ToString()))
                         {
-                            separationResults = new Tuple<int, int, string, string>(-1, -1, "Testing", "SQL Error (Testing)");
+                            separationResults = new SeparationResult
+                            {
+                                GCIMSID = -1,
+                                Result = -1,
+                                Action = "Testing",
+                                SqlError = "SQL Error (Testing)"
+                            };
                         }
                         else
                         {
                             separationResults = save.SeparateUser(separationData);
                         }
 
-                        if (separationResults.Item1 > 0)
+                        if (separationResults.GCIMSID > 0)
                         {
-                            log.Info("Separating User: " + separationResults.Item1);
+                            log.Info("Separating User: " + separationResults.GCIMSID);
 
                             summary.SuccessfulUsersProcessed.Add(new SeparationSummary
                             {
-                                GCIMSID = separationResults.Item1,
+                                GCIMSID = separationResults.GCIMSID,
                                 EmployeeID = separationData.EmployeeID,
+                                FirstName = separationResults.FirstName,
+                                MiddleName = separationResults.MiddleName,
+                                LastName = separationResults.LastName,
+                                Suffix = separationResults.Suffix,
                                 SeparationCode = separationData.SeparationCode,
                                 SeparationDate = separationData.SeparationDate,
-                                Action = separationResults.Item3
+                                Action = separationResults.Action
                             });
 
-                            log.Info("Successfully Separated Record: " + separationResults.Item1);
+                            log.Info("Successfully Separated Record: " + separationResults.GCIMSID);
                         }
                         else
                         {
                             summary.UnsuccessfulUsersProcessed.Add(new SeparationSummary
                             {
-                                GCIMSID = separationResults.Item1,
+                                GCIMSID = separationResults.GCIMSID,
                                 EmployeeID = separationData.EmployeeID,
                                 SeparationCode = separationData.SeparationCode,
                                 SeparationDate = separationData.SeparationDate,
-                                Action = separationResults.Item3 + " " + separationResults.Item4
+                                Action = separationResults.Action + " " + separationResults.SqlError
                             });
 
                             log.Info("Unsuccessfully Separated Record: " + separationData.EmployeeID);
@@ -109,7 +119,7 @@ namespace HRUpdate.Process
                 emailData.SEPAttempted = separationUsersToProcess.Count;
                 emailData.SEPSucceeded = summary.SuccessfulUsersProcessed.Count;
                 emailData.SEPFailed = summary.UnsuccessfulUsersProcessed.Count;
-                emailData.SEPHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0 ? true : false;
+                emailData.SEPHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0;
 
                 log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", summary.SuccessfulUsersProcessed.Count));
                 log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", summary.UnsuccessfulUsersProcessed.Count));
