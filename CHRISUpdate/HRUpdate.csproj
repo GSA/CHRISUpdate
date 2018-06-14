@@ -141,6 +141,7 @@
     <Compile Include="Models\Phone.cs" />
     <Compile Include="Models\Position.cs" />
     <Compile Include="Lookups\RegionLookup.cs" />
+    <Compile Include="Models\ProcessResult.cs" />
     <Compile Include="Models\Separation.cs" />
     <Compile Include="Models\Summary.cs" />
     <Compile Include="Process\ProcessSummary.cs" />
