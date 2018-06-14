@@ -129,12 +129,9 @@ namespace HRUpdate.Data
 
         private Lookup MapSeparationLookupData(MySqlDataReader lookupData)
         {
-            Lookup lookup = new Lookup();
-
-            while (lookupData.Read())
-            {
-                lookup.separationLookup = lookupMapper.Map<IDataReader, List<SeparationLookup>>(lookupData);
-            }
+            Lookup lookup = new Lookup();         
+          
+            lookup.separationLookup = lookupMapper.Map<IDataReader, List<SeparationLookup>>(lookupData);
 
             return lookup;
         }
