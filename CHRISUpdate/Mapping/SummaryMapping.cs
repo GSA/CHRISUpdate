@@ -88,4 +88,16 @@ namespace HRUpdate.Mapping
             Map(m => m.Action).Name("Action");
         }
     }
+
+    internal sealed class SeperationErrorMapping : ClassMap<SeparationSummary>
+    {
+        public SeperationErrorMapping()
+        {
+            Map(m => m.GCIMSID).Name("GCIMS ID");
+            Map(m => m.EmployeeID).Name("Employee ID");            
+            Map(m => m.SeparationCode).Name("Separation Code");
+            Map(m => m.SeparationDate).Name("Separation Date");
+            Map(m => m.Action).Name("Action");
+        }
+    }
 }
