@@ -157,47 +157,47 @@ namespace HRUpdate.Mapping
         }
     }
 
-    internal sealed class StateCodeConverter : StringConverter
-    {
-        private readonly List<StateLookup> stateLookup;
+    //internal sealed class StateCodeConverter : StringConverter
+    //{
+    //    private readonly List<StateLookup> stateLookup;
 
-        public StateCodeConverter(List<StateLookup> stateLookup)
-        {
-            this.stateLookup = stateLookup;
-        }
+    //    public StateCodeConverter(List<StateLookup> stateLookup)
+    //    {
+    //        this.stateLookup = stateLookup;
+    //    }
 
-        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
-        {
-            string state = string.Empty;
+    //    public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+    //    {
+    //        string state = string.Empty;
 
-            state = stateLookup.Where(w => w.Code == text).Select(s => s.Code).SingleOrDefault();
+    //        state = stateLookup.Where(w => w.Code == text).Select(s => s.Code).SingleOrDefault();
 
-            if (string.IsNullOrEmpty(state))
-                return text;
+    //        if (string.IsNullOrEmpty(state))
+    //            return text;
 
-            return state;
-        }
-    }
+    //        return state;
+    //    }
+    //}
 
-    internal sealed class CountryCodeConverter : StringConverter
-    {
-        private readonly List<CountryLookup> countryLookup;
+    //internal sealed class CountryCodeConverter : StringConverter
+    //{
+    //    private readonly List<CountryLookup> countryLookup;
 
-        public CountryCodeConverter(List<CountryLookup> countryLookup)
-        {
-            this.countryLookup = countryLookup;
-        }
+    //    public CountryCodeConverter(List<CountryLookup> countryLookup)
+    //    {
+    //        this.countryLookup = countryLookup;
+    //    }
 
-        public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
-        {
-            string country = string.Empty;
+    //    public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+    //    {
+    //        string country = string.Empty;
 
-            country = countryLookup.Where(w => w.Code == text).Select(s => s.Code).SingleOrDefault();
+    //        country = countryLookup.Where(w => w.Code == text).Select(s => s.Code).SingleOrDefault();
 
-            if (string.IsNullOrEmpty(country))
-                return text;
+    //        if (string.IsNullOrEmpty(country))
+    //            return text;
 
-            return country;
-        }
-    }
+    //        return country;
+    //    }
+    //}
 }
