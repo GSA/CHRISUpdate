@@ -1,4 +1,3 @@
 <connectionStrings>
     <add name="GCIMS" connectionString="Server=[IP Address]; Port=[port]; user id=[username]; password=[password];persist security info=True;database=hspd; pooling=true;" providerName="MySql.Data.MySqlClient" />
-    <add name="HR" connectionString="Server=[IP Address]; Port=[port]; user id=[username]; password=[password];persist security info=True;database=employees; pooling=true;" providerName="MySql.Data.MySqlClient" />
 </connectionStrings>
