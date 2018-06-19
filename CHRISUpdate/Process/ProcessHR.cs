@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation.Results;
 using HRUpdate.Data;
+using HRUpdate.Lookups;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Utilities;
@@ -25,10 +26,14 @@ namespace HRUpdate.Process
 
         private enum Hrlinks { Separation = 1, Hrfile = 2 };
 
+        readonly Lookup lookups;
+
         //Constructor
-        public ProcessHR(IMapper dataMapper, ref EMailData emailData)
+        public ProcessHR(IMapper dataMapper, ref EMailData emailData, Lookup lookups)
         {
             retrieve = new RetrieveData(dataMapper);
+
+            this.lookups = lookups;
 
             this.emailData = emailData;
         }
@@ -54,14 +59,15 @@ namespace HRUpdate.Process
                 HRSummary summary = new HRSummary();
                 FileReader fileReader = new FileReader();
 
-                ValidateHR validate = new ValidateHR();
+                ValidateHR validate = new ValidateHR(lookups);
 
                 Helpers helper = new Helpers();
 
                 SaveData save = new SaveData();
 
                 log.Info("Loading HR Links File");
-                usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile);
+                EmployeeMapping em = new EmployeeMapping(lookups);
+                usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile,em);
 
                 log.Info("Loading GCIMS Data");
                 allGCIMSData = retrieve.AllGCIMSData();
@@ -98,6 +104,11 @@ namespace HRUpdate.Process
                         });
                     }
 
+                    if(lookups.stateLookup.Where(type => type.Type=="T").Select(col => col.Code).ToList().Contains(employeeData.Birth.CountryOfBirth))
+                    {
+                        employeeData.Birth.StateOfBirth = employeeData.Birth.CountryOfBirth;
+                        employeeData.Birth.CountryOfBirth = "US";
+                    }
                     //If there are critical errors write to the error summary and move to the next record
                     log.Info("Checking for Critical errors for user: " + employeeData.Person.EmployeeID);
                     if (CheckForErrors(validate, employeeData, summary.UnsuccessfulUsersProcessed))

@@ -1,5 +1,6 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using HRUpdate.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -12,9 +13,9 @@ namespace HRUpdate.Utilities
     {
         public FileReader()
         {
-        }
+        }        
 
-        public List<TClass> GetFileData<TClass, TMap>(string filePath)
+        public List<TClass> GetFileData<TClass, TMap>(string filePath, ClassMap<Employee> employeeMap=null)
             where TClass : class
             where TMap : ClassMap<TClass>
         {
@@ -25,7 +26,15 @@ namespace HRUpdate.Utilities
                     CsvReader csvReader = new CsvReader(csvParser);
                     csvReader.Configuration.Delimiter = "~";
                     csvReader.Configuration.HasHeaderRecord = false;
-                    csvReader.Configuration.RegisterClassMap<TMap>();
+                    if(employeeMap != null)
+                    {
+                        csvReader.Configuration.RegisterClassMap(employeeMap);
+                    }
+                    else
+                    {
+                        csvReader.Configuration.RegisterClassMap<TMap>();
+                    }
+                    
 
                     return csvReader.GetRecords<TClass>().ToList();
                 }
