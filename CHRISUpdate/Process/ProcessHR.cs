@@ -20,6 +20,8 @@ namespace HRUpdate.Process
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private static readonly string [] TerritoriesNotCountriesArray = new string[] { "rq", "gq", "vq", "aq" };
+
         private readonly RetrieveData retrieve;
 
         private readonly EMailData emailData;
@@ -104,9 +106,21 @@ namespace HRUpdate.Process
                         });
                     }
 
-                    if(lookups.stateLookup.Where(type => type.Type=="T").Select(col => col.Code).ToList().Contains(employeeData.Birth.CountryOfBirth))
+                    if (TerritoriesNotCountriesArray.Contains(employeeData.Birth.CountryOfBirth.ToLower()) && string.IsNullOrWhiteSpace(employeeData.Birth.StateOfBirth))
                     {
-                        employeeData.Birth.StateOfBirth = employeeData.Birth.CountryOfBirth;
+                        switch (employeeData.Birth.CountryOfBirth.ToLower())
+                        {
+                            case "rq": { employeeData.Birth.StateOfBirth = "PR"; }
+                                break;
+                            case "gq": { employeeData.Birth.StateOfBirth = "GU"; }
+                                break;
+                            case "vq": { employeeData.Birth.StateOfBirth = "VI"; }
+                                break;
+                            case "aq": { employeeData.Birth.StateOfBirth = "AS"; }
+                                break;
+                            default:   { employeeData.Birth.StateOfBirth = ""; }
+                                break;
+                        }
                         employeeData.Birth.CountryOfBirth = "US";
                     }
                     //If there are critical errors write to the error summary and move to the next record
