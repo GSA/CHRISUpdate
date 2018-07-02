@@ -12,12 +12,9 @@ namespace HRUpdate.Validation
     internal class ValidateHR
     {
         private readonly Dictionary<string, string[]> lookups = new Dictionary<string, string[]>();
-        private readonly HRMapper map = new HRMapper();
 
-        public ValidateHR()
+        public ValidateHR(Lookup lookup)
         {
-            map.CreateLookupConfig();
-            Lookup lookup = new LoadLookupData(map.CreateLookupMapping()).GetEmployeeLookupData();
             lookups.Add("InvestigationTypes", lookup.investigationLookup.Select(e => e.Tier).ToArray());
             lookups.Add("StateCodes", lookup.stateLookup.Select(s => s.Code).ToArray());
             lookups.Add("CountryCodes", lookup.countryLookup.Select(c => c.Code).ToArray());
