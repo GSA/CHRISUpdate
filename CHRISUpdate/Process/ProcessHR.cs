@@ -342,7 +342,7 @@ namespace HRUpdate.Process
 
             compareLogic.Config.TreatStringEmptyAndNullTheSame = true;
             compareLogic.Config.CaseSensitive = false;
-
+            compareLogic.Config.MaxDifferences = 100;
             compareLogic.Config.CustomComparers.Add(new EmployeeComparer(RootComparerFactory.GetRootComparer()));
 
             compareLogic.Config.MembersToIgnore.Add("Person.GCIMSID");
@@ -354,6 +354,10 @@ namespace HRUpdate.Process
 
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
+            string[] diffs = result.Differences.Select(a => a.PropertyName).ToArray();
+            string propertynamelist = string.Join(",", diffs);
+            
+            log.Info(string.Format("Property differences include: {0}", propertynamelist));
             return result.AreEqual;
         }
 
