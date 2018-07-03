@@ -320,6 +320,12 @@ namespace HRUpdate.Process
 
         private void CleanupHRData(Employee employeeData)
         {
+            Helpers helper = new Helpers();
+
+            //Address clean up
+            helper.cleanAddress(employeeData.Address);
+
+            //Phone clean up
             employeeData.Phone.WorkFax = employeeData.Phone.WorkFax.RemovePhoneFormatting();
             employeeData.Phone.WorkCell = employeeData.Phone.WorkCell.RemovePhoneFormatting();
             employeeData.Phone.WorkPhone = employeeData.Phone.WorkPhone.RemovePhoneFormatting();
@@ -327,10 +333,10 @@ namespace HRUpdate.Process
             employeeData.Phone.HomeCell = employeeData.Phone.HomeCell.RemovePhoneFormatting();
             employeeData.Phone.HomePhone = employeeData.Phone.HomePhone.RemovePhoneFormatting();
 
+            //Emergency contact clean up
             employeeData.Emergency.EmergencyContactHomePhone = employeeData.Emergency.EmergencyContactHomePhone.RemovePhoneFormatting();
             employeeData.Emergency.EmergencyContactWorkPhone = employeeData.Emergency.EmergencyContactWorkPhone.RemovePhoneFormatting();
             employeeData.Emergency.EmergencyContactCellPhone = employeeData.Emergency.EmergencyContactCellPhone.RemovePhoneFormatting();
-
             employeeData.Emergency.OutOfAreaContactHomePhone = employeeData.Emergency.OutOfAreaContactHomePhone.RemovePhoneFormatting();
             employeeData.Emergency.OutOfAreaContactWorkPhone = employeeData.Emergency.OutOfAreaContactWorkPhone.RemovePhoneFormatting();
             employeeData.Emergency.OutOfAreaContactCellPhone = employeeData.Emergency.OutOfAreaContactCellPhone.RemovePhoneFormatting();
