@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation.Results;
 using HRUpdate.Data;
+using HRUpdate.Lookups;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Utilities;
@@ -19,16 +20,22 @@ namespace HRUpdate.Process
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private static readonly string [] TerritoriesNotCountriesArray = new string[] { "rq", "gq", "vq", "aq" };
+
         private readonly RetrieveData retrieve;
 
         private readonly EMailData emailData;
 
         private enum Hrlinks { Separation = 1, Hrfile = 2 };
 
+        readonly Lookup lookups;
+
         //Constructor
-        public ProcessHR(IMapper dataMapper, ref EMailData emailData)
+        public ProcessHR(IMapper dataMapper, ref EMailData emailData, Lookup lookups)
         {
             retrieve = new RetrieveData(dataMapper);
+
+            this.lookups = lookups;
 
             this.emailData = emailData;
         }
@@ -54,14 +61,15 @@ namespace HRUpdate.Process
                 HRSummary summary = new HRSummary();
                 FileReader fileReader = new FileReader();
 
-                ValidateHR validate = new ValidateHR();
+                ValidateHR validate = new ValidateHR(lookups);
 
                 Helpers helper = new Helpers();
 
                 SaveData save = new SaveData();
 
                 log.Info("Loading HR Links File");
-                usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile);
+                EmployeeMapping em = new EmployeeMapping(lookups);
+                usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile,em);
 
                 log.Info("Loading GCIMS Data");
                 allGCIMSData = retrieve.AllGCIMSData();
@@ -98,6 +106,23 @@ namespace HRUpdate.Process
                         });
                     }
 
+                    if (TerritoriesNotCountriesArray.Contains(employeeData.Birth.CountryOfBirth.ToLower()) && string.IsNullOrWhiteSpace(employeeData.Birth.StateOfBirth))
+                    {
+                        switch (employeeData.Birth.CountryOfBirth.ToLower())
+                        {
+                            case "rq": { employeeData.Birth.StateOfBirth = "PR"; }
+                                break;
+                            case "gq": { employeeData.Birth.StateOfBirth = "GU"; }
+                                break;
+                            case "vq": { employeeData.Birth.StateOfBirth = "VI"; }
+                                break;
+                            case "aq": { employeeData.Birth.StateOfBirth = "AS"; }
+                                break;
+                            default:   { employeeData.Birth.StateOfBirth = ""; }
+                                break;
+                        }
+                        employeeData.Birth.CountryOfBirth = "US";
+                    }
                     //If there are critical errors write to the error summary and move to the next record
                     log.Info("Checking for Critical errors for user: " + employeeData.Person.EmployeeID);
                     if (CheckForErrors(validate, employeeData, summary.UnsuccessfulUsersProcessed))

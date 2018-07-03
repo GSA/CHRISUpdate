@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using HRUpdate.Data;
+using HRUpdate.Lookups;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Process;
@@ -44,7 +46,9 @@ namespace HRUpdate
 
             CreateMaps();
 
-            ProcessHR processHR = new ProcessHR(dataMapper, ref emailData);
+            Lookup lookups = createLookups();
+
+            ProcessHR processHR = new ProcessHR(dataMapper, ref emailData, lookups);
             ProcessSeparation processSeparation = new ProcessSeparation(ref emailData);
             SendSummary sendSummary = new SendSummary(ref emailData);
 
@@ -105,6 +109,23 @@ namespace HRUpdate
         {
             map.CreateDataConfig();
             dataMapper = map.CreateDataMapping();
+        }
+
+        private static Lookup createLookups()
+        {
+            Lookup lookups;
+            HRMapper hrmap = new HRMapper();
+            IMapper lookupMapper;
+
+            hrmap.CreateLookupConfig();
+
+            lookupMapper = hrmap.CreateLookupMapping();
+
+            LoadLookupData loadLookupData = new LoadLookupData(lookupMapper);
+
+            lookups = loadLookupData.GetEmployeeLookupData();
+
+            return lookups;
         }
     }
 }

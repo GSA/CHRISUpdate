@@ -9,20 +9,8 @@ namespace HRUpdate.Mapping
 {
     public sealed class EmployeeMapping : ClassMap<Employee>
     {
-        public EmployeeMapping()
+        public EmployeeMapping(Lookup lookups)
         {
-            Lookup lookups;
-            HRMapper map = new HRMapper();
-            IMapper lookupMapper;
-
-            map.CreateLookupConfig();
-
-            lookupMapper = map.CreateLookupMapping();
-
-            LoadLookupData loadLookupData = new LoadLookupData(lookupMapper);
-
-            lookups = loadLookupData.GetEmployeeLookupData();
-
             References<PersonMap>(r => r.Person);
             References<AddressMap>(r => r.Address);
             References<BuildingMap>(r => r.Building);
