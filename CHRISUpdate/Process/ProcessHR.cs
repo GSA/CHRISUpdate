@@ -362,8 +362,12 @@ namespace HRUpdate.Process
 
             string[] diffs = result.Differences.Select(a => a.PropertyName).ToArray();
             string propertynamelist = string.Join(",", diffs);
-            
-            log.Info(string.Format("Property differences include: {0}", propertynamelist));
+
+            if (diffs != null && diffs.Length > 0)
+            {
+                log.Info(string.Format("Property differences include: {0}", propertynamelist));
+            }
+
             return result.AreEqual;
         }
 
