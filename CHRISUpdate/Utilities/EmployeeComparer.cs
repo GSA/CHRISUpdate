@@ -20,7 +20,7 @@ namespace HRUpdate.Utilities
         public override void CompareType(CompareParms parms)
         {
             string[] included = { "FinalResult", "InitialResult", "FinalResultDate", "InitialResultDate" };
-            string[] excluded = { "GCIMSID", "FirstName", "MiddleName", "LastName", "Suffix", "Status" };
+            string[] excluded = { "GCIMSID", "FirstName", "MiddleName", "LastName", "Suffix", "Status", "SocialSecurityNumber" };
             var db = (Employee)parms.Object1;
             var hr = (Employee)parms.Object2;
             var properties = typeof(Employee).GetProperties().Where(prop => prop.CanRead && prop.CanWrite).ToArray();
