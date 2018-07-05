@@ -357,6 +357,7 @@ namespace HRUpdate.Process
             compareLogic.Config.MembersToIgnore.Add("Person.LastName");
             compareLogic.Config.MembersToIgnore.Add("Person.Suffix");
             compareLogic.Config.MembersToIgnore.Add("Person.Status");
+            compareLogic.Config.MembersToIgnore.Add("Person.SocialSecurityNumber");          
 
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
