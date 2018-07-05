@@ -350,15 +350,7 @@ namespace HRUpdate.Process
             compareLogic.Config.CaseSensitive = false;
             compareLogic.Config.MaxDifferences = 100;
             compareLogic.Config.CustomComparers.Add(new EmployeeComparer(RootComparerFactory.GetRootComparer()));
-
-            compareLogic.Config.MembersToIgnore.Add("Person.GCIMSID");
-            compareLogic.Config.MembersToIgnore.Add("Person.FirstName");
-            compareLogic.Config.MembersToIgnore.Add("Person.MiddleName");
-            compareLogic.Config.MembersToIgnore.Add("Person.LastName");
-            compareLogic.Config.MembersToIgnore.Add("Person.Suffix");
-            compareLogic.Config.MembersToIgnore.Add("Person.Status");
-            compareLogic.Config.MembersToIgnore.Add("Person.SocialSecurityNumber");          
-
+            
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
             string[] diffs = result.Differences.Select(a => a.PropertyName).ToArray();
