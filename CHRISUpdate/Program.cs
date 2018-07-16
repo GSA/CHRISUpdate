@@ -8,7 +8,6 @@ using System;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
-using Ionic.Zip;
 using HRUpdate.Utilities;
 
 namespace HRUpdate
