@@ -158,6 +158,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\CSVHelper.cs" />
+    <Compile Include="Utilities\Delete.cs" />
     <Compile Include="Utilities\EMail.cs" />
     <Compile Include="Utilities\EmployeeComparer.cs" />
     <Compile Include="Utilities\ExtensionMethods.cs" />
