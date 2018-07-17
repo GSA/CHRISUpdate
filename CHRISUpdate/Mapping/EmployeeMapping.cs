@@ -9,25 +9,13 @@ namespace HRUpdate.Mapping
 {
     public sealed class EmployeeMapping : ClassMap<Employee>
     {
-        public EmployeeMapping()
+        public EmployeeMapping(Lookup lookups)
         {
-            Lookup lookups;
-            HRMapper map = new HRMapper();
-            IMapper lookupMapper;
-
-            map.CreateLookupConfig();
-
-            lookupMapper = map.CreateLookupMapping();
-
-            LoadLookupData loadLookupData = new LoadLookupData(lookupMapper);
-
-            lookups = loadLookupData.GetEmployeeLookupData();
-
             References<PersonMap>(r => r.Person);
-            References<AddressMap>(r => r.Address, lookups.stateLookup, lookups.countryLookup);
-            References<BuildingMap>(r => r.Building, lookups.stateLookup);
-            References<BirthMap>(r => r.Birth, lookups.stateLookup, lookups.countryLookup);
-            References<PositionMap>(r => r.Position, lookups.stateLookup);
+            References<AddressMap>(r => r.Address);
+            References<BuildingMap>(r => r.Building);
+            References<BirthMap>(r => r.Birth);
+            References<PositionMap>(r => r.Position);
             References<PhoneMap>(r => r.Phone);
             References<EmergencyMap>(r => r.Emergency);
             References<InvestigationMap>(r => r.Investigation, lookups.investigationLookup);
@@ -56,46 +44,38 @@ namespace HRUpdate.Mapping
 
     public sealed class AddressMap : ClassMap<Address>
     {
-        public AddressMap(List<StateLookup> stateLookup, List<CountryLookup> countryLookup)
+        public AddressMap()
         {
-            var stateCodeConverter = new StateCodeConverter(stateLookup);
-            var countryCodeConverter = new CountryCodeConverter(countryLookup);
-
             Map(m => m.HomeAddress1).Index(HRConstants.HOME_ADDRESS_1);
             Map(m => m.HomeAddress2).Index(HRConstants.HOME_ADDRESS_2);
             Map(m => m.HomeAddress3).Index(HRConstants.HOME_ADDRESS_3);
             Map(m => m.HomeCity).Index(HRConstants.HOME_CITY);
-            Map(m => m.HomeState).Index(HRConstants.HOME_STATE).TypeConverter(stateCodeConverter);
+            Map(m => m.HomeState).Index(HRConstants.HOME_STATE);
             Map(m => m.HomeZipCode).Index(HRConstants.HOME_ZIP_CODE);
-            Map(m => m.HomeCountry).Index(HRConstants.HOME_COUNTRY).TypeConverter(countryCodeConverter);
+            Map(m => m.HomeCountry).Index(HRConstants.HOME_COUNTRY);
         }
     }
 
     public sealed class BuildingMap : ClassMap<Building>
     {
-        public BuildingMap(List<StateLookup> stateLookup)
+        public BuildingMap()
         {
-            var stateCodeConverter = new StateCodeConverter(stateLookup);
-
             Map(m => m.BuildingNumber).Index(HRConstants.WORK_BUILDING_NUMBER);
             Map(m => m.BuildingAddress1).Index(HRConstants.WORK_BUILDING_ADDRESS_LINE_1);
             Map(m => m.BuildingCity).Index(HRConstants.WORK_BUILDING_ADDRESS_CITY);
-            Map(m => m.BuildingState).Index(HRConstants.WORK_BUIDLING_ADDRESS_STATE).TypeConverter(stateCodeConverter);
+            Map(m => m.BuildingState).Index(HRConstants.WORK_BUIDLING_ADDRESS_STATE);
             Map(m => m.BuildingZipCode).Index(HRConstants.WORK_BUILDING_ADDRESS_ZIPCODE);
         }
     }
 
     public sealed class BirthMap : ClassMap<Birth>
     {
-        public BirthMap(List<StateLookup> stateLookup, List<CountryLookup> countryLookup)
+        public BirthMap()
         {
-            var stateCodeConverter = new StateCodeConverter(stateLookup);
-            var countryCodeConverter = new CountryCodeConverter(countryLookup);
-
             Map(m => m.CityOfBirth).Index(HRConstants.BIRTH_CITY);
-            Map(m => m.StateOfBirth).Index(HRConstants.BIRTH_STATE).TypeConverter(stateCodeConverter);
-            Map(m => m.CountryOfBirth).Index(HRConstants.BIRTH_COUNTRY).TypeConverter(countryCodeConverter);
-            Map(m => m.CountryOfCitizenship).Index(HRConstants.COUNTRY_OF_CITIZENSHIP).TypeConverter(countryCodeConverter);
+            Map(m => m.StateOfBirth).Index(HRConstants.BIRTH_STATE);
+            Map(m => m.CountryOfBirth).Index(HRConstants.BIRTH_COUNTRY);
+            Map(m => m.CountryOfCitizenship).Index(HRConstants.COUNTRY_OF_CITIZENSHIP);
             Map(m => m.Citizen).Index(HRConstants.CITIZEN);
             Map(m => m.DateOfBirth).Index(HRConstants.DATE_OF_BIRTH).TypeConverter<DateConverter>();
         }
@@ -103,10 +83,8 @@ namespace HRUpdate.Mapping
 
     public sealed class PositionMap : ClassMap<Position>
     {
-        public PositionMap(List<StateLookup> stateLookup)
+        public PositionMap()
         {
-            var stateCodeConverter = new StateCodeConverter(stateLookup);
-
             Map(m => m.PositionControlNumber).Index(HRConstants.POSITION_CONTROL_NUMBER);
             Map(m => m.PositionOrganization).Index(HRConstants.POSITION_ORGANIZATION);
             Map(m => m.SupervisoryStatus).Index(HRConstants.SUPERVISORY_STATUS);
@@ -119,7 +97,7 @@ namespace HRUpdate.Mapping
             Map(m => m.PositionStartDate).Index(HRConstants.POSITION_START_DATE).TypeConverter<DateConverter>();
             Map(m => m.DutyLocationCode).Index(HRConstants.DUTY_LOCATION_CODE);
             Map(m => m.DutyLocationCity).Index(HRConstants.DUTY_LOCATION_CITY);
-            Map(m => m.DutyLocationState).Index(HRConstants.DUTY_LOCATION_STATE).TypeConverter(stateCodeConverter);
+            Map(m => m.DutyLocationState).Index(HRConstants.DUTY_LOCATION_STATE);
             Map(m => m.DutyLocationCounty).Index(HRConstants.DUTY_LOCATION_COUNTY);
             Map(m => m.AgencyCodeSubelement).Index(HRConstants.AGENCY_CODE_SUBELEMENT);
             Map(m => m.SupervisorEmployeeID).Index(HRConstants.SUPERVISOR_EMPLOYEE_ID);
