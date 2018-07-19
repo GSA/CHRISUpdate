@@ -44,7 +44,7 @@ namespace HRUpdate.Utilities
                 }
                 catch (Exception e)
                 {
-                    log.Error(string.Format("Unable to delete file: {0}", filePath), e);
+                    log.Warn(string.Format("Unable to delete file: {0}", filePath), e);
                 }
             }
             
