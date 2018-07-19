@@ -1,9 +1,16 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace HRUpdate.Utilities
 {
     public static class ExtensionMethods
     {
+        public static void GetValFromKey<TKey,TVal>(this Dictionary<TKey,TVal> d, TKey s, ref object o)
+        {
+            if (d.ContainsKey(s))
+                o =  d[s];             
+        }
+
         public static string RemovePhoneFormatting(this string s)
         {
             return Regex.Replace(s, "[^0-9]", string.Empty);

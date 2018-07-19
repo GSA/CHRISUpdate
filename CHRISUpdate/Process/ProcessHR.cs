@@ -47,8 +47,9 @@ namespace HRUpdate.Process
         /// Update GCIMS Record
         /// </summary>
         /// <param name="hrFile"></param>
-        public void ProcessHRFile(string HRFile)
+        public Dictionary<string,object> ProcessHRFile(string HRFile)
         {
+            Dictionary<string, object> objects = new Dictionary<string, object>();
             log.Info("Processing HR Users");
 
             try
@@ -257,11 +258,15 @@ namespace HRUpdate.Process
                 log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
 
                 summary.GenerateSummaryFiles(emailData);
+                objects.Add("ErrorCount", emailData.HRFailed);
+                objects.Add("NotFoundCount", emailData.HRRecordsNotFound);
+                return objects;
             }
             //Catch all errors
             catch (Exception ex)
             {
                 log.Error("Process HR Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);
+                return objects;
             }
         }
 

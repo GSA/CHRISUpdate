@@ -9,6 +9,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using HRUpdate.Utilities;
+using System.Collections.Generic;
 
 namespace HRUpdate
 {
@@ -52,6 +53,7 @@ namespace HRUpdate
             ProcessHR processHR = new ProcessHR(dataMapper, ref emailData, lookups);
             ProcessSeparation processSeparation = new ProcessSeparation(ref emailData);
             SendSummary sendSummary = new SendSummary(ref emailData);
+            Dictionary<string, object> objects = new Dictionary<string, object>();
 
             //Log action
             log.Info("Processing HR Files:" + DateTime.Now);
@@ -62,7 +64,7 @@ namespace HRUpdate
                 log.Info("Starting Processing HR File: " + DateTime.Now);
 
                 timeForProcess.Start();
-                processHR.ProcessHRFile(hrFilePath);
+                objects = processHR.ProcessHRFile(hrFilePath);
                 timeForProcess.Stop();
 
                 log.Info("Done Processing HR File: " + DateTime.Now);
@@ -99,13 +101,13 @@ namespace HRUpdate
             //Stop second timer
             timeForApp.Stop();
 
-            //Log total time
-            log.Info(string.Format("Application Completed in {0} milliseconds", timeForApp.ElapsedMilliseconds));
-
             //Delete files on successful run
             Delete delete = new Delete();
-            delete.DeleteProcessFiles(hrFilePath,separationFilePath);           
+            delete.DeleteProcessFiles(hrFilePath, separationFilePath, objects);
 
+            //Log total time
+            log.Info(string.Format("Application Completed in {0} milliseconds", timeForApp.ElapsedMilliseconds));
+            
             //Log application end
             log.Info("Application Done: " + DateTime.Now);
         }

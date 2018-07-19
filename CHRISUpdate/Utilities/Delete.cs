@@ -1,5 +1,6 @@
 ﻿using Ionic.Zip;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 
@@ -9,22 +10,44 @@ namespace HRUpdate.Utilities
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        internal void DeleteProcessFiles(string hrFilePath, string separationFilePath)
+        internal void DeleteProcessFiles(string hrFilePath, string separationFilePath, Dictionary<string, object> objects)
         {
-            //Action is determined by DELETE setting in appsettings.config
-            bool delete = ConfigurationManager.AppSettings["DELETE"].ToString().ToLower() == "on";
+            object errorCount= -1;
+            object notFoundCount = -1;
 
-            if (delete)
+            //Action is determined by count of errors and not found records
+            objects.GetValFromKey("ErrorCount", ref errorCount);
+            objects.GetValFromKey("NotFoundCount", ref notFoundCount);
+
+            if (Convert.ToInt64(errorCount) == 0 && Convert.ToInt64(notFoundCount) == 0)
             {
-                log.Info("Deleting processed files: {0}");
                 File.Delete(hrFilePath);
+
                 File.Delete(separationFilePath);
             }
             else //zip, encrypt, and store file
             {
                 encryptAndDelete(hrFilePath);
-                encryptAndDelete(separationFilePath);
+
+                DeleteFile(separationFilePath);
             }
+        }
+
+        private void DeleteFile(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    log.Info(string.Format("Deleting file: {0}", filePath));
+                    File.Delete(filePath);
+                }
+                catch (Exception e)
+                {
+                    log.Error(string.Format("Unable to delete file: {0}", filePath), e);
+                }
+            }
+            
         }
 
         private void encryptAndDelete(string file)
@@ -59,10 +82,10 @@ namespace HRUpdate.Utilities
                     zip.AddFile(file, uncompressedFolderName);
                     zip.Save(destination);
                 }
-                log.Info(string.Format("Successfully zipped file: {0}", file));
+                log.Info(string.Format("Successfully zipped file: {0}", file));               
             }
-            log.Info(string.Format("Deleting file: {0}", file));
-            File.Delete(file);
+            log.Info(string.Format("File saved to: {0}", destination));
+            DeleteFile(file);
 
         }
     }
