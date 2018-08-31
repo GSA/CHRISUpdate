@@ -54,7 +54,7 @@ namespace HRUpdate.Process
             try
             {
                 Employee gcimsRecord;
-
+                string columnList = string.Empty;
                 List<Employee> usersToProcess;
                 List<Employee> allGCIMSData;
 
@@ -137,7 +137,7 @@ namespace HRUpdate.Process
 
                         log.Info("Comparing HR and GCIMS Data: " + employeeData.Person.EmployeeID);
 
-                        if (!AreEqualGCIMSToHR(gcimsRecord, employeeData))
+                        if (!AreEqualGCIMSToHR(gcimsRecord, employeeData, out columnList))
                         {
                             //Checking if the SSN are different
                             if (employeeData.Person.SocialSecurityNumber != gcimsRecord.Person.SocialSecurityNumber)
@@ -201,7 +201,8 @@ namespace HRUpdate.Process
                                     MiddleName = employeeData.Person.MiddleName,
                                     LastName = employeeData.Person.LastName,
                                     Suffix = employeeData.Person.Suffix,
-                                    Action = updatedResults.Action
+                                    Action = updatedResults.Action,
+                                    UpdatedColumns = columnList                                    
                                 });
 
                                 log.Info("Successfully Updated Record: " + employeeData.Person.EmployeeID);
@@ -342,7 +343,7 @@ namespace HRUpdate.Process
             employeeData.Emergency.OutOfAreaContactCellPhone = employeeData.Emergency.OutOfAreaContactCellPhone.RemovePhoneFormatting();
         }
 
-        private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
+        private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData, out string propertyNameList)
         {
             CompareLogic compareLogic = new CompareLogic();
 
@@ -355,7 +356,7 @@ namespace HRUpdate.Process
 
             string[] diffs = result.Differences.Select(a => a.PropertyName).ToArray();
             string propertynamelist = string.Join(",", diffs);
-
+            propertyNameList = propertynamelist;
             if (diffs != null && diffs.Length > 0)
             {
                 log.Info(string.Format("Property differences include: {0}", propertynamelist));
