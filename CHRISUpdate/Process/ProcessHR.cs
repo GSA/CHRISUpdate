@@ -69,7 +69,12 @@ namespace HRUpdate.Process
 
                 log.Info("Loading HR Links File");
                 EmployeeMapping em = new EmployeeMapping(lookups);
-                usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile,em);
+
+                List<string> badRecords;
+
+                usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile,out badRecords, em);
+
+                AddBadREcordsToSummary(badRecords, ref summary);
 
                 log.Info("Loading GCIMS Data");
                 allGCIMSData = retrieve.AllGCIMSData();
@@ -403,6 +408,28 @@ namespace HRUpdate.Process
             }
 
             return null;
+        }
+
+        private void AddBadREcordsToSummary(List<string> badRecords, ref HRSummary summary)
+        {
+            foreach (var item in badRecords)
+            {
+                List<string> parts = new List<string>();
+                string s;
+                s = item.removeItems(new[] { "\"" });
+                parts.AddRange(s.Split('~'));
+                var obj = new ProcessedSummary()
+                {
+                    GCIMSID = -1,
+                    Action = "Invalid Record From CSV File",
+                    EmployeeID = parts[0],
+                    LastName = parts[1],
+                    Suffix = parts[2],
+                    FirstName = parts[3],
+                    MiddleName = parts[4]
+                };
+                summary.UnsuccessfulUsersProcessed.Add(obj);
+            }
         }
     }
 }

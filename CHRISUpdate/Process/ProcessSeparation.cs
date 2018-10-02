@@ -26,7 +26,7 @@ namespace HRUpdate.Process
         public void ProcessSeparationFile(string SEPFile)
         {
             log.Info("Processing Separation Users");
-
+            
             try
             {
                 SaveData save = new SaveData();
@@ -43,7 +43,9 @@ namespace HRUpdate.Process
 
                 SeparationResult separationResults;
 
-                separationUsersToProcess = fileReader.GetFileData<Separation, SeparationMapping>(SEPFile);
+                List<string> badRecords;
+
+                separationUsersToProcess = fileReader.GetFileData<Separation, SeparationMapping>(SEPFile, out badRecords);
 
                 foreach (Separation separationData in separationUsersToProcess)
                 {
