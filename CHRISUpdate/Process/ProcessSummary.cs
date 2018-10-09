@@ -79,7 +79,7 @@ namespace HRUpdate.Process
                 RecordsNotFound = RecordsNotFound.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();
 
                 emailData.HRRecordsNotFoundFileName = SummaryFileGenerator.GenerateSummaryFile<RecordNotFoundSummary, RecordNotFoundSummaryMapping>(ConfigurationManager.AppSettings["RECORDNOTFOUNDSUMMARYFILENAME"].ToString(), RecordsNotFound);
-                log.Info("HR Name Not Found File: " + emailData.HRInactiveFilename);
+                log.Info("HR Name Not Found File: " + emailData.HRRecordsNotFoundFileName);
             }
         }
     }
