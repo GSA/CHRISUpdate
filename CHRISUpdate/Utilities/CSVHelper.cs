@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Linq;
 
 namespace HRUpdate.Utilities
 {
@@ -15,7 +14,7 @@ namespace HRUpdate.Utilities
         {
         }        
 
-        public List<TClass> GetFileData<TClass, TMap>(string filePath, ClassMap<Employee> employeeMap=null)
+        public List<TClass> GetFileData<TClass, TMap>(string filePath, out List<string> badRecords, ClassMap<Employee> employeeMap=null)
             where TClass : class
             where TMap : ClassMap<TClass>
         {
@@ -34,9 +33,28 @@ namespace HRUpdate.Utilities
                     {
                         csvReader.Configuration.RegisterClassMap<TMap>();
                     }
-                    
+                    var good = new List<TClass>();
+                    var bad = new List<string>();
+                    var isRecordBad = false;
+                    csvReader.Configuration.BadDataFound = context =>
+                    {
+                        isRecordBad = true;
+                        bad.Add(context.RawRecord);
+                    };
 
-                    return csvReader.GetRecords<TClass>().ToList();
+                    while (csvReader.Read())
+                    {
+                        var record = csvReader.GetRecord<TClass>();
+                        if (!isRecordBad)
+                        {
+                            good.Add(record);
+                        }
+
+                        isRecordBad = false;
+                    }
+                    badRecords = bad;
+
+                    return good;
                 }
             }
         }
