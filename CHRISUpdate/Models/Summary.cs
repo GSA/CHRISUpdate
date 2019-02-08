@@ -12,6 +12,7 @@ namespace HRUpdate.Models
         public string Suffix { get; set; }
         public string Status { get; set; }
         public string Action { get; set; }
+        public string UpdatedColumns { get; set; }
     }
 
     internal class RecordNotFoundSummary

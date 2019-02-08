@@ -55,7 +55,7 @@ namespace HRUpdate.Process
             try
             {
                 Employee gcimsRecord;
-
+                string columnList = string.Empty;
                 List<Employee> usersToProcess;
                 List<Employee> allGCIMSData;
 
@@ -70,7 +70,12 @@ namespace HRUpdate.Process
 
                 log.Info("Loading HR Links File");
                 EmployeeMapping em = new EmployeeMapping(lookups);
-                usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile,em);
+
+                List<string> badRecords;
+
+                usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile,out badRecords, em);
+
+                AddBadREcordsToSummary(badRecords, ref summary);
 
                 log.Info("Loading GCIMS Data");
                 allGCIMSData = retrieve.AllGCIMSData();
@@ -138,7 +143,7 @@ namespace HRUpdate.Process
 
                         log.Info("Comparing HR and GCIMS Data: " + employeeData.Person.EmployeeID);
 
-                        if (!AreEqualGCIMSToHR(gcimsRecord, employeeData))
+                        if (!AreEqualGCIMSToHR(gcimsRecord, employeeData, out columnList))
                         {
                             //Checking if the SSN are different
                             if (employeeData.Person.SocialSecurityNumber != gcimsRecord.Person.SocialSecurityNumber)
@@ -202,7 +207,8 @@ namespace HRUpdate.Process
                                     MiddleName = employeeData.Person.MiddleName,
                                     LastName = employeeData.Person.LastName,
                                     Suffix = employeeData.Person.Suffix,
-                                    Action = updatedResults.Action
+                                    Action = updatedResults.Action,
+                                    UpdatedColumns = columnList
                                 });
 
                                 log.Info("Successfully Updated Record: " + employeeData.Person.EmployeeID);
@@ -347,7 +353,7 @@ namespace HRUpdate.Process
             employeeData.Emergency.OutOfAreaContactCellPhone = employeeData.Emergency.OutOfAreaContactCellPhone.RemovePhoneFormatting();
         }
 
-        private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
+        private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData, out string propertyNameList)
         {
             CompareLogic compareLogic = new CompareLogic();
 
@@ -355,12 +361,12 @@ namespace HRUpdate.Process
             compareLogic.Config.CaseSensitive = false;
             compareLogic.Config.MaxDifferences = 100;
             compareLogic.Config.CustomComparers.Add(new EmployeeComparer(RootComparerFactory.GetRootComparer()));
-            
+
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
 
             string[] diffs = result.Differences.Select(a => a.PropertyName).ToArray();
             string propertynamelist = string.Join(",", diffs);
-
+            propertyNameList = propertynamelist;
             if (diffs != null && diffs.Length > 0)
             {
                 log.Info(string.Format("Property differences include: {0}", propertynamelist));
@@ -407,6 +413,26 @@ namespace HRUpdate.Process
             }
 
             return null;
+        }
+
+        private void AddBadREcordsToSummary(List<string> badRecords, ref HRSummary summary)
+        {
+            foreach (var item in badRecords)
+            {
+                List<string> parts = new List<string>();
+                string s;
+                s = item.removeItems(new[] { "\"" });
+                parts.AddRange(s.Split('~'));
+                var obj = new ProcessedSummary();
+                obj.GCIMSID = -1;
+                obj.Action = "Invalid Record From CSV File";
+                obj.EmployeeID = parts.Count > 0 ? parts[0] : "Unknown Employee Id";
+                obj.LastName = parts.Count > 1 ? parts[1] : "Unknown Last Name";
+                obj.Suffix = parts.Count > 2 ? parts[2] : "Unknown Suffix";
+                obj.FirstName = parts.Count > 3 ? parts[3] : "Unknown First Name";
+                obj.MiddleName = parts.Count > 4 ? parts[4] : "Unknown Middle Name";
+                summary.UnsuccessfulUsersProcessed.Add(obj);
+            }
         }
     }
 }
