@@ -12,25 +12,11 @@ namespace HRUpdate.Utilities
 
         internal void DeleteProcessFiles(string hrFilePath, string separationFilePath, Dictionary<string, object> objects)
         {
-            object errorCount= -1;
-            object notFoundCount = -1;
 
-            //Action is determined by count of errors and not found records
-            objects.GetValFromKey("ErrorCount", ref errorCount);
-            objects.GetValFromKey("NotFoundCount", ref notFoundCount);
+            encryptAndDelete(hrFilePath);
 
-            if (Convert.ToInt64(errorCount) == 0 && Convert.ToInt64(notFoundCount) == 0)
-            {
-                File.Delete(hrFilePath);
+            DeleteFile(separationFilePath);
 
-                File.Delete(separationFilePath);
-            }
-            else //zip, encrypt, and store file
-            {
-                encryptAndDelete(hrFilePath);
-
-                DeleteFile(separationFilePath);
-            }
         }
 
         private void DeleteFile(string filePath)
@@ -47,46 +33,49 @@ namespace HRUpdate.Utilities
                     log.Warn(string.Format("Unable to delete file: {0}", filePath), e);
                 }
             }
-            
         }
 
         private void encryptAndDelete(string file)
         {
-            var folderPath = Path.GetDirectoryName(file);
-            var today = DateTime.Now.ToString("yyyyMMdd");
-            var uncompressedFolderName = Path.GetFileNameWithoutExtension(file) + "_" + today;
-            var compressedFileName = uncompressedFolderName + ".zip";
-            string pwd = ConfigurationManager.AppSettings["ZIPPASSWORD"].ToString();
-            string folder = Path.Combine(folderPath, ConfigurationManager.AppSettings["ZIPFOLDERNAME"].ToString());
-            string destination = Path.Combine(folder, compressedFileName);
-
-            Directory.CreateDirectory(folder);
-
-            if (string.IsNullOrWhiteSpace(pwd))
+            if (File.Exists(file))
             {
-                log.Info(string.Format("No password submitted, attempting to zip file: {0}", file));
-                using (ZipFile zip = new ZipFile())
+                var folderPath = Path.GetDirectoryName(file);
+                var FileName = Path.GetFileNameWithoutExtension(file) + "_encrypted.zip";
+                string pwd = ConfigurationManager.AppSettings["ZIPPASSWORD"].ToString();
+                string folder = Path.Combine(folderPath, ConfigurationManager.AppSettings["ZIPFOLDERNAME"].ToString());
+                string destination = Path.Combine(folder, FileName);
+
+                Directory.CreateDirectory(folder);
+
+                if (string.IsNullOrWhiteSpace(pwd))
                 {
-                    zip.AddFile(file);
-                    zip.Save(destination);
+                    log.Info(string.Format("No password submitted, attempting to zip file: {0}", file));
+                    using (ZipFile zip = new ZipFile())
+                    {
+                        zip.AddFile(file);
+                        zip.Save(destination);
+                    }
+                    log.Info(string.Format("Successfully zipped file with no password: {0}", file));
                 }
-                log.Info(string.Format("Successfully zipped file with no password: {0}", file));
+                else
+                {
+                    log.Info(string.Format("Attempting to zip and encrypt file: {0}", file));
+                    using (ZipFile zip = new ZipFile())
+                    {
+                        zip.Password = pwd;
+                        zip.Encryption = EncryptionAlgorithm.WinZipAes256;
+                        zip.AddFile(file, FileName);
+                        zip.Save(destination);
+                    }
+                    log.Info(string.Format("Successfully zipped file: {0}", file));
+                }
+                log.Info(string.Format("File saved to: {0}", destination));
+                DeleteFile(file);
             }
             else
             {
-                log.Info(string.Format("Attempting to zip and encrypt file: {0}", file));
-                using (ZipFile zip = new ZipFile())
-                {
-                    zip.Password = pwd;
-                    zip.Encryption = EncryptionAlgorithm.WinZipAes256;
-                    zip.AddFile(file, uncompressedFolderName);
-                    zip.Save(destination);
-                }
-                log.Info(string.Format("Successfully zipped file: {0}", file));               
+                log.Info("No file found to encrypt and delete.");
             }
-            log.Info(string.Format("File saved to: {0}", destination));
-            DeleteFile(file);
-
         }
     }
 }
