@@ -15,8 +15,36 @@ namespace HRUpdate.Utilities
 
             encryptAndDelete(hrFilePath);
 
-            DeleteFile(separationFilePath);
+            //DeleteFile(separationFilePath);
 
+            MoveFile(separationFilePath);
+
+        }
+
+        public void MoveFile(string file)
+        {
+            var folderPath = Path.GetDirectoryName(file);
+            var FileName = Path.GetFileNameWithoutExtension(file) + "_moved.csv";
+            string folder = Path.Combine(folderPath, ConfigurationManager.AppSettings["ZIPFOLDERNAME"].ToString());
+            string destination = Path.Combine(folder, FileName);
+
+            Directory.CreateDirectory(folder);
+
+            if(File.Exists(file))
+            {
+                try
+                {
+                    log.Info(string.Format("Attempting to move file: {0}", file));
+                    File.Move(file, destination);
+                    log.Info(string.Format("File move to path {0}", destination));
+                }
+                catch (IOException e)
+                {
+                    log.Warn(string.Format("Moving file {0} failed.", file));
+                }
+                
+            }
+            
         }
 
         private void DeleteFile(string filePath)
