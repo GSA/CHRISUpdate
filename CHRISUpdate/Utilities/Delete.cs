@@ -35,6 +35,10 @@ namespace HRUpdate.Utilities
                 try
                 {
                     log.Info(string.Format("Attempting to move file: {0}", file));
+                    if(File.Exists(destination))
+                    {
+                        DeleteFile(destination);
+                    }
                     File.Move(file, destination);
                     log.Info(string.Format("File move to path {0}", destination));
                 }
