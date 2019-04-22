@@ -6,6 +6,7 @@ using HRUpdate.Mapping;
 using HRUpdate.Models;
 using System.Collections.Generic;
 using System.Linq;
+using HRUpdate.Utilities;
 
 namespace HRUpdate.Validation
 {
@@ -19,6 +20,7 @@ namespace HRUpdate.Validation
             lookups.Add("StateCodes", lookup.stateLookup.Select(s => s.Code).ToArray());
             lookups.Add("CountryCodes", lookup.countryLookup.Select(c => c.Code).ToArray());
             lookups.Add("RegionCodes", lookup.regionLookup.Select(c => c.Code).ToArray());
+            lookups.Add("BuildingCodes", lookup.BuildingLookup.Select(c => c.BuildingId).ToArray());
         }
 
         public ValidationResult ValidateEmployeeCriticalInfo(Employee employeeInformation)
@@ -458,6 +460,19 @@ namespace HRUpdate.Validation
             #endregion Phone
 
             //Detail - Not currently needed
+
+            #region Building
+
+            //Building ****************************************************************************************
+            
+            Unless(employee => employee.Building.BuildingId.ToLower().In("home,nongsa"), () =>
+              {
+                  RuleFor(e => e.Building.BuildingId)
+                      .In(lookups["BuildingCodes"])
+                      .WithMessage($"{{PropertyName}} must be a valid building id");
+              });
+
+            #endregion
         }
     }
 }

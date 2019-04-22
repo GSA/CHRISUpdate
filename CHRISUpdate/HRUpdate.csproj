@@ -122,6 +122,7 @@
   <ItemGroup>
     <Compile Include="Data\RetrieveData.cs" />
     <Compile Include="Data\SaveData.cs" />
+    <Compile Include="Lookups\BuildingLookup.cs" />
     <Compile Include="Lookups\CountryLookup.cs" />
     <Compile Include="Lookups\InvestigationLookup.cs" />
     <Compile Include="Lookups\SeparationLookup.cs" />

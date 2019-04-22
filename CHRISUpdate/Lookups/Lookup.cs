@@ -13,5 +13,7 @@ namespace HRUpdate.Lookups
         public List<CountryLookup> countryLookup { get; set; }
 
         public List<StateLookup> stateLookup { get; set; }
+
+        public List<BuildingLookup> BuildingLookup { get; set; }
     }
 }
