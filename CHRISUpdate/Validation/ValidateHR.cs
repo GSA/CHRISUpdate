@@ -465,9 +465,9 @@ namespace HRUpdate.Validation
 
             //Building ****************************************************************************************
             
-            Unless(employee => employee.Building.BuildingId.ToLower().In("home,nongsa"), () =>
+            Unless(e => e.Building.BuildingNumber.In("home,nongsa"), () =>
               {
-                  RuleFor(e => e.Building.BuildingId)
+                  RuleFor(e => e.Building.BuildingNumber)
                       .In(lookups["BuildingCodes"])
                       .WithMessage($"{{PropertyName}} must be a valid building id");
               });
