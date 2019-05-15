@@ -79,9 +79,9 @@
         public const int WORK_FAX_NUMBER = 87;
         public const int WORK_CELL_NUMBER = 88;
         public const int WORK_PHONE_NUMBER_TEXT_TELEPHONE = 89;
-        public const int INVESTIGATION_TYPE_REQUESTED = 90;
+        public const int PRIOR_INVESTIGATION = 90;
         public const int INVESTIGATION_TYPE = 91;
-        public const int PRIOR_INVESTIGATION = 92;
+        public const int INVESTIGATION_TYPE_REQUESTED = 92;
 
     }
 
