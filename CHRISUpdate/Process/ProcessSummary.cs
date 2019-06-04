@@ -105,7 +105,7 @@ namespace HRUpdate.Process
         {
             if (SuccessfulUsersProcessed.Count > 0)
             {
-                SuccessfulUsersProcessed = SuccessfulUsersProcessed.OrderBy(o => o.EmployeeID).ToList();
+                SuccessfulUsersProcessed = SuccessfulUsersProcessed.OrderBy(o => o.LastName).ThenBy(t => t.FirstName).ToList();
 
                 emailData.SeparationSuccessfulFilename = SummaryFileGenerator.GenerateSummaryFile<SeparationSummary, SeperationSummaryMapping>(ConfigurationManager.AppSettings["SEPARATIONSUMMARYFILENAME"].ToString(), SuccessfulUsersProcessed);
                 log.Info("Separation Success File: " + emailData.SeparationSuccessfulFilename);
