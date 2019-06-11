@@ -25,10 +25,10 @@
         public const int EMPLOYEE_STATUS = 20;
         public const int GENDER = 21;
         public const int SERVICE_COMPUTATION_DATE_LEAVE = 22;
-        public const int PRIOR_INVESTIGATION = 23;
-        public const int INVESTIGATION_TYPE = 24;
+        public const int PRIOR_INVESTIGATION_HR = 23;
+        public const int INVESTIGATION_TYPE_HR = 24;
         public const int DATE_OF_INVESTIGATION = 25;
-        public const int INVESTIGATION_TYPE_REQUESTED = 26;
+        public const int INVESTIGATION_TYPE_REQUESTED_HR = 26;
         public const int INITIAL_RESULT_FINAL_OFFER = 27;
         public const int INITIAL_RESULT_FINAL_DATE = 28;
         public const int FINAL_RESULT_OFFER = 29;
@@ -79,6 +79,10 @@
         public const int WORK_FAX_NUMBER = 87;
         public const int WORK_CELL_NUMBER = 88;
         public const int WORK_PHONE_NUMBER_TEXT_TELEPHONE = 89;
+        public const int PRIOR_INVESTIGATION = 90;
+        public const int INVESTIGATION_TYPE = 91;
+        public const int INVESTIGATION_TYPE_REQUESTED = 92;
+
     }
 
     internal static class SeparationConstants

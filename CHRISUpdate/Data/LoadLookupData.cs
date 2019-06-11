@@ -44,9 +44,7 @@ namespace HRUpdate.Data
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandText = "HR_Get_Employee_Lookups";
 
-                        MySqlDataReader lookupData;
-
-                        lookupData = cmd.ExecuteReader();
+                        MySqlDataReader lookupData = cmd.ExecuteReader();
 
                         using (lookupData)
                         {
@@ -123,6 +121,10 @@ namespace HRUpdate.Data
             //lookup_region
             lookupData.NextResult();
             lookup.regionLookup = lookupMapper.Map<IDataReader, List<RegionLookup>>(lookupData);
+
+            //lookup_building
+            lookupData.NextResult();
+            lookup.BuildingLookup = lookupMapper.Map<IDataReader, List<BuildingLookup>>(lookupData);
 
             return lookup;
         }
