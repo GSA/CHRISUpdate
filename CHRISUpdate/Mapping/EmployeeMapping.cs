@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using CsvHelper.Configuration;
-using HRUpdate.Data;
+﻿using CsvHelper.Configuration;
 using HRUpdate.Lookups;
 using HRUpdate.Models;
 using System.Collections.Generic;
@@ -136,17 +134,20 @@ namespace HRUpdate.Mapping
     {
         public InvestigationMap(List<InvestigationLookup> investigationLookup)
         {
-            var investigationConverter = new InvestigationConverter(investigationLookup);
+            //var investigationConverter = new InvestigationConverter(investigationLookup);
 
-            Map(m => m.PriorInvestigation).Index(HRConstants.PRIOR_INVESTIGATION).TypeConverter(investigationConverter); ;
-            Map(m => m.TypeOfInvestigation).Index(HRConstants.INVESTIGATION_TYPE).TypeConverter(investigationConverter); ;
+            Map(m => m.PriorInvestigation).Index(HRConstants.PRIOR_INVESTIGATION);//.TypeConverter(investigationConverter); 
+            Map(m => m.TypeOfInvestigation).Index(HRConstants.INVESTIGATION_TYPE);//.TypeConverter(investigationConverter); 
             Map(m => m.DateOfInvestigation).Index(HRConstants.DATE_OF_INVESTIGATION).TypeConverter<DateConverter>();
-            Map(m => m.TypeOfInvestigationToRequest).Index(HRConstants.INVESTIGATION_TYPE_REQUESTED).TypeConverter(investigationConverter);
+            Map(m => m.TypeOfInvestigationToRequest).Index(HRConstants.INVESTIGATION_TYPE_REQUESTED); // .TypeConverter(investigationConverter);
             Map(m => m.InitialResult).Index(HRConstants.INITIAL_RESULT_FINAL_OFFER).TypeConverter<InvistigationResultConverter>();
             Map(m => m.InitialResultDate).Index(HRConstants.INITIAL_RESULT_FINAL_DATE).TypeConverter<DateConverter>();
             Map(m => m.FinalResult).Index(HRConstants.FINAL_RESULT_OFFER).TypeConverter<InvistigationResultConverter>();
             Map(m => m.FinalResultDate).Index(HRConstants.FINAL_RESULT_DATE).TypeConverter<DateConverter>();
             Map(m => m.AdjudicatorEmployeeID).Index(HRConstants.ADJUDICATION_EMPLOYEE_ID);
+            Map(m => m.PriorInvestigationHr).Index(HRConstants.PRIOR_INVESTIGATION_HR);
+            Map(m => m.TypeOfInvestigationHr).Index(HRConstants.INVESTIGATION_TYPE_HR);
+            Map(m => m.TypeOfInvestigationToRequestHr).Index(HRConstants.INVESTIGATION_TYPE_REQUESTED_HR);
         }
     }
 }

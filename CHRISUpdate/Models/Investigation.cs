@@ -5,9 +5,12 @@ namespace HRUpdate.Models
     public class Investigation
     {
         public string PriorInvestigation { get; set; }
+        public string PriorInvestigationHr { get; set; }
         public string TypeOfInvestigation { get; set; }
+        public string TypeOfInvestigationHr { get; set; }
         public DateTime? DateOfInvestigation { get; set; }
         public string TypeOfInvestigationToRequest { get; set; }
+        public string TypeOfInvestigationToRequestHr { get; set; }
         public bool? InitialResult { get; set; }
         public DateTime? InitialResultDate { get; set; }
         public bool? FinalResult { get; set; }
