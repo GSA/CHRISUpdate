@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentValidation.Results;
 using HRUpdate.Data;
+using HRUpdate.Lookups;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Utilities;
@@ -19,16 +20,22 @@ namespace HRUpdate.Process
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private static readonly string [] TerritoriesNotCountriesArray = new string[] { "rq", "gq", "vq", "aq" };
+
         private readonly RetrieveData retrieve;
 
         private readonly EMailData emailData;
 
         private enum Hrlinks { Separation = 1, Hrfile = 2 };
 
+        readonly Lookup lookups;
+
         //Constructor
-        public ProcessHR(IMapper dataMapper, ref EMailData emailData)
+        public ProcessHR(IMapper dataMapper, ref EMailData emailData, Lookup lookups)
         {
             retrieve = new RetrieveData(dataMapper);
+
+            this.lookups = lookups;
 
             this.emailData = emailData;
         }
@@ -47,21 +54,27 @@ namespace HRUpdate.Process
             try
             {
                 Employee gcimsRecord;
-
+                string columnList = string.Empty;
                 List<Employee> usersToProcess;
                 List<Employee> allGCIMSData;
 
                 HRSummary summary = new HRSummary();
                 FileReader fileReader = new FileReader();
 
-                ValidateHR validate = new ValidateHR();
+                ValidateHR validate = new ValidateHR(lookups);
 
                 Helpers helper = new Helpers();
 
                 SaveData save = new SaveData();
 
                 log.Info("Loading HR Links File");
-                usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile);
+                EmployeeMapping em = new EmployeeMapping(lookups);
+
+                List<string> badRecords;
+
+                usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile,out badRecords, em);
+
+                AddBadREcordsToSummary(badRecords, ref summary);
 
                 log.Info("Loading GCIMS Data");
                 allGCIMSData = retrieve.AllGCIMSData();
@@ -98,6 +111,23 @@ namespace HRUpdate.Process
                         });
                     }
 
+                    if (TerritoriesNotCountriesArray.Contains(employeeData.Birth.CountryOfBirth.ToLower()) && string.IsNullOrWhiteSpace(employeeData.Birth.StateOfBirth))
+                    {
+                        switch (employeeData.Birth.CountryOfBirth.ToLower())
+                        {
+                            case "rq": { employeeData.Birth.StateOfBirth = "PR"; }
+                                break;
+                            case "gq": { employeeData.Birth.StateOfBirth = "GU"; }
+                                break;
+                            case "vq": { employeeData.Birth.StateOfBirth = "VI"; }
+                                break;
+                            case "aq": { employeeData.Birth.StateOfBirth = "AS"; }
+                                break;
+                            default:   { employeeData.Birth.StateOfBirth = ""; }
+                                break;
+                        }
+                        employeeData.Birth.CountryOfBirth = "US";
+                    }
                     //If there are critical errors write to the error summary and move to the next record
                     log.Info("Checking for Critical errors for user: " + employeeData.Person.EmployeeID);
                     if (CheckForErrors(validate, employeeData, summary.UnsuccessfulUsersProcessed))
@@ -112,7 +142,7 @@ namespace HRUpdate.Process
 
                         log.Info("Comparing HR and GCIMS Data: " + employeeData.Person.EmployeeID);
 
-                        if (!AreEqualGCIMSToHR(gcimsRecord, employeeData))
+                        if (!AreEqualGCIMSToHR(gcimsRecord, employeeData, out columnList))
                         {
                             //Checking if the SSN are different
                             if (employeeData.Person.SocialSecurityNumber != gcimsRecord.Person.SocialSecurityNumber)
@@ -176,7 +206,8 @@ namespace HRUpdate.Process
                                     MiddleName = employeeData.Person.MiddleName,
                                     LastName = employeeData.Person.LastName,
                                     Suffix = employeeData.Person.Suffix,
-                                    Action = updatedResults.Action
+                                    Action = updatedResults.Action,
+                                    UpdatedColumns = columnList
                                 });
 
                                 log.Info("Successfully Updated Record: " + employeeData.Person.EmployeeID);
@@ -295,6 +326,12 @@ namespace HRUpdate.Process
 
         private void CleanupHRData(Employee employeeData)
         {
+            Helpers helper = new Helpers();
+
+            //Address clean up
+            helper.cleanAddress(employeeData.Address);
+
+            //Phone clean up
             employeeData.Phone.WorkFax = employeeData.Phone.WorkFax.RemovePhoneFormatting();
             employeeData.Phone.WorkCell = employeeData.Phone.WorkCell.RemovePhoneFormatting();
             employeeData.Phone.WorkPhone = employeeData.Phone.WorkPhone.RemovePhoneFormatting();
@@ -302,32 +339,33 @@ namespace HRUpdate.Process
             employeeData.Phone.HomeCell = employeeData.Phone.HomeCell.RemovePhoneFormatting();
             employeeData.Phone.HomePhone = employeeData.Phone.HomePhone.RemovePhoneFormatting();
 
+            //Emergency contact clean up
             employeeData.Emergency.EmergencyContactHomePhone = employeeData.Emergency.EmergencyContactHomePhone.RemovePhoneFormatting();
             employeeData.Emergency.EmergencyContactWorkPhone = employeeData.Emergency.EmergencyContactWorkPhone.RemovePhoneFormatting();
             employeeData.Emergency.EmergencyContactCellPhone = employeeData.Emergency.EmergencyContactCellPhone.RemovePhoneFormatting();
-
             employeeData.Emergency.OutOfAreaContactHomePhone = employeeData.Emergency.OutOfAreaContactHomePhone.RemovePhoneFormatting();
             employeeData.Emergency.OutOfAreaContactWorkPhone = employeeData.Emergency.OutOfAreaContactWorkPhone.RemovePhoneFormatting();
             employeeData.Emergency.OutOfAreaContactCellPhone = employeeData.Emergency.OutOfAreaContactCellPhone.RemovePhoneFormatting();
         }
 
-        private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData)
+        private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData, out string propertyNameList)
         {
             CompareLogic compareLogic = new CompareLogic();
 
             compareLogic.Config.TreatStringEmptyAndNullTheSame = true;
             compareLogic.Config.CaseSensitive = false;
-
+            compareLogic.Config.MaxDifferences = 100;
             compareLogic.Config.CustomComparers.Add(new EmployeeComparer(RootComparerFactory.GetRootComparer()));
 
-            compareLogic.Config.MembersToIgnore.Add("Person.GCIMSID");
-            compareLogic.Config.MembersToIgnore.Add("Person.FirstName");
-            compareLogic.Config.MembersToIgnore.Add("Person.MiddleName");
-            compareLogic.Config.MembersToIgnore.Add("Person.LastName");
-            compareLogic.Config.MembersToIgnore.Add("Person.Suffix");
-            compareLogic.Config.MembersToIgnore.Add("Person.Status");
-
             ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
+
+            string[] diffs = result.Differences.Select(a => a.PropertyName).ToArray();
+            string propertynamelist = string.Join(",", diffs);
+            propertyNameList = propertynamelist;
+            if (diffs != null && diffs.Length > 0)
+            {
+                log.Info(string.Format("Property differences include: {0}", propertynamelist));
+            }
 
             return result.AreEqual;
         }
@@ -370,6 +408,26 @@ namespace HRUpdate.Process
             }
 
             return null;
+        }
+
+        private void AddBadREcordsToSummary(List<string> badRecords, ref HRSummary summary)
+        {
+            foreach (var item in badRecords)
+            {
+                List<string> parts = new List<string>();
+                string s;
+                s = item.removeItems(new[] { "\"" });
+                parts.AddRange(s.Split('~'));
+                var obj = new ProcessedSummary();
+                obj.GCIMSID = -1;
+                obj.Action = "Invalid Record From CSV File";
+                obj.EmployeeID = parts.Count > 0 ? parts[0] : "Unknown Employee Id";
+                obj.LastName = parts.Count > 1 ? parts[1] : "Unknown Last Name";
+                obj.Suffix = parts.Count > 2 ? parts[2] : "Unknown Suffix";
+                obj.FirstName = parts.Count > 3 ? parts[3] : "Unknown First Name";
+                obj.MiddleName = parts.Count > 4 ? parts[4] : "Unknown Middle Name";
+                summary.UnsuccessfulUsersProcessed.Add(obj);
+            }
         }
     }
 }

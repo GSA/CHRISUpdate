@@ -15,6 +15,7 @@ namespace HRUpdate.Mapping
             Map(m => m.Suffix).Name("Suffix");
             Map(m => m.Status).Name("Status");
             Map(m => m.Action).Name("Action");
+            Map(m => m.UpdatedColumns).Name("Updated Columns");
         }
     }
 

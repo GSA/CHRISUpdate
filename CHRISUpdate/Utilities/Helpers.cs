@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HRUpdate.Models;
+using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -87,5 +88,15 @@ namespace HRUpdate.Utilities
                 default: return true;
             }
         }
+
+        public void cleanAddress(Address a)
+        {
+            string [] s = new string [] { "#" };
+            a.HomeAddress1 = a.HomeAddress1.removeItems(s);
+            a.HomeAddress2 = a.HomeAddress2.removeItems(s);
+            a.HomeAddress3 = a.HomeAddress3.removeItems(s);
+            a.HomeCity = a.HomeCity.removeItems(s);            
+        }
+            
     }
 }

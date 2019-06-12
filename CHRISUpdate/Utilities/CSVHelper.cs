@@ -1,10 +1,10 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using HRUpdate.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Linq;
 
 namespace HRUpdate.Utilities
 {
@@ -12,9 +12,9 @@ namespace HRUpdate.Utilities
     {
         public FileReader()
         {
-        }
+        }        
 
-        public List<TClass> GetFileData<TClass, TMap>(string filePath)
+        public List<TClass> GetFileData<TClass, TMap>(string filePath, out List<string> badRecords, ClassMap<Employee> employeeMap=null)
             where TClass : class
             where TMap : ClassMap<TClass>
         {
@@ -25,9 +25,36 @@ namespace HRUpdate.Utilities
                     CsvReader csvReader = new CsvReader(csvParser);
                     csvReader.Configuration.Delimiter = "~";
                     csvReader.Configuration.HasHeaderRecord = false;
-                    csvReader.Configuration.RegisterClassMap<TMap>();
+                    if(employeeMap != null)
+                    {
+                        csvReader.Configuration.RegisterClassMap(employeeMap);
+                    }
+                    else
+                    {
+                        csvReader.Configuration.RegisterClassMap<TMap>();
+                    }
+                    var good = new List<TClass>();
+                    var bad = new List<string>();
+                    var isRecordBad = false;
+                    csvReader.Configuration.BadDataFound = context =>
+                    {
+                        isRecordBad = true;
+                        bad.Add(context.RawRecord);
+                    };
 
-                    return csvReader.GetRecords<TClass>().ToList();
+                    while (csvReader.Read())
+                    {
+                        var record = csvReader.GetRecord<TClass>();
+                        if (!isRecordBad)
+                        {
+                            good.Add(record);
+                        }
+
+                        isRecordBad = false;
+                    }
+                    badRecords = bad;
+
+                    return good;
                 }
             }
         }
