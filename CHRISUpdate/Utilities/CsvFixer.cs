@@ -8,7 +8,7 @@ namespace HRUpdate.Utilities
         {
             foreach (Match o in new Regex(@"[ ]"".+?""[ ]").Matches(record))
             {
-                record = record.Replace(o.Value, o.Value.Replace('"', '\''));
+                record = record.Replace(o.Value, o.Value.Replace('"', ' '));
             }
             return record;
         }
