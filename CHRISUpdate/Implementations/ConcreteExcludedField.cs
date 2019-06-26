@@ -20,8 +20,9 @@ namespace HRUpdate.Implementations
                 .GetProperties()
                 .FirstOrDefault(prop => prop.CanRead && prop.CanWrite && prop.Name == ExcludedFieldMajor);
 
-            var minorFieldPropertyInfo = majorFieldPropertyInfo?
-                .GetType()
+            var majorType =  majorFieldPropertyInfo?.GetValue(source, null).GetType();
+
+            var minorFieldPropertyInfo = majorType?
                 .GetProperties()
                 .FirstOrDefault(prop => prop.CanRead && prop.CanWrite && prop.Name == ExcludedFieldMinor);
 
