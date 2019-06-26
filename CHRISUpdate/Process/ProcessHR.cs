@@ -140,6 +140,15 @@ namespace HRUpdate.Process
                     //If DB Record is not null them check if we need to update record
                     if (gcimsRecord != null)
                     {
+                        //Run phone number copy logic
+                        var eft = new ExcludedFieldTool();
+                        eft.Create(
+                            "Phone",
+                            new[] { "HomePhone", "HomeCell", "WorkPhone", "WorkFax", "WorkCell", "WorkTextTelephone" },
+                            employeeData
+                        );
+                        eft.Process(employeeData, gcimsRecord);
+
                         InvestigationCopy(employeeData, gcimsRecord);
 
                         log.Info("Comparing HR and GCIMS Data: " + employeeData.Person.EmployeeID);
@@ -164,14 +173,7 @@ namespace HRUpdate.Process
                             log.Info("Copying objects: " + employeeData.Person.EmployeeID);
                             helper.CopyValues<Employee>(employeeData, gcimsRecord, new string[] { "InitialResult", "InitialResultDate", "FinalResult", "FinalResultDate", "HomePhone", "HomeCell", "WorkPhone", "WorkFax", "WorkCell", "WorkTextTelephone", "EmergencyContactHomePhone", "EmergencyContactWorkPhone", "EmergencyContactCellPhone", "OutOfAreaContactHomePhone", "OutOfAreaContactWorkPhone", "OutOfAreaContactCellPhone" });
 
-                            //Handle excluded fields
-                            var eft = new ExcludedFieldTool();
-                            eft.Create(
-                                "Phone",
-                                new [] { "HomePhone", "HomeCell", "WorkPhone", "WorkFax", "WorkCell", "WorkTextTelephone" }, 
-                                employeeData
-                                );
-                            eft.Process(employeeData, gcimsRecord);
+                            
 
                             log.Info("Checking if inactive record: " + employeeData.Person.EmployeeID);
 

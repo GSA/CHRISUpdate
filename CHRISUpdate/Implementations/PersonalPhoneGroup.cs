@@ -30,7 +30,7 @@ namespace HRUpdate.Implementations
                 state = new ValidPhoneGroupState();
             }
 
-            state.HandleExcludedFieldGroup();
+            state.HandleExcludedFieldGroup<string>(values.ToArray(), hr, db);
         }
 
         
