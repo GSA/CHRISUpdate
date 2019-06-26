@@ -122,6 +122,15 @@
   <ItemGroup>
     <Compile Include="Data\RetrieveData.cs" />
     <Compile Include="Data\SaveData.cs" />
+    <Compile Include="Implementations\ConcreteExcludedField.cs" />
+    <Compile Include="Implementations\ConcreteExcludedFieldFactory.cs" />
+    <Compile Include="Implementations\EmergencyContactPhoneGroup.cs" />
+    <Compile Include="Implementations\InvalidPhoneGroupState.cs" />
+    <Compile Include="Implementations\PersonalPhoneGroup.cs" />
+    <Compile Include="Implementations\ValidPhoneGroupState.cs" />
+    <Compile Include="Interfaces\IExcludedField.cs" />
+    <Compile Include="Interfaces\IExcludedFieldGroup.cs" />
+    <Compile Include="Interfaces\IExcludedFieldState.cs" />
     <Compile Include="Lookups\BuildingLookup.cs" />
     <Compile Include="Lookups\CountryLookup.cs" />
     <Compile Include="Lookups\InvestigationLookup.cs" />
@@ -160,6 +169,7 @@
     <Compile Include="Utilities\CSVHelper.cs" />
     <Compile Include="Utilities\EMail.cs" />
     <Compile Include="Utilities\EmployeeComparer.cs" />
+    <Compile Include="Utilities\ExcludedFieldTool.cs" />
     <Compile Include="Utilities\ExtensionMethods.cs" />
     <Compile Include="Utilities\Helpers.cs" />
     <Compile Include="Utilities\ValidationHelper.cs" />

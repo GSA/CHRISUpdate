@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using HRUpdate.Implementations;
+using HRUpdate.Interfaces;
 
 namespace HRUpdate.Process
 {
@@ -160,7 +162,16 @@ namespace HRUpdate.Process
                             }
 
                             log.Info("Copying objects: " + employeeData.Person.EmployeeID);
-                            helper.CopyValues<Employee>(employeeData, gcimsRecord, new string[] { "InitialResult", "InitialResultDate", "FinalResult", "FinalResultDate" });
+                            helper.CopyValues<Employee>(employeeData, gcimsRecord, new string[] { "InitialResult", "InitialResultDate", "FinalResult", "FinalResultDate", "HomePhone", "HomeCell", "WorkPhone", "WorkFax", "WorkCell", "WorkTextTelephone", "EmergencyContactHomePhone", "EmergencyContactWorkPhone", "EmergencyContactCellPhone", "OutOfAreaContactHomePhone", "OutOfAreaContactWorkPhone", "OutOfAreaContactCellPhone" });
+
+                            //Handle excluded fields
+                            var eft = new ExcludedFieldTool();
+                            eft.Create(
+                                "Phone",
+                                new [] { "HomePhone", "HomeCell", "WorkPhone", "WorkFax", "WorkCell", "WorkTextTelephone" }, 
+                                employeeData
+                                );
+                            eft.Process(employeeData, gcimsRecord);
 
                             log.Info("Checking if inactive record: " + employeeData.Person.EmployeeID);
 
