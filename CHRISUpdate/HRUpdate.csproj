@@ -125,9 +125,11 @@
     <Compile Include="Implementations\ConcreteExcludedField.cs" />
     <Compile Include="Implementations\ConcreteExcludedFieldFactory.cs" />
     <Compile Include="Implementations\EmergencyContactPhoneGroup.cs" />
-    <Compile Include="Implementations\InvalidPhoneGroupState.cs" />
+    <Compile Include="Implementations\InvalidEmergencyPhoneGroupState.cs" />
+    <Compile Include="Implementations\InvalidPersonalPhoneGroupState.cs" />
     <Compile Include="Implementations\PersonalPhoneGroup.cs" />
-    <Compile Include="Implementations\ValidPhoneGroupState.cs" />
+    <Compile Include="Implementations\ValidEmergencyPhoneGroupState.cs" />
+    <Compile Include="Implementations\ValidPersonalPhoneGroupState.cs" />
     <Compile Include="Interfaces\IExcludedField.cs" />
     <Compile Include="Interfaces\IExcludedFieldGroup.cs" />
     <Compile Include="Interfaces\IExcludedFieldState.cs" />

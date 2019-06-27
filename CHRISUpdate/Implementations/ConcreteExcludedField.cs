@@ -5,15 +5,21 @@ using HRUpdate.Models;
 
 namespace HRUpdate.Implementations
 {
+    /// <summary>
+    /// Generic implementation of IExcludedField, If a more specific implementation of IExcludedField is more
+    /// appropriate then it can still be generated using the supplied factory
+    /// </summary>
     internal class ConcreteExcludedField : IExcludedField
     {
-        public ConcreteExcludedField()
-        {
-        }
-
         public string ExcludedFieldMajor{ get; set;}
 
         public string ExcludedFieldMinor{ get; set;}
+
+        /// <summary>
+        /// The IExcludedField should be able to obtain its value from the supplied Employee context
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
         public object GetValue(Employee source)
         {
             var majorFieldPropertyInfo = typeof(Employee)

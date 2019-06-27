@@ -2,6 +2,9 @@
 
 namespace HRUpdate.Interfaces
 {
+    /// <summary>
+    /// Interface used to represent the excluded columns
+    /// </summary>
     public interface IExcludedField
     {
         string ExcludedFieldMajor { get; set; }

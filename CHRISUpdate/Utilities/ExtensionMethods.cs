@@ -9,7 +9,6 @@ namespace HRUpdate.Utilities
         public static bool In(this string source, string csv)
         {
             var list = csv.Split(',');
-            //if (source == null) throw new ArgumentNullException("source");
             return list.Contains(source, StringComparer.OrdinalIgnoreCase);
         }
         public static string RemovePhoneFormatting(this string s)

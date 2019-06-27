@@ -5,15 +5,18 @@ using HRUpdate.Models;
 
 namespace HRUpdate.Implementations
 {
+    /// <summary>
+    /// Used to handle the 6 columns associated with personal and work phones
+    /// </summary>
     internal class PersonalPhoneGroup : IExcludedFieldGroup
     {
         public List<IExcludedField> ExcludedFieldGroup { get; set; }
         public Employee Context { get; set; }
+        public IExcludedFieldState State { get; set; }
 
-        private IExcludedFieldState state;
         public PersonalPhoneGroup()
         {
-            state = new InvalidPhoneGroupState();
+            State = new InvalidPersonalPhoneGroupState();
         }
 
         public void ProcessGroup(Employee hr, Employee db)
@@ -27,10 +30,10 @@ namespace HRUpdate.Implementations
 
             if (values.Any(s => !string.IsNullOrWhiteSpace(s)))
             {
-                state = new ValidPhoneGroupState();
+                State = new ValidPersonalPhoneGroupState();
             }
 
-            state.HandleExcludedFieldGroup<string>(values.ToArray(), hr, db);
+            State.HandleExcludedFieldGroup<string>(values.ToArray(), hr, db);
         }
 
         

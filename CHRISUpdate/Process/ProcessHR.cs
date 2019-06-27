@@ -1,28 +1,24 @@
 ﻿using AutoMapper;
-using FluentValidation.Results;
 using HRUpdate.Data;
 using HRUpdate.Lookups;
 using HRUpdate.Mapping;
 using HRUpdate.Models;
 using HRUpdate.Utilities;
 using HRUpdate.Validation;
-using KellermanSoftware.CompareNetObjects;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using HRUpdate.Implementations;
-using HRUpdate.Interfaces;
 
 namespace HRUpdate.Process
 {
     internal class ProcessHR
     {
         //Reference to logger
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static log4net.ILog _log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private static readonly string [] TerritoriesNotCountriesArray = new string[] { "rq", "gq", "vq", "aq" };
+        private static readonly string [] TerritoriesNotCountriesArray = { "rq", "gq", "vq", "aq" };
 
         private readonly RetrieveData retrieve;
 
@@ -43,58 +39,48 @@ namespace HRUpdate.Process
         }
 
         /// <summary>
-        /// Get HR Data
-        /// Loop HR Data
-        /// Get GCIMS Record
-        /// Update GCIMS Record
+        /// 
         /// </summary>
-        /// <param name="hrFile"></param>
+        /// <param name="HRFile"></param>
         public void ProcessHRFile(string HRFile)
         {
-            log.Info("Processing HR Users");
+            _log.Info("Processing HR Users");
 
             try
             {
                 Employee gcimsRecord;
-                string columnList = string.Empty;
-                List<Employee> usersToProcess;
-                List<Employee> allGCIMSData;
-
-                HRSummary summary = new HRSummary();
-                FileReader fileReader = new FileReader();
-
-                ValidateHR validate = new ValidateHR(lookups);
-
-                Helpers helper = new Helpers();
-
-                SaveData save = new SaveData();
-
-                log.Info("Loading HR Links File");
-                EmployeeMapping em = new EmployeeMapping(lookups);
-
+                var columnList = string.Empty;
+                var summary = new HRSummary();
+                var fileReader = new FileReader();
+                var validate = new ValidateHR(lookups);
+                var save = new SaveData();
+                var em = new EmployeeMapping(lookups);
                 List<string> badRecords;
 
-                usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile,out badRecords, em);
 
-                AddBadREcordsToSummary(badRecords, ref summary);
+                _log.Info("Loading HR Links File");
+                
+                
+                var usersToProcess = fileReader.GetFileData<Employee, EmployeeMapping>(HRFile,out badRecords, em);
+                Helpers.AddBadRecordsToSummary(badRecords, ref summary);
 
-                log.Info("Loading GCIMS Data");
-                allGCIMSData = retrieve.AllGCIMSData();
+                _log.Info("Loading GCIMS Data");
+                var allGCIMSData = retrieve.AllGCIMSData();
 
                 ProcessResult updatedResults;
 
                 //Start Processing the HR Data
-                foreach (Employee employeeData in usersToProcess)
+                foreach (var employeeData in usersToProcess)
                 {
-                    log.Info("Processing HR User: " + employeeData.Person.EmployeeID);
+                    _log.Info("Processing HR User: " + employeeData.Person.EmployeeID);
 
                     //Looking for matching record.
-                    log.Info("Looking for matching record: " + employeeData.Person.EmployeeID);
-                    gcimsRecord = RecordFound(employeeData, allGCIMSData);
+                    _log.Info("Looking for matching record: " + employeeData.Person.EmployeeID);
+                    gcimsRecord = Helpers.RecordFound(employeeData, allGCIMSData, ref _log);
 
                     if ((gcimsRecord != null && (gcimsRecord.Person.EmployeeID != employeeData.Person.EmployeeID) && (!Convert.ToBoolean(ConfigurationManager.AppSettings["DEBUG"].ToString()))))
                     {
-                        log.Info("Adding HR Links ID to record: " + gcimsRecord.Person.GCIMSID);
+                        _log.Info("Adding HR Links ID to record: " + gcimsRecord.Person.GCIMSID);
                         save.InsertEmployeeID(gcimsRecord.Person.GCIMSID, employeeData.Person.EmployeeID);
                     }
 
@@ -131,29 +117,46 @@ namespace HRUpdate.Process
                         employeeData.Birth.CountryOfBirth = "US";
                     }
                     //If there are critical errors write to the error summary and move to the next record
-                    log.Info("Checking for Critical errors for user: " + employeeData.Person.EmployeeID);
-                    if (CheckForErrors(validate, employeeData, summary.UnsuccessfulUsersProcessed))
+                    _log.Info("Checking for Critical errors for user: " + employeeData.Person.EmployeeID);
+                    if (Helpers.CheckForErrors(validate, employeeData, summary.UnsuccessfulUsersProcessed, ref _log))
                         continue;
 
-                    CleanupHRData(employeeData);
+                    Helpers.CleanupHrData(employeeData);
 
                     //If DB Record is not null them check if we need to update record
                     if (gcimsRecord != null)
                     {
-                        //Run phone number copy logic
-                        var eft = new ExcludedFieldTool();
+                        //Hold the exclude list
+                        var excludeList = new List<string>();
+                        excludeList.AddRange(new[]{"InitialResult", "InitialResultDate", "FinalResult", "FinalResultDate"});
+
+                        //Run personal phone number copy logic
+                        var personalExcludeList = new[] {"HomePhone", "HomeCell", "WorkPhone", "WorkFax", "WorkCell", "WorkTextTelephone"};
+                        excludeList.AddRange(personalExcludeList);
+                        var eft = new ExcludedFieldTool("Phone");
                         eft.Create(
                             "Phone",
-                            new[] { "HomePhone", "HomeCell", "WorkPhone", "WorkFax", "WorkCell", "WorkTextTelephone" },
+                            personalExcludeList,
                             employeeData
                         );
                         eft.Process(employeeData, gcimsRecord);
 
-                        InvestigationCopy(employeeData, gcimsRecord);
+                        //Run emergency phone number copy logic
+                        var emergencyExcludeList = new[] { "EmergencyContactName", "EmergencyContactHomePhone", "EmergencyContactWorkPhone", "EmergencyContactCellPhone", "OutOfAreaContactName", "OutOfAreaContactHomePhone", "OutOfAreaContactWorkPhone", "OutOfAreaContactCellPhone" };
+                        excludeList.AddRange(emergencyExcludeList);
+                        eft= new ExcludedFieldTool("Emergency");
+                        eft.Create(
+                            "Emergency",
+                            emergencyExcludeList,
+                            employeeData
+                            );
+                        eft.Process(employeeData, gcimsRecord);
 
-                        log.Info("Comparing HR and GCIMS Data: " + employeeData.Person.EmployeeID);
+                        Helpers.InvestigationCopy(employeeData, gcimsRecord);
 
-                        if (!AreEqualGCIMSToHR(gcimsRecord, employeeData, out columnList))
+                        _log.Info("Comparing HR and GCIMS Data: " + employeeData.Person.EmployeeID);
+
+                        if (!Helpers.AreEqualGcimsToHr(gcimsRecord, employeeData, out columnList, ref _log))
                         {
                             //Checking if the SSN are different
                             if (employeeData.Person.SocialSecurityNumber != gcimsRecord.Person.SocialSecurityNumber)
@@ -170,12 +173,10 @@ namespace HRUpdate.Process
                                 });
                             }
 
-                            log.Info("Copying objects: " + employeeData.Person.EmployeeID);
-                            helper.CopyValues<Employee>(employeeData, gcimsRecord, new string[] { "InitialResult", "InitialResultDate", "FinalResult", "FinalResultDate", "HomePhone", "HomeCell", "WorkPhone", "WorkFax", "WorkCell", "WorkTextTelephone", "EmergencyContactHomePhone", "EmergencyContactWorkPhone", "EmergencyContactCellPhone", "OutOfAreaContactHomePhone", "OutOfAreaContactWorkPhone", "OutOfAreaContactCellPhone" });
-
+                            _log.Info("Copying objects: " + employeeData.Person.EmployeeID);
+                            Helpers.CopyValues(employeeData, gcimsRecord, excludeList.ToArray());
                             
-
-                            log.Info("Checking if inactive record: " + employeeData.Person.EmployeeID);
+                            _log.Info("Checking if inactive record: " + employeeData.Person.EmployeeID);
 
                             if (employeeData.Person.Status == "Inactive")
                             {
@@ -190,10 +191,10 @@ namespace HRUpdate.Process
                                     Status = employeeData.Person.Status
                                 });
 
-                                log.Warn("Inactive Record: " + employeeData.Person.EmployeeID);
+                                _log.Warn("Inactive Record: " + employeeData.Person.EmployeeID);
                             }
 
-                            log.Info("Updating Record: " + employeeData.Person.EmployeeID);
+                            _log.Info("Updating Record: " + employeeData.Person.EmployeeID);
 
                             if (Convert.ToBoolean(ConfigurationManager.AppSettings["DEBUG"].ToString()))
                             {
@@ -223,7 +224,7 @@ namespace HRUpdate.Process
                                     UpdatedColumns = columnList
                                 });
 
-                                log.Info("Successfully Updated Record: " + employeeData.Person.EmployeeID);
+                                _log.Info("Successfully Updated Record: " + employeeData.Person.EmployeeID);
                             }
                             else
                             {
@@ -239,12 +240,12 @@ namespace HRUpdate.Process
                                     Action = updatedResults.Error
                                 });
 
-                                log.Error("Unable to update: " + employeeData.Person.EmployeeID);
+                                _log.Error("Unable to update: " + employeeData.Person.EmployeeID);
                             }
                         }
                         else
                         {
-                            log.Info("HR and GCIMS Data are the same: " + employeeData.Person.EmployeeID);
+                            _log.Info("HR and GCIMS Data are the same: " + employeeData.Person.EmployeeID);
 
                             summary.IdenticalRecords.Add(new IdenticalRecordSummary
                             {
@@ -271,175 +272,16 @@ namespace HRUpdate.Process
                 emailData.HRHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0;
 
                 //Add log entries
-                log.Info("HR Records Updated: " + String.Format("{0:#,###0}", summary.SuccessfulUsersProcessed.Count));
-                log.Info("HR Users Not Processed: " + String.Format("{0:#,###0}", summary.UnsuccessfulUsersProcessed.Count));
-                log.Info("HR Total Records: " + String.Format("{0:#,###0}", usersToProcess.Count));
+                _log.Info("HR Records Updated: " + $"{summary.SuccessfulUsersProcessed.Count:#,###0}");
+                _log.Info("HR Users Not Processed: " + $"{summary.UnsuccessfulUsersProcessed.Count:#,###0}");
+                _log.Info("HR Total Records: " + $"{usersToProcess.Count:#,###0}");
 
                 summary.GenerateSummaryFiles(emailData);
             }
             //Catch all errors
             catch (Exception ex)
             {
-                log.Error("Process HR Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);
-            }
-        }
-
-        private void InvestigationCopy(Employee hr, Employee db)
-        {
-            bool? hrValue = hr.Investigation.InitialResult;
-            DateTime? hrdate = hr.Investigation.InitialResultDate;
-            bool? dbValue = db.Investigation.InitialResult;
-            DateTime? dbdate = db.Investigation.InitialResultDate;
-
-            if (hrValue == false || (hrdate == null || hrdate == DateTime.MinValue))
-            {
-                hr.Investigation.InitialResult = dbValue;
-                hr.Investigation.InitialResultDate = dbdate;
-            }
-
-            hrValue = hr.Investigation.FinalResult;
-            hrdate = hr.Investigation.FinalResultDate;
-            dbValue = db.Investigation.FinalResult;
-            dbdate = db.Investigation.FinalResultDate;
-
-            if (hrValue == false || (hrdate == null || hrdate == DateTime.MinValue))
-            {
-                hr.Investigation.FinalResult = dbValue;
-                hr.Investigation.FinalResultDate = dbdate;
-            }
-        }
-
-        private bool CheckForErrors(ValidateHR validate, Employee employeeData, List<ProcessedSummary> unsuccessfulHRUsersProcessed)
-        {
-            ValidationResult criticalErrors;
-            ValidationHelper validationHelper = new ValidationHelper();
-
-            criticalErrors = validate.ValidateEmployeeCriticalInfo(employeeData);
-
-            if (!criticalErrors.IsValid)
-            {
-                log.Warn("Errors found for user: " + employeeData.Person.EmployeeID + "(" + criticalErrors.Errors.Count() + ")");
-
-                unsuccessfulHRUsersProcessed.Add(new ProcessedSummary
-                {
-                    GCIMSID = -1,
-                    EmployeeID = employeeData.Person.EmployeeID,
-                    FirstName = employeeData.Person.FirstName,
-                    MiddleName = employeeData.Person.MiddleName,
-                    LastName = employeeData.Person.LastName,
-                    Suffix = employeeData.Person.Suffix,
-                    Action = validationHelper.GetErrors(criticalErrors.Errors, ValidationHelper.Hrlinks.Hrfile).TrimEnd(',')
-                });
-
-                return true;
-            }
-
-            return false;
-        }
-
-        private void CleanupHRData(Employee employeeData)
-        {
-            Helpers helper = new Helpers();
-
-            //Address clean up
-            helper.cleanAddress(employeeData.Address);
-
-            //Phone clean up
-            employeeData.Phone.WorkFax = employeeData.Phone.WorkFax.RemovePhoneFormatting();
-            employeeData.Phone.WorkCell = employeeData.Phone.WorkCell.RemovePhoneFormatting();
-            employeeData.Phone.WorkPhone = employeeData.Phone.WorkPhone.RemovePhoneFormatting();
-            employeeData.Phone.WorkTextTelephone = employeeData.Phone.WorkTextTelephone.RemovePhoneFormatting();
-            employeeData.Phone.HomeCell = employeeData.Phone.HomeCell.RemovePhoneFormatting();
-            employeeData.Phone.HomePhone = employeeData.Phone.HomePhone.RemovePhoneFormatting();
-
-            //Emergency contact clean up
-            employeeData.Emergency.EmergencyContactHomePhone = employeeData.Emergency.EmergencyContactHomePhone.RemovePhoneFormatting();
-            employeeData.Emergency.EmergencyContactWorkPhone = employeeData.Emergency.EmergencyContactWorkPhone.RemovePhoneFormatting();
-            employeeData.Emergency.EmergencyContactCellPhone = employeeData.Emergency.EmergencyContactCellPhone.RemovePhoneFormatting();
-            employeeData.Emergency.OutOfAreaContactHomePhone = employeeData.Emergency.OutOfAreaContactHomePhone.RemovePhoneFormatting();
-            employeeData.Emergency.OutOfAreaContactWorkPhone = employeeData.Emergency.OutOfAreaContactWorkPhone.RemovePhoneFormatting();
-            employeeData.Emergency.OutOfAreaContactCellPhone = employeeData.Emergency.OutOfAreaContactCellPhone.RemovePhoneFormatting();
-        }
-
-        private bool AreEqualGCIMSToHR(Employee GCIMSData, Employee HRData, out string propertyNameList)
-        {
-            CompareLogic compareLogic = new CompareLogic();
-
-            compareLogic.Config.TreatStringEmptyAndNullTheSame = true;
-            compareLogic.Config.CaseSensitive = false;
-            compareLogic.Config.MaxDifferences = 100;
-            compareLogic.Config.CustomComparers.Add(new EmployeeComparer(RootComparerFactory.GetRootComparer()));
-
-            ComparisonResult result = compareLogic.Compare(GCIMSData, HRData);
-
-            string[] diffs = result.Differences.Select(a => a.PropertyName).ToArray();
-            string propertynamelist = string.Join(",", diffs);
-            propertyNameList = propertynamelist;
-            if (diffs != null && diffs.Length > 0)
-            {
-                log.Info(string.Format("Property differences include: {0}", propertynamelist));
-            }
-
-            return result.AreEqual;
-        }
-
-        private Employee RecordFound(Employee employeeData, List<Employee> allGCIMSData)
-        {
-            var hrLinksMatch = allGCIMSData.Where(w => employeeData.Person.EmployeeID == w.Person.EmployeeID).ToList();
-
-            if (hrLinksMatch.Count > 1)
-            {
-                log.Info("Multiple HR Links IDs Found: " + employeeData.Person.EmployeeID);
-
-                return null;
-            }
-            else if (hrLinksMatch.Count == 1)
-            {
-                log.Info("Matching record found by emplID: " + employeeData.Person.EmployeeID);
-
-                return hrLinksMatch.Single();
-            }
-            else if (hrLinksMatch.Count == 0)
-            {
-                log.Info("Trying to match record by Lastname, Birth Date and SSN: " + employeeData.Person.EmployeeID);
-
-                var nameMatch = allGCIMSData.Where(w =>
-                    employeeData.Person.LastName.ToLower().Trim().Equals(w.Person.LastName.ToLower().Trim()) &&
-                    employeeData.Person.SocialSecurityNumber.Equals(w.Person.SocialSecurityNumber) &&
-                    employeeData.Birth.DateOfBirth.Equals(w.Birth.DateOfBirth)).ToList();
-
-                if (nameMatch.Count == 0 || nameMatch.Count > 1)
-                {
-                    log.Info("Match not found by name for user: " + employeeData.Person.EmployeeID);
-                    return null;
-                }
-                else if (nameMatch.Count == 1)
-                {
-                    log.Info("Match found by name for user: " + employeeData.Person.EmployeeID);
-                    return nameMatch.Single();
-                }
-            }
-
-            return null;
-        }
-
-        private void AddBadREcordsToSummary(List<string> badRecords, ref HRSummary summary)
-        {
-            foreach (var item in badRecords)
-            {
-                List<string> parts = new List<string>();
-                string s;
-                s = item.removeItems(new[] { "\"" });
-                parts.AddRange(s.Split('~'));
-                var obj = new ProcessedSummary();
-                obj.GCIMSID = -1;
-                obj.Action = "Invalid Record From CSV File";
-                obj.EmployeeID = parts.Count > 0 ? parts[0] : "Unknown Employee Id";
-                obj.LastName = parts.Count > 1 ? parts[1] : "Unknown Last Name";
-                obj.Suffix = parts.Count > 2 ? parts[2] : "Unknown Suffix";
-                obj.FirstName = parts.Count > 3 ? parts[3] : "Unknown First Name";
-                obj.MiddleName = parts.Count > 4 ? parts[4] : "Unknown Middle Name";
-                summary.UnsuccessfulUsersProcessed.Add(obj);
+                _log.Error("Process HR Users Error:" + ex.Message + " " + ex.InnerException + " " + ex.StackTrace);
             }
         }
     }

@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HRUpdate.Interfaces;
+﻿using HRUpdate.Interfaces;
 using HRUpdate.Models;
 
 namespace HRUpdate.Implementations
 {
-    internal class InvalidPhoneGroupState : IExcludedFieldState
+    /// <summary>
+    /// When Personal phone group is invalid, keep all db values
+    /// </summary>
+    internal class InvalidPersonalPhoneGroupState : IExcludedFieldState
     {
-        void IExcludedFieldState.HandleExcludedFieldGroup<T>(T[] o, Employee hr, Employee db)
+        void IExcludedFieldState.HandleExcludedFieldGroup<T>(T[] excludedFieldValueList, Employee hr, Employee db)
         {
             hr.Phone.HomePhone = db.Phone.HomePhone;
             hr.Phone.HomeCell = db.Phone.HomeCell;
