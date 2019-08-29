@@ -100,7 +100,9 @@ namespace HRUpdate.Validation
             {
                 RuleFor(Employee => Employee.Person.HomeEmail)
                     .EmailAddress()
-                    .WithMessage($"{{PropertyName}} must be a valid email address");
+                    .WithMessage($"{{PropertyName}} must be a valid email address")
+                    .Matches(@"(?i)^((?!gsa(ig)?.gov).)*$")
+                    .WithMessage("Home email cannot end in gsa.gov. (Case Ignored)");
             });
 
             #endregion Person
