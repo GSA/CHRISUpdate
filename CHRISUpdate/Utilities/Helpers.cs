@@ -28,8 +28,7 @@ namespace HRUpdate.Utilities
 
             using (shaM)
             {
-                if (ssn.Length == 9)
-                    hashedFullSsn = shaM.ComputeHash(Encoding.UTF8.GetBytes(ssn));
+                    hashedFullSSN = shaM.ComputeHash(Encoding.UTF8.GetBytes(ssn));
             }
 
             return hashedFullSsn;
