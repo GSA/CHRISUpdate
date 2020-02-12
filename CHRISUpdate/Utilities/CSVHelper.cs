@@ -16,13 +16,14 @@ namespace HRUpdate.Utilities
             where TMap : ClassMap<TClass>
         {
             //fix errors in file before processing
-            using (var fs = new FileStream(filePath,FileMode.Open, FileAccess.ReadWrite))
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
                 var buffer = new byte[fs.Length];
                 fs.Read(buffer, 0, Convert.ToInt32(fs.Length));
-                var fileText = CsvFixer.FixRecord(new string(Encoding.UTF8.GetChars(buffer)));
+                var fileText = CsvFixer.FixRecord(new string(Encoding.Default.GetChars(buffer)));
                 fs.SetLength(0);
-                fs.Write(Encoding.UTF8.GetBytes(fileText), 0,fileText.Length);
+                fs.Write(Encoding.Default.GetBytes(fileText), 0, fileText.Length);
+                fs.Flush();
             }
 
             using (var sr = new StreamReader(filePath))
