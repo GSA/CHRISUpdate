@@ -5,27 +5,36 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Text;
 
 namespace HRUpdate.Utilities
 {
     internal class FileReader
     {
-        public FileReader()
-        {
-        }        
-
         public List<TClass> GetFileData<TClass, TMap>(string filePath, out List<string> badRecords, ClassMap<Employee> employeeMap=null)
             where TClass : class
             where TMap : ClassMap<TClass>
         {
-            using (StreamReader SR = new StreamReader(filePath))
+            //fix errors in file before processing
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite))
             {
-                using (CsvParser csvParser = new CsvParser(SR, true))
+                var buffer = new byte[fs.Length];
+                fs.Read(buffer, 0, Convert.ToInt32(fs.Length));
+                var fileText = CsvFixer.FixRecord(new string(Encoding.Default.GetChars(buffer)));
+                fs.SetLength(0);
+                fs.Write(Encoding.Default.GetBytes(fileText), 0, fileText.Length);
+                fs.Flush();
+            }
+
+            using (var sr = new StreamReader(filePath))
+            {
+                using (var csvParser = new CsvParser(sr, true))
                 {
-                    CsvReader csvReader = new CsvReader(csvParser);
+                    var csvReader = new CsvReader(csvParser);
                     csvReader.Configuration.Delimiter = "~";
                     csvReader.Configuration.HasHeaderRecord = false;
-                    if(employeeMap != null)
+                    csvReader.Configuration.MissingFieldFound = null;
+                    if (employeeMap != null)
                     {
                         csvReader.Configuration.RegisterClassMap(employeeMap);
                     }
@@ -63,20 +72,15 @@ namespace HRUpdate.Utilities
     internal class SummaryFileGenerator
     {
         //Reference to logger
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        //Empty Constructor
-        public SummaryFileGenerator() { }
-
-        internal string GenerateSummaryFile<TClass, TMap>(string fileName, List<TClass> summaryData)
+        internal string GenerateSummaryFile<TClass, TMap>(string fileName, IEnumerable<TClass> summaryData)
             where TClass : class
             where TMap : ClassMap<TClass>
         {
             try
             {
-                string summaryFileName;
-
-                summaryFileName = fileName + "_" + DateTime.Now.ToString("yyyyMMddHHmmss_FFFF") + ".csv";
+                var summaryFileName = fileName + "_" + DateTime.Now.ToString("yyyyMMddHHmmss_FFFF") + ".csv";
 
                 //Creates the summary file
                 using (CsvWriter csvWriter = new CsvWriter(new StreamWriter(ConfigurationManager.AppSettings["SUMMARYFILEPATH"] + summaryFileName, false)))
@@ -89,7 +93,7 @@ namespace HRUpdate.Utilities
             }
             catch (Exception ex)
             {
-                log.Error("Error Writing Summary File: " + fileName + " - " + ex.Message + " - " + ex.InnerException);
+                Log.Error("Error Writing Summary File: " + fileName + " - " + ex.Message + " - " + ex.InnerException);
                 return string.Empty;
             }
         }

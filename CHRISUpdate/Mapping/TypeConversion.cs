@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using HRUpdate.Utilities;
 
 namespace HRUpdate.Mapping
 {
@@ -13,9 +14,7 @@ namespace HRUpdate.Mapping
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {
-            Utilities.Helpers helper = new Utilities.Helpers();
-
-            return helper.HashSSN(text);
+            return Helpers.HashSsn(text);
         }
     }
 
