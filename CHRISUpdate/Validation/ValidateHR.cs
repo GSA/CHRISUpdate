@@ -102,7 +102,7 @@ namespace HRUpdate.Validation
                     .EmailAddress()
                     .WithMessage($"{{PropertyName}} must be a valid email address")
                     .Matches(@"(?i)^((?!gsa(ig)?.gov).)*$")
-                    .WithMessage("Home email cannot end in gsa.gov. (Case Ignored)");
+                    .WithMessage($"{{PropertyName}} cannot end in gsa.gov. (Case Ignored)");
             });
 
             #endregion Person
