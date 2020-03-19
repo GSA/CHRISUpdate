@@ -152,6 +152,17 @@ namespace HRUpdate.Process
                             );
                         eft.Process(employeeData, gcimsRecord);
 
+                        //Run Home Addres copy logic
+                        var homeAddressExclueList = new[] { "HomeAddress1", "HomeAddress2", "HomeAddress3",  "HomeCity", "HomeCountry", "HomeState", "HomeZipCode" };
+                        excludeList.AddRange(homeAddressExclueList);
+                        eft = new ExcludedFieldTool("HomeAddress");
+                        eft.Create(
+                            "HomeAddress",
+                            homeAddressExclueList,
+                            employeeData
+                            );
+                        eft.Process(employeeData, gcimsRecord);
+
                         Helpers.InvestigationCopy(employeeData, gcimsRecord);
 
                         _log.Info("Comparing HR and GCIMS Data: " + employeeData.Person.EmployeeID);

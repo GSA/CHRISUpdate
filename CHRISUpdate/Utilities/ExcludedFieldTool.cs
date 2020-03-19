@@ -26,6 +26,8 @@ namespace HRUpdate.Utilities
                     break;
                 case "Emergency": excludedColumnGroupType = new EmergencyContactPhoneGroup();
                     break;
+                case "HomeAddress": excludedColumnGroupType = new AddressHomeGroup();
+                    break;
             }
         }
 
