@@ -18,6 +18,8 @@ namespace HRUpdate.Process
 
         private readonly EMailData emailData;
 
+        private static string separationProcessThresHold = ConfigurationManager.AppSettings["SEPARATIONPROCESSINGTHRESHOLD"].ToString();//#148
+
         public ProcessSeparation(ref EMailData emailData)
         {
             this.emailData = emailData;
@@ -26,7 +28,7 @@ namespace HRUpdate.Process
         public void ProcessSeparationFile(string SEPFile)
         {
             log.Info("Processing Separation Users");
-            
+
             try
             {
                 SaveData save = new SaveData();
@@ -47,87 +49,95 @@ namespace HRUpdate.Process
 
                 separationUsersToProcess = fileReader.GetFileData<Separation, SeparationMapping>(SEPFile, out badRecords);
 
-                foreach (Separation separationData in separationUsersToProcess)
+                if (separationUsersToProcess.Count <= Convert.ToInt16(separationProcessThresHold))//#148
                 {
-                    //Validate Record If Valid then process record
-                    errors = validate.ValidateSeparationInformation(separationData);
+                    log.Info($"The separation records count({separationUsersToProcess.Count}) is less than the specified records count({separationProcessThresHold}). Begin processing of separation file.");
 
-                    if (errors.IsValid)
+                    foreach (Separation separationData in separationUsersToProcess)
                     {
-                        if (Convert.ToBoolean(ConfigurationManager.AppSettings["DEBUG"].ToString()))
+                        //Validate Record If Valid then process record
+                        errors = validate.ValidateSeparationInformation(separationData);
+
+                        if (errors.IsValid)
                         {
-                            separationResults = new SeparationResult
+                            if (Convert.ToBoolean(ConfigurationManager.AppSettings["DEBUG"].ToString()))
                             {
-                                GCIMSID = -1,
-                                Result = -1,
-                                Action = "Testing",
-                                SqlError = "SQL Error (Testing)"
-                            };
-                        }
-                        else
-                        {
-                            separationResults = save.SeparateUser(separationData);
-                        }
-
-                        if (separationResults.GCIMSID > 0)
-                        {
-                            log.Info("Separating User: " + separationResults.GCIMSID);
-
-                            summary.SuccessfulUsersProcessed.Add(new SeparationSummary
+                                separationResults = new SeparationResult
+                                {
+                                    GCIMSID = -1,
+                                    Result = -1,
+                                    Action = "Testing",
+                                    SqlError = "SQL Error (Testing)"
+                                };
+                            }
+                            else
                             {
-                                GCIMSID = separationResults.GCIMSID,
-                                EmployeeID = separationData.EmployeeID,
-                                FirstName = separationResults.FirstName,
-                                MiddleName = separationResults.MiddleName,
-                                LastName = separationResults.LastName,
-                                Suffix = separationResults.Suffix,
-                                SeparationCode = separationData.SeparationCode,
-                                SeparationDate = separationData.SeparationDate,
-                                Action = separationResults.Action
-                            });
+                                separationResults = save.SeparateUser(separationData);
+                            }
 
-                            log.Info("Successfully Separated Record: " + separationResults.GCIMSID);
+                            if (separationResults.GCIMSID > 0)
+                            {
+                                log.Info("Separating User: " + separationResults.GCIMSID);
+
+                                summary.SuccessfulUsersProcessed.Add(new SeparationSummary
+                                {
+                                    GCIMSID = separationResults.GCIMSID,
+                                    EmployeeID = separationData.EmployeeID,
+                                    FirstName = separationResults.FirstName,
+                                    MiddleName = separationResults.MiddleName,
+                                    LastName = separationResults.LastName,
+                                    Suffix = separationResults.Suffix,
+                                    SeparationCode = separationData.SeparationCode,
+                                    SeparationDate = separationData.SeparationDate,
+                                    Action = separationResults.Action
+                                });
+
+                                log.Info("Successfully Separated Record: " + separationResults.GCIMSID);
+                            }
+                            else
+                            {
+                                summary.UnsuccessfulUsersProcessed.Add(new SeparationSummary
+                                {
+                                    GCIMSID = separationResults.GCIMSID,
+                                    EmployeeID = separationData.EmployeeID,
+                                    SeparationCode = separationData.SeparationCode,
+                                    SeparationDate = separationData.SeparationDate,
+                                    Action = separationResults.Action + " " + separationResults.SqlError
+                                });
+
+                                log.Info("Unsuccessfully Separated Record: " + separationData.EmployeeID);
+                            }
                         }
                         else
                         {
                             summary.UnsuccessfulUsersProcessed.Add(new SeparationSummary
                             {
-                                GCIMSID = separationResults.GCIMSID,
+                                GCIMSID = -1,
                                 EmployeeID = separationData.EmployeeID,
                                 SeparationCode = separationData.SeparationCode,
                                 SeparationDate = separationData.SeparationDate,
-                                Action = separationResults.Action + " " + separationResults.SqlError
+                                Action = validationHelper.GetErrors(errors.Errors, ValidationHelper.Hrlinks.Separation).TrimEnd(',')
                             });
 
                             log.Info("Unsuccessfully Separated Record: " + separationData.EmployeeID);
                         }
                     }
-                    else
-                    {
-                        summary.UnsuccessfulUsersProcessed.Add(new SeparationSummary
-                        {
-                            GCIMSID = -1,
-                            EmployeeID = separationData.EmployeeID,
-                            SeparationCode = separationData.SeparationCode,
-                            SeparationDate = separationData.SeparationDate,
-                            Action = validationHelper.GetErrors(errors.Errors, ValidationHelper.Hrlinks.Separation).TrimEnd(',')
-                        });
 
-                        log.Info("Unsuccessfully Separated Record: " + separationData.EmployeeID);
-                    }
+                    emailData.SEPFileName = Path.GetFileName(SEPFile);
+                    emailData.SEPAttempted = separationUsersToProcess.Count;
+                    emailData.SEPSucceeded = summary.SuccessfulUsersProcessed.Count;
+                    emailData.SEPFailed = summary.UnsuccessfulUsersProcessed.Count;
+                    emailData.SEPHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0;
+
+                    log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", summary.SuccessfulUsersProcessed.Count));
+                    log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", summary.UnsuccessfulUsersProcessed.Count));
+                    log.Info("Separation Total Records: " + String.Format("{0:#,###0}", separationUsersToProcess.Count));
+
+                    summary.GenerateSummaryFiles(emailData);
                 }
 
-                emailData.SEPFileName = Path.GetFileName(SEPFile);
-                emailData.SEPAttempted = separationUsersToProcess.Count;
-                emailData.SEPSucceeded = summary.SuccessfulUsersProcessed.Count;
-                emailData.SEPFailed = summary.UnsuccessfulUsersProcessed.Count;
-                emailData.SEPHasErrors = summary.UnsuccessfulUsersProcessed.Count > 0;
-
-                log.Info("Separation Records Processed: " + String.Format("{0:#,###0}", summary.SuccessfulUsersProcessed.Count));
-                log.Info("Separation Users Not Processed: " + String.Format("{0:#,###0}", summary.UnsuccessfulUsersProcessed.Count));
-                log.Info("Separation Total Records: " + String.Format("{0:#,###0}", separationUsersToProcess.Count));
-
-                summary.GenerateSummaryFiles(emailData);
+                else//#148
+                    log.Error($"Separation count({separationUsersToProcess.Count}) is higher than the specified count({separationProcessThresHold}). Stopped processing of separation file.");
             }
             catch (Exception ex)
             {
