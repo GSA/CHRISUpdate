@@ -8,7 +8,12 @@ using System;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
-
+/* 
+ * Change Log
+ * Change Identity: #148
+ * Change/Issue Ref: https://github.com/GSA/CHRISUpdate/issues/148
+ * Change Author: Raj Ramachandran
+ */
 namespace HRUpdate
 {
     internal static class Program

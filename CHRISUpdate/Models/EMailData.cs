@@ -27,10 +27,13 @@ namespace HRUpdate.Models
         public Int64 SEPAttempted { get; set; }
         public Int64 SEPSucceeded { get; set; }
         public Int64 SEPFailed { get; set; }
+        public Int64 SEPTHCount { get; set; }//#148
+        public Int64 SEPRecCount { get; set; }//#148
 
         public string SeparationSuccessfulFilename { get; set; }
         public string SeparationErrorFilename { get; set; }
 
         public bool SEPHasErrors { get; set; }
+        public bool SEPHasTHErrors { get; set; }//#148
     }
 }

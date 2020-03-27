@@ -89,7 +89,7 @@ namespace HRUpdate.Process
             {
                 template = template.Replace("[IFHRERRORS]", null);
             }
-
+            template = template.Replace("[THCOUNT]", emailData.SEPTHCount.ToString());//#148
             template = template.Replace("[SEPATTEMPTED]", emailData.SEPAttempted.ToString());
             template = template.Replace("[SEPSUCCEEDED]", emailData.SEPSucceeded.ToString());
             template = template.Replace("[SEPFAILED]", emailData.SEPFailed.ToString());
@@ -102,8 +102,16 @@ namespace HRUpdate.Process
                 errors.Append("<br />Please see the attached file: <b><font color='red'>");
                 errors.Append(emailData.SeparationErrorFilename);
                 errors.Append("</font></b>");
-
+                template = template.Replace("[IFSEPTHERROR]", null);//#148
                 template = template.Replace("[IFSEPERRORS]", errors.ToString());
+            }
+            
+            else if(emailData.SEPHasTHErrors)//#148
+            {
+                errors.Clear();
+                errors.Append($"<br/><b><font color='red'>Number of separation records ({emailData.SEPRecCount}) exceeds the separation threshold ({emailData.SEPTHCount}). Separation file not processed.</font></b><br />");
+                template = template.Replace("[IFSEPTHERROR]", errors.ToString());//#148
+                template = template.Replace("[IFSEPERRORS]", null);
             }
             else
             {

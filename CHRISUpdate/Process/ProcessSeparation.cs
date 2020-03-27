@@ -16,9 +16,7 @@ namespace HRUpdate.Process
         //Reference to logger
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private readonly EMailData emailData;
-
-        private static string separationProcessThresHold = ConfigurationManager.AppSettings["SEPARATIONPROCESSINGTHRESHOLD"].ToString();//#148
+        private readonly EMailData emailData;        
 
         public ProcessSeparation(ref EMailData emailData)
         {
@@ -27,6 +25,7 @@ namespace HRUpdate.Process
 
         public void ProcessSeparationFile(string SEPFile)
         {
+            emailData.SEPTHCount = Convert.ToInt64(ConfigurationManager.AppSettings["SEPARATIONPROCESSINGTHRESHOLD"]);//#148
             log.Info("Processing Separation Users");
 
             try
@@ -48,10 +47,11 @@ namespace HRUpdate.Process
                 List<string> badRecords;
 
                 separationUsersToProcess = fileReader.GetFileData<Separation, SeparationMapping>(SEPFile, out badRecords);
-
-                if (separationUsersToProcess.Count <= Convert.ToInt16(separationProcessThresHold))//#148
+                emailData.SEPFileName = Path.GetFileName(SEPFile);//#148
+                emailData.SEPRecCount = separationUsersToProcess.Count;
+                if (separationUsersToProcess.Count <= emailData.SEPTHCount)//#148
                 {
-                    log.Info($"The separation records count({separationUsersToProcess.Count}) is less than the specified records count({separationProcessThresHold}). Begin processing of separation file.");
+                    log.Info($"The separation records count({separationUsersToProcess.Count}) is less than the specified records count({emailData.SEPTHCount}). Begin processing of separation file.");
 
                     foreach (Separation separationData in separationUsersToProcess)
                     {
@@ -123,7 +123,7 @@ namespace HRUpdate.Process
                         }
                     }
 
-                    emailData.SEPFileName = Path.GetFileName(SEPFile);
+                    //#148 emailData.SEPFileName = Path.GetFileName(SEPFile); 
                     emailData.SEPAttempted = separationUsersToProcess.Count;
                     emailData.SEPSucceeded = summary.SuccessfulUsersProcessed.Count;
                     emailData.SEPFailed = summary.UnsuccessfulUsersProcessed.Count;
@@ -137,7 +137,10 @@ namespace HRUpdate.Process
                 }
 
                 else//#148
-                    log.Error($"Separation count({separationUsersToProcess.Count}) is higher than the specified count({separationProcessThresHold}). Stopped processing of separation file.");
+                {
+                    emailData.SEPHasTHErrors = true;
+                    log.Error($"Separation count({separationUsersToProcess.Count}) is higher than the specified count({emailData.SEPTHCount}). Stopped processing of separation file.");
+                }
             }
             catch (Exception ex)
             {
